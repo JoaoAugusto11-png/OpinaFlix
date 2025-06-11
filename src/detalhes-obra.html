@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sopranos - OpinaFlix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        nav {
+            background-color: #141414;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e50914;
+            margin-right: auto;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+            margin: 0 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            margin: 0 auto;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover {
+            color: #e50914;
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .search-bar input {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+        
+        .search-bar button {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
+        .detail-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .detail-poster {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .detail-poster img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .detail-info {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .detail-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #141414;
+        }
+        
+        .detail-synopsis {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        
+        .detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .detail-meta div {
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-rating {
+            font-size: 1.8rem;
+            color: #e50914;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-rating i {
+            font-size: 1.5rem;
+        }
+        
+        .user-actions {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .action-button {
+            background-color: #333;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-button:hover {
+            background-color: #e50914;
+        }
+        
+        .action-button.primary {
+            background-color: #e50914;
+        }
+        
+        .action-button.primary:hover {
+            background-color: #b2070f;
+        }
+        
+        .user-rating-select {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 0.3rem;
+        }
+        
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .star.selected {
+            color: #e50914;
+        }
+        
+        .star:hover {
+            color: #e50914;
+        }
+        
+        .selected-rating {
+            font-weight: bold;
+            margin-left: 0.5rem;
+            color: #e50914;
+        }
+        
+        footer {
+            background-color: #141414;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .social-icons a {
+            color: white;
+            margin: 0 0.5rem;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: #e50914;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">OpinaFlix</div>
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="index.html">Filmes e Séries</a>
+                <a href="colecoes.html">Coleções</a>
+                <a href="#">Conteúdo Novo</a>
+                <a href="#">Review da Galera</a>
+            </div>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Pesquisar filmes, séries...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="detail-container">
+            <div class="detail-poster">
+                <img src="https://m.media-amazon.com/images/M/MV5BZGJjYzhjYTYtMDBjYy00OWU1LTg5OTYtNmYwOTZmZjE3ZDdhXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_FMjpg_UX1000_.jpg" alt="The Sopranos" onerror="this.onerror=null;this.src='https://via.placeholder.com/500x750?text=The+Sopranos'">
+            </div>
+            <div class="detail-info">
+                <h1 class="detail-title">FAMÍLIA SOPRANO</h1>
+                
+                <div class="detail-rating">
+                    <i class="fas fa-star"></i> 9.8/10
+                </div>
+                
+                <p class="detail-synopsis">
+                    O chefe da máfia de Nova Jersey, Tony Soprano, lida com questões pessoais e profissionais que afetam seu estado mental, 
+                    levando-o a procurar aconselhamento psiquiátrico com a Dra. Jennifer Melfi.
+                </p>
+                
+                <div class="detail-meta">
+                    <div><strong>Gênero:</strong> Drama, Crime</div>
+                    <div><strong>Elenco:</strong> James Gandolfini, Lorraine Bracco, Edie Falco</div>
+                    <div><strong>Criador:</strong> David Chase</div>
+                    <div><strong>Temporadas:</strong> 6</div>
+                    <div><strong>Ano:</strong> 1999-2007</div>
+                    <div><strong>Episódios:</strong> 86</div>
+                </div>
+                
+                <div class="user-actions">
+                    <h3>MINHA INTERAÇÃO</h3>
+                    <div class="action-buttons">
+                        <button class="action-button"><i class="fas fa-check"></i> ASSISTI</button>
+                        <button class="action-button"><i class="fas fa-heart"></i> GOSTEI</button>
+                    </div>
+                    
+                    <div class="user-rating-select">
+                        <label>MINHA NOTA:</label>
+                        <div class="rating-stars">
+                            <div class="star" data-rating="1"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="2"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="3"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="4"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="5"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="6"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="7"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="8"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="9"><i class="far fa-star"></i></div>
+                            <div class="star" data-rating="10"><i class="far fa-star"></i></div>
+                        </div>
+                        <span class="selected-rating">0/10</span>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-button primary"><i class="fas fa-edit"></i> FAZER REVIEW</button>
+                        <button class="action-button primary"><i class="fas fa-list"></i> FAZER COLEÇÃO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p class="copyright">&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const stars = document.querySelectorAll('.star');
+        const selectedRating = document.querySelector('.selected-rating');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.getAttribute('data-rating');
+                
+                stars.forEach((s, index) => {
+                    if(index < rating) {
+                        s.classList.add('selected');
+                        s.innerHTML = '<i class="fas fa-star"></i>';
+                    } else {
+                        s.classList.remove('selected');
+                        s.innerHTML = '<i class="far fa-star"></i>';
+                    }
+                });
+                
+                selectedRating.textContent = `${rating}/10`;
+            });
+            
+            star.addEventListener('mouseover', () => {
+                const rating = star.getAttribute('data-rating');
+                
+                stars.forEach((s, index) => {
+                    if(index < rating) {
+                        s.innerHTML = '<i class="fas fa-star"></i>';
+                    } else {
+                        s.innerHTML = '<i class="far fa-star"></i>';
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseout', () => {
+                const selectedStar = document.querySelector('.star.selected');
+                const currentRating = selectedStar ? selectedStar.getAttribute('data-rating') : 0;
+                
+                stars.forEach((s, index) => {
+                    if(index < currentRating) {
+                        s.innerHTML = '<i class="fas fa-star"></i>';
+                    } else {
+                        s.innerHTML = '<i class="far fa-star"></i>';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
