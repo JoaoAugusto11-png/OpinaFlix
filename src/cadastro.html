@@ -63,38 +63,38 @@
 <body>
     <div class="container">
         <h2>Cadastro de Usuário</h2>
-        <form id="cadastroForm">
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" required>
-            <label for="email">E-mail</label>
-            <input type="email" id="email" required>
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" required>
+        <form id="form-cadastro">
+            <input type="text" id="nome" placeholder="Nome" required />
+            <input type="email" id="email" placeholder="E-mail" required />
+            <input type="password" id="senha" placeholder="Senha" required />
             <button type="submit">Cadastrar</button>
         </form>
-        <div id="mensagem" class="success-message"></div>
+        <div id="mensagem"></div>
     </div>
     <script>
-        // Armazena usuários no localStorage e mantém logado
-        document.getElementById('cadastroForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        document.getElementById('form-cadastro').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
             const senha = document.getElementById('senha').value;
 
-            // Recupera usuários já cadastrados
-            let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-            // Adiciona novo usuário
-            const novoUsuario = { nome, email, senha };
-            usuarios.push(novoUsuario);
-            // Salva no localStorage
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            const resposta = await fetch('http://localhost:3001/api/usuarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, senha })
+            });
 
-            // Mantém usuário logado
-            localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+            const resultado = await resposta.json();
+            const mensagemDiv = document.getElementById('mensagem');
 
-            // Redireciona para a página inicial
-            window.location.href = "index.html";
+            if (resposta.ok) {
+                mensagemDiv.textContent = resultado.message;
+                mensagemDiv.style.color = 'green';
+            } else {
+                mensagemDiv.textContent = resultado.message;
+                mensagemDiv.style.color = 'red';
+            }
         });
     </script>
 </body>

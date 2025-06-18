@@ -37,20 +37,18 @@
             margin-right: auto;
         }
         
-        .nav-container {
+        nav ul {
             display: flex;
-            justify-content: center;
-            flex-grow: 1;
+            list-style: none;
+            gap: 2rem;
             margin: 0 2rem;
         }
         
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            margin: 0 auto;
+        nav ul li {
+            display: inline;
         }
         
-        .nav-links a {
+        nav ul li a {
             color: white;
             text-decoration: none;
             font-weight: 500;
@@ -58,17 +56,17 @@
             white-space: nowrap;
         }
         
-        .nav-links a:hover {
+        nav ul li a:hover {
             color: #e50914;
         }
         
-        .search-bar {
+        nav form {
             display: flex;
             align-items: center;
             margin-left: auto;
         }
         
-        .search-bar input {
+        nav form input {
             padding: 0.5rem 1rem;
             border: none;
             border-radius: 4px 0 0 4px;
@@ -76,7 +74,7 @@
             width: 250px;
         }
         
-        .search-bar button {
+        nav form button {
             background-color: #e50914;
             color: white;
             border: none;
@@ -334,20 +332,21 @@
     </style>
 </head>
 <body>
-    <nav>
+    <nav class="navbar">
         <div class="logo">OpinaFlix</div>
-        <div class="nav-container">
-            <div class="nav-links">
-                <a href="index.html">Filmes e Séries</a>
-                <a href="colecoes.html">Coleções</a>
-                <a href="#">Conteúdo Novo</a>
-                <a href="#">Review da Galera</a>
-            </div>
-        </div>
-        <div class="search-bar">
+        <ul>
+            <li><a href="#">Filmes e Séries</a></li>
+            <li><a href="#">Coleções</a></li>
+            <li><a href="#">Conteúdo Novo</a></li>
+            <li><a href="#">Review da Galera</a></li>
+        </ul>
+        <form id="search-form" style="display:inline;">
             <input type="text" id="search-input" placeholder="Pesquisar filmes, séries...">
-            <button id="search-button"><i class="fas fa-search"></i></button>
-        </div>
+            <button type="submit" id="search-button">🔍</button>
+        </form>
+        <button id="btn-login" style="margin-left:16px; padding:8px 16px; background:#e50914; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+    Entrar na sua conta
+  </button>
     </nav>
     
     <section class="hero">
@@ -435,6 +434,18 @@
         </div>
     </section>
     
+    <button id="btn-login">Entrar na sua conta</button>
+
+<div id="login-modal" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+  <form id="form-login">
+    <input type="email" id="login-email" placeholder="E-mail" required />
+    <input type="password" id="login-senha" placeholder="Senha" required />
+    <button type="submit">Entrar</button>
+    <button type="button" id="fechar-modal">Fechar</button>
+  </form>
+  <div id="login-mensagem"></div>
+</div>
+
     <footer>
         <div class="footer-links">
             <a href="#">Sobre</a>
@@ -550,6 +561,84 @@
             }
         });
     });
+</script>
+
+<script>
+document.getElementById('btn-login').onclick = function() {
+  document.getElementById('login-modal').style.display = 'block';
+};
+document.getElementById('fechar-modal').onclick = function() {
+  document.getElementById('login-modal').style.display = 'none';
+};
+
+document.getElementById('form-login').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const senha = document.getElementById('login-senha').value;
+
+  const resposta = await fetch('http://localhost:3001/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, senha })
+  });
+
+  const resultado = await resposta.json();
+  const mensagemDiv = document.getElementById('login-mensagem');
+
+  if (resposta.ok) {
+    mensagemDiv.textContent = resultado.message;
+    mensagemDiv.style.color = 'green';
+    setTimeout(() => {
+      document.getElementById('login-modal').style.display = 'none';
+      mensagemDiv.textContent = '';
+    }, 1500);
+  } else {
+    mensagemDiv.textContent = resultado.message;
+    mensagemDiv.style.color = 'red';
+  }
+});
+</script>
+
+<script>
+const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
+
+document.getElementById('search-form').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const query = document.getElementById('search-input').value.trim();
+  if (!query) return;
+
+  const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(query)}`;
+
+  try {
+    const resposta = await fetch(url);
+    const dados = await resposta.json();
+
+    let html = '';
+    if (dados.results && dados.results.length > 0) {
+      html = '<div style="display:flex; flex-wrap:wrap; gap:16px;">';
+      dados.results.forEach(item => {
+        const titulo = item.title || item.name;
+        const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+        const poster = item.poster_path 
+          ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
+          : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+        html += `
+          <div style="width:200px; text-align:center;">
+            <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
+            <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
+            <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+    } else {
+      html = 'Nenhum resultado encontrado.';
+    }
+    document.getElementById('search-results').innerHTML = html;
+  } catch (e) {
+    document.getElementById('search-results').innerHTML = 'Erro ao buscar resultados.';
+  }
+});
 </script>
 </body>
 </html>

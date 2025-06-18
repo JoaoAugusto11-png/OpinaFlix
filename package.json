@@ -1,0 +1,24 @@
+{
+  "name": "opinaflix",
+  "version": "1.0.0",
+  "description": "OpinaFlix is a web application designed to provide users with detailed information about movies and series, allowing them to interact by rating and reviewing content.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaoAugusto11-png/OpinaFlix.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoaoAugusto11-png/OpinaFlix/issues"
+  },
+  "homepage": "https://github.com/JoaoAugusto11-png/OpinaFlix#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
