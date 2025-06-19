@@ -327,6 +327,13 @@
                     </div>
                 </a>
             </div>
+            
+            <form id="form-colecao">
+              <input type="text" id="nome-colecao" placeholder="Nome da coleção" required>
+              <button type="submit">Criar Coleção</button>
+            </form>
+            <div id="mensagem-colecao"></div>
+            <div id="lista-colecoes"></div>
         </div>
     </div>
 
@@ -338,5 +345,50 @@
         </div>
         <p class="copyright">&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
     </footer>
+
+    <script>
+const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+if (!usuario) {
+  alert('Você precisa estar logado para acessar as coleções.');
+  window.location.href = 'index.html';
+}
+
+document.getElementById('form-colecao').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const nome = document.getElementById('nome-colecao').value;
+
+  const resposta = await fetch('http://localhost:3001/api/colecoes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuarioId: usuario.id, nome })
+  });
+
+  const resultado = await resposta.json();
+  const mensagemDiv = document.getElementById('mensagem-colecao');
+
+  if (resposta.ok) {
+    mensagemDiv.textContent = resultado.message;
+    mensagemDiv.style.color = 'green';
+    listarColecoes();
+  } else {
+    mensagemDiv.textContent = resultado.message;
+    mensagemDiv.style.color = 'red';
+  }
+});
+
+async function listarColecoes() {
+  const resposta = await fetch(`http://localhost:3001/api/colecoes/${usuario.id}`);
+  const colecoes = await resposta.json();
+  let html = '<ul>';
+  colecoes.forEach(c => {
+    html += `<li>${c.nome}</li>`;
+  });
+  html += '</ul>';
+  document.getElementById('lista-colecoes').innerHTML = html;
+}
+
+listarColecoes();
+</script>
 </body>
 </html>

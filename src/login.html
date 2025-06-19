@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar ou Cadastrar - OpinaFlix</title>
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #181818;
+            padding: 32px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px #0006;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #e50914;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        input {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            background: #e50914;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .toggle {
+            background: none;
+            color: #e50914;
+            border: none;
+            cursor: pointer;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .mensagem {
+            text-align: center;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="titulo-form">Entrar na sua conta</h2>
+        <form id="form-login">
+            <input type="email" id="login-email" placeholder="E-mail" required>
+            <input type="password" id="login-senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <form id="form-cadastro" style="display:none;">
+            <input type="text" id="cadastro-nome" placeholder="Nome" required>
+            <input type="email" id="cadastro-email" placeholder="E-mail" required>
+            <input type="password" id="cadastro-senha" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <button class="toggle" id="toggle-form">Não tem conta? Cadastre-se</button>
+        <div class="mensagem" id="mensagem"></div>
+    </div>
+    <script>
+        // Alternar entre login e cadastro
+        const toggle = document.getElementById('toggle-form');
+        const formLogin = document.getElementById('form-login');
+        const formCadastro = document.getElementById('form-cadastro');
+        const tituloForm = document.getElementById('titulo-form');
+        const mensagem = document.getElementById('mensagem');
+
+        toggle.onclick = () => {
+            if (formLogin.style.display !== 'none') {
+                formLogin.style.display = 'none';
+                formCadastro.style.display = 'flex';
+                tituloForm.textContent = 'Cadastre-se no OpinaFlix';
+                toggle.textContent = 'Já tem conta? Entrar';
+                mensagem.textContent = '';
+            } else {
+                formLogin.style.display = 'flex';
+                formCadastro.style.display = 'none';
+                tituloForm.textContent = 'Entrar na sua conta';
+                toggle.textContent = 'Não tem conta? Cadastre-se';
+                mensagem.textContent = '';
+            }
+        };
+
+        // Login
+        formLogin.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+
+            const resposta = await fetch('http://localhost:3001/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+
+            const resultado = await resposta.json();
+
+            if (resposta.ok) {
+                mensagem.textContent = resultado.message;
+                mensagem.style.color = 'lightgreen';
+                localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1200);
+            } else {
+                mensagem.textContent = resultado.message;
+                mensagem.style.color = '#e50914';
+            }
+        });
+
+        // Cadastro
+        formCadastro.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const nome = document.getElementById('cadastro-nome').value;
+            const email = document.getElementById('cadastro-email').value;
+            const senha = document.getElementById('cadastro-senha').value;
+
+            const resposta = await fetch('http://localhost:3001/api/usuarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, senha })
+            });
+
+            const resultado = await resposta.json();
+
+            if (resposta.ok) {
+                mensagem.textContent = 'Cadastro realizado! Agora faça login.';
+                mensagem.style.color = 'lightgreen';
+                setTimeout(() => {
+                    toggle.click();
+                }, 1200);
+            } else {
+                mensagem.textContent = resultado.message;
+                mensagem.style.color = '#e50914';
+            }
+        });
+    </script>
+</body>
+</html>
