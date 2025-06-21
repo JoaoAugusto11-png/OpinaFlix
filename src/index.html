@@ -4,643 +4,273 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpinaFlix - Críticas de Filmes e Séries</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #fff;
+        }
+        nav {
+            background: #181818;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            justify-content: space-between;
+        }
+        .logo {
+            color: #e50914;
+            font-size: 2em;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        ul {
+            list-style: none;
+            display: flex;
+            gap: 32px;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        nav {
-            background-color: #141414;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e50914;
-            margin-right: auto;
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            margin: 0 2rem;
-        }
-        
-        nav ul li {
-            display: inline;
-        }
-        
-        nav ul li a {
-            color: white;
+        ul li a {
+            color: #fff;
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s;
-            white-space: nowrap;
+            transition: color 0.2s;
         }
-        
-        nav ul li a:hover {
+        ul li a:hover {
             color: #e50914;
         }
-        
-        nav form {
+        .search-bar {
             display: flex;
             align-items: center;
-            margin-left: auto;
+            gap: 0;
         }
-        
-        nav form input {
-            padding: 0.5rem 1rem;
+        #search-input {
+            padding: 6px 10px;
             border: none;
             border-radius: 4px 0 0 4px;
+            font-size: 1em;
             outline: none;
-            width: 250px;
         }
-        
-        nav form button {
-            background-color: #e50914;
-            color: white;
+        #search-button {
+            background: #e50914;
+            color: #fff;
             border: none;
-            padding: 0.5rem 1rem;
             border-radius: 0 4px 4px 0;
+            padding: 7px 14px;
             cursor: pointer;
+            font-size: 1em;
         }
-        
-        .hero {
-            background: #000000;
-            height: 60vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-            padding: 0 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, 
-                        rgba(229, 9, 20, 0.15) 0%, 
-                        rgba(0, 0, 0, 1) 100%);
-            z-index: 1;
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-        }
-        
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-        }
-        
-        .cta-button {
-            background-color: #e50914;
-            color: white;
-            padding: 0.8rem 2rem;
+        #btn-login {
+            margin-left: 16px;
+            background: #e50914;
+            color: #fff;
             border: none;
             border-radius: 4px;
-            font-size: 1.1rem;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .main-content {
+            text-align: center;
+            margin-top: 60px;
+        }
+        .main-content h1 {
+            font-size: 2.5em;
+            margin-bottom: 16px;
+        }
+        .main-content p {
+            color: #ccc;
+            font-size: 1.2em;
+        }
+        .cta-btn {
+            background: #e50914;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 14px 32px;
+            font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-top: 24px;
         }
-        
-        .cta-button:hover {
-            background-color: #b2070f;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-        }
-        
         .features {
-            padding: 4rem 2rem;
-            background-color: white;
-        }
-        
-        .features h2 {
-            text-align: center;
-            margin-bottom: 3rem;
-            font-size: 2rem;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .feature-card {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            color: #e50914;
-            margin-bottom: 1rem;
-        }
-        
-        .feature-card h3 {
-            margin-bottom: 1rem;
-        }
-        
-        .popular {
-            padding: 4rem 2rem;
-            background-color: #f5f5f5;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .section-header h2 {
-            font-size: 2rem;
-        }
-        
-        .see-all {
-            color: #e50914;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
-        }
-        
-        .see-all:hover {
-            color: #b2070f;
-        }
-        
-        .popular-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .movie-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .movie-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .movie-poster {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            background-color: #eee;
-        }
-        
-        .movie-info {
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            flex-grow: 1;
-        }
-        
-        .movie-title {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .movie-rating {
-            color: #e50914;
-            font-weight: bold;
-            margin-top: auto;
-        }
-        
-        /* Estilos para os resultados da busca */
-        .search-results {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .search-results h2 {
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        footer {
-            background-color: #141414;
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .footer-links {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
+            gap: 32px;
+            margin: 48px 0 0 0;
         }
-        
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-            transition: color 0.3s;
+        .feature-card {
+            background: #fff;
+            color: #111;
+            border-radius: 8px;
+            padding: 32px 24px;
+            width: 220px;
+            box-shadow: 0 2px 16px #0002;
+            text-align: center;
         }
-        
-        .footer-links a:hover {
+        .feature-card i {
             color: #e50914;
+            font-size: 2em;
+            margin-bottom: 12px;
         }
-        
-        .social-icons {
-            margin-bottom: 1.5rem;
-        }
-        
-        .social-icons a {
-            color: white;
-            margin: 0 0.5rem;
-            font-size: 1.5rem;
-            transition: color 0.3s;
-        }
-        
-        .social-icons a:hover {
-            color: #e50914;
-        }
-        
-        .copyright {
-            font-size: 0.9rem;
-            color: #777;
+        @media (max-width: 900px) {
+            .features {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">OpinaFlix</div>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
         <ul>
             <li><a href="index.html">Filmes e Séries</a></li>
             <li><a href="colecoes.html">Coleções</a></li>
             <li><a href="conteudo-novo.html">Conteúdo Novo</a></li>
             <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
-        <form id="search-form" style="display:inline;">
-            <input type="text" id="search-input" placeholder="Pesquisar filmes, séries...">
-            <button type="submit" id="search-button">🔍</button>
-        </form>
-        <button id="btn-login" onclick="window.location.href='login.html'" style="margin-left: 16px; background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">
-  Entrar na sua conta
-</button>
+        <div class="search-bar">
+            <form id="search-form" style="display:inline;">
+                <input type="text" id="search-input" placeholder="Pesquisar filmes, séries...">
+                <button type="submit" id="search-button"><i class="fas fa-search"></i></button>
+            </form>
+            <button id="btn-login" onclick="window.location.href='login.html'">Entrar na sua conta</button>
+        </div>
     </nav>
-    
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Bem-vindo ao OpinaFlix</h1>
-            <p>Registre, avalie e compartilhe suas opiniões sobre seus filmes e séries favoritos. Descubra novas obras e veja o que a galera está assistindo!</p>
-            <button class="cta-button" onclick="window.location.href='cadastro.html'">Cadastre-se Grátis</button>
-        </div>
-    </section>
-    
-    <!-- Seção para exibir os resultados da busca -->
-    <section class="search-results" id="search-results" style="display: none;">
-        <h2>Resultados da Busca</h2>
-        <div class="results-grid" id="results-grid"></div>
-    </section>
-    
-    <section class="features">
-        <h2>Com o OpinaFlix você pode:</h2>
-        <div class="features-grid">
+
+    <div class="main-content">
+        <h1>Bem-vindo ao OpinaFlix</h1>
+        <p>
+            Registre, avalie e compartilhe suas opiniões sobre seus filmes e séries favoritos. Descubra novas obras e veja o que a galera está assistindo!
+        </p>
+        <button class="cta-btn" onclick="window.location.href='login.html'">Cadastre-se Grátis</button>
+    </div>
+
+    <div style="background:#fff; color:#111; margin-top:48px; padding:32px 0;">
+        <h2 style="text-align:center; margin-bottom:32px;">Com o OpinaFlix você pode:</h2>
+        <div class="features">
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-film"></i>
-                </div>
+                <i class="fas fa-film"></i>
                 <h3>Registrar e Avaliar</h3>
-                <p>Mantenha um registro dos filmes e séries que você já assistiu e avalie cada um deles.</p>
+                <p>Registre suas opiniões sobre filmes e séries.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
+                <i class="fas fa-comments"></i>
                 <h3>Interagir com amigos</h3>
-                <p>Compartilhe suas opiniões e veja o que seus amigos estão assistindo e recomendando.</p>
+                <p>Veja o que seus amigos estão assistindo e comentando.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-list"></i>
-                </div>
+                <i class="fas fa-list"></i>
                 <h3>Fazer Coleções</h3>
-                <p>Crie listas personalizadas de filmes e séries sobre diferentes temas e compartilhe com a comunidade.</p>
+                <p>Monte listas personalizadas de obras favoritas.</p>
             </div>
         </div>
-    </section>
-    
-    <section class="popular">
-        <div class="section-header">
-            <h2>Popular esta semana</h2>
-            <a href="#" class="see-all">Ver todos</a>
-        </div>
-        <div class="popular-grid">
-            <div class="movie-card">
-                <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/sLJWVqPsmzw6PQfq3SOYA4oQCVb.jpg" alt="The Sopranos" class="movie-poster" onerror="this.onerror=null;this.src='https://i.imgur.com/4EYj5aK.jpg'">
-                <div class="movie-info">
-                    <div class="movie-title">The Sopranos</div>
-                    <div class="movie-rating">9.8/10</div>
-                </div>
-            </div>
-            <div class="movie-card">
-                <img src="https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg" alt="Breaking Bad" class="movie-poster" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=Breaking+Bad'">
-                <div class="movie-info">
-                    <div class="movie-title">Breaking Bad</div>
-                    <div class="movie-rating">9.5/10</div>
-                </div>
-            </div>
-            <div class="movie-card">
-                <img src="https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg" alt="Stranger Things" class="movie-poster" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=Stranger+Things'">
-                <div class="movie-info">
-                    <div class="movie-title">Stranger Things</div>
-                    <div class="movie-rating">8.7/10</div>
-                </div>
-            </div>
-            <div class="movie-card">
-                <img src="https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLQTVa04URsPm.jpg" alt="The Witcher" class="movie-poster" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=The+Witcher'">
-                <div class="movie-info">
-                    <div class="movie-title">The Witcher</div>
-                    <div class="movie-rating">8.2/10</div>
-                </div>
-            </div>
-            <div class="movie-card">
-                <img src="https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" alt="Duna" class="movie-poster" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=Duna'">
-                <div class="movie-info">
-                    <div class="movie-title">Duna</div>
-                    <div class="movie-rating">8.9/10</div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <button id="btn-login">Entrar na sua conta</button>
+    </div>
 
-<div id="login-modal" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
-  <form id="form-login">
-    <input type="email" id="login-email" placeholder="E-mail" required />
-    <input type="password" id="login-senha" placeholder="Senha" required />
-    <button type="submit">Entrar</button>
-    <button type="button" id="fechar-modal">Fechar</button>
-  </form>
-  <div id="login-mensagem"></div>
-</div>
+    <div id="search-results" style="margin: 40px auto; max-width: 900px;"></div>
 
-    <footer>
-        <div class="footer-links">
-            <a href="#">Sobre</a>
-            <a href="#">Termos de Uso</a>
-            <a href="#">Política de Privacidade</a>
-            <a href="#">Contato</a>
+    <!-- Populares Nessa semana -->
+    <div style="max-width: 1100px; margin: 48px auto 0 auto;">
+        <h2 style="color:#e50914; margin-bottom:24px;">Populares Nessa semana</h2>
+        <div id="populares" style="display:flex; flex-wrap:wrap; gap:16px;"></div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer style="background:#181818; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
+        <div style="margin-bottom: 12px;">
+            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-youtube"></i>
+            </a>
         </div>
-        <div class="social-icons">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-        </div>
-        <div class="copyright">
+        <div style="font-size:1em; color:#aaa;">
             &copy; 2025 OpinaFlix. Todos os direitos reservados.
         </div>
     </footer>
 
- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchButton = document.getElementById('search-button');
-        const searchInput = document.getElementById('search-input');
-        const searchResultsSection = document.getElementById('search-results');
-        const resultsGrid = document.getElementById('results-grid');
-        
-        // Função para buscar filmes/séries
-        async function searchMovies(query) {
-            const apiKey = '25aa122e262151673e05f311eaeb56ba'; // Sua chave da API
-            const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&include_adult=false&language=pt-BR`;
-            
-            // Esconde a seção de populares e limpa os resultados antigos
-            document.querySelector('.popular').style.display = 'none';
-            resultsGrid.innerHTML = '';
-            searchResultsSection.style.display = 'block';
+    <script>
+    // Busca TMDB
+    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.results && data.results.length > 0) {
-                    // Filtra para garantir que são apenas filmes ou séries e que não são sobre pessoas
-                    const validResults = data.results.filter(item => 
-                        (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path
-                    );
-                    displayResults(validResults);
-                } else {
-                    resultsGrid.innerHTML = '<p>Nenhum resultado encontrado para sua busca.</p>';
-                }
-            } catch (error) {
-                console.error('Erro na busca:', error);
-                resultsGrid.innerHTML = '<p>Ocorreu um erro ao buscar. Tente novamente.</p>';
-            }
-        }
-        
-        // Função para exibir os resultados (CORRIGIDA)
-        function displayResults(items) {
-            resultsGrid.innerHTML = ''; // Limpa resultados anteriores
-            
-            if (!items || items.length === 0) {
-                resultsGrid.innerHTML = '<p>Nenhum filme ou série encontrado.</p>';
-                return;
-            }
-            
-            items.forEach(item => {
-                const movieCard = document.createElement('div');
-                movieCard.className = 'movie-card';
-                
-                // --- CORREÇÕES PRINCIPAIS AQUI ---
+    document.getElementById('search-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const query = document.getElementById('search-input').value.trim();
+        if (!query) return;
 
-                // 1. Constrói a URL completa do pôster
-                const posterUrl = item.poster_path 
-                    ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
-                    : 'https://via.placeholder.com/300x450?text=Poster+Indisponível';
+        const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(query)}`;
 
-                // 2. Define o título (filmes usam 'title', séries usam 'name')
-                const title = item.title || item.name;
+        try {
+            const resposta = await fetch(url);
+            const dados = await resposta.json();
 
-                // 3. Pega o ano (filmes usam 'release_date', séries usam 'first_air_date')
-                const releaseDate = item.release_date || item.first_air_date;
-                const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
-
-                // 4. Monta o card com as propriedades corretas
-                movieCard.innerHTML = `
-                    <img src="${posterUrl}" alt="${title}" class="movie-poster" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=Poster+Indisponível'">
-                    <div class="movie-info">
-                        <div class="movie-title">${title}</div>
-                        <div class="movie-rating">Ano: ${year}</div>
-                    </div>
-                `;
-                
-                resultsGrid.appendChild(movieCard);
-            });
-        }
-        
-        // Evento de clique no botão de busca
-        searchButton.addEventListener('click', function() {
-            const query = searchInput.value.trim();
-            
-            if (query) {
-                searchMovies(query);
-                // Rolagem suave para os resultados
-                searchResultsSection.scrollIntoView({ behavior: 'smooth' });
+            let html = '';
+            if (dados.results && dados.results.length > 0) {
+                html = '<div style="display:flex; flex-wrap:wrap; gap:16px;">';
+                dados.results.forEach(item => {
+                    const titulo = item.title || item.name;
+                    const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                    const poster = item.poster_path 
+                        ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
+                        : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                    html += `
+                        <div style="width:200px; text-align:center;">
+                            <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
+                            <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
+                            <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
             } else {
-                // Se a busca for vazia, mostra os populares novamente
-                 document.querySelector('.popular').style.display = 'block';
-                 searchResultsSection.style.display = 'none';
+                html = 'Nenhum resultado encontrado.';
             }
-        });
-        
-        // Evento de pressionar Enter no campo de busca
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchButton.click();
-            }
-        });
+            document.getElementById('search-results').innerHTML = html;
+        } catch (e) {
+            document.getElementById('search-results').innerHTML = 'Erro ao buscar resultados.';
+        }
     });
-</script>
 
-<script>
-document.getElementById('btn-login').onclick = function() {
-  document.getElementById('login-modal').style.display = 'block';
-};
-document.getElementById('fechar-modal').onclick = function() {
-  document.getElementById('login-modal').style.display = 'none';
-};
-
-document.getElementById('form-login').addEventListener('submit', async function(event) {
-  event.preventDefault();
-  const email = document.getElementById('login-email').value;
-  const senha = document.getElementById('login-senha').value;
-
-  const resposta = await fetch('http://localhost:3001/api/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, senha })
-  });
-
-  const resultado = await resposta.json();
-  const mensagemDiv = document.getElementById('login-mensagem');
-
-  if (resposta.ok) {
-    mensagemDiv.textContent = resultado.message;
-    mensagemDiv.style.color = 'green';
-    // Salve o usuário logado no localStorage, se quiser
-    localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
-    setTimeout(() => {
-      document.getElementById('login-modal').style.display = 'none';
-      mensagemDiv.textContent = '';
-    }, 1500);
-  } else {
-    mensagemDiv.textContent = resultado.message;
-    mensagemDiv.style.color = 'red';
-  }
-});
-</script>
-
-<script>
-const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
-
-document.getElementById('search-form').addEventListener('submit', async function(event) {
-  event.preventDefault();
-  const query = document.getElementById('search-input').value.trim();
-  if (!query) return;
-
-  const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(query)}`;
-
-  try {
-    const resposta = await fetch(url);
-    const dados = await resposta.json();
-
-    let html = '';
-    if (dados.results && dados.results.length > 0) {
-      html = '<div style="display:flex; flex-wrap:wrap; gap:16px;">';
-      dados.results.forEach(item => {
-        const titulo = item.title || item.name;
-        const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-        const poster = item.poster_path 
-          ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
-          : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
-        html += `
-          <div style="width:200px; text-align:center;">
-            <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
-            <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
-            <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
-          </div>
-        `;
-      });
-      html += '</div>';
-    } else {
-      html = 'Nenhum resultado encontrado.';
+    // Populares Nessa semana (TMDB Trending)
+    async function carregarPopulares() {
+        const url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
+        try {
+            const resposta = await fetch(url);
+            const dados = await resposta.json();
+            let html = '';
+            if (dados.results && dados.results.length > 0) {
+                dados.results.slice(0, 8).forEach(item => {
+                    const titulo = item.title || item.name;
+                    const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                    const poster = item.poster_path 
+                        ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
+                        : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                    html += `
+                        <div style="width:200px; text-align:center;">
+                            <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
+                            <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
+                            <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html = 'Nenhum resultado encontrado.';
+            }
+            document.getElementById('populares').innerHTML = html;
+        } catch (e) {
+            document.getElementById('populares').innerHTML = 'Erro ao carregar populares.';
+        }
     }
-    document.getElementById('search-results').innerHTML = html;
-  } catch (e) {
-    document.getElementById('search-results').innerHTML = 'Erro ao buscar resultados.';
-  }
-});
-</script>
+    carregarPopulares();
+    </script>
 </body>
 </html>

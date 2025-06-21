@@ -34,6 +34,11 @@
             border: none;
             border-radius: 4px;
             font-size: 1em;
+            background: #222;
+            color: #fff;
+        }
+        input::placeholder {
+            color: #aaa;
         }
         button {
             background: #e50914;
@@ -62,6 +67,11 @@
 </head>
 <body>
     <div class="container">
+        <div style="text-align:center; margin-bottom: 24px;">
+            <a href="index.html" style="text-decoration:none;">
+                <span style="color:#e50914; font-size:2em; font-weight:bold;">OpinaFlix</span>
+            </a>
+        </div>
         <h2 id="titulo-form">Entrar na sua conta</h2>
         <form id="form-login">
             <input type="email" id="login-email" placeholder="E-mail" required>

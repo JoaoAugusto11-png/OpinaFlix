@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmes e Séries - OpinaFlix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #181818;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        nav {
+            background: #111;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            justify-content: space-between;
+        }
+        .logo {
+            color: #e50914;
+            font-size: 2em;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        ul {
+            list-style: none;
+            display: flex;
+            gap: 32px;
+            margin: 0;
+            padding: 0;
+        }
+        ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        ul li a:hover {
+            color: #e50914;
+        }
+        .filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 32px auto 24px auto;
+            max-width: 1100px;
+            justify-content: flex-start;
+        }
+        .filters select, .filters input {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: none;
+            font-size: 1em;
+            background: #222;
+            color: #fff;
+        }
+        .filters label {
+            color: #ccc;
+            font-size: 1em;
+        }
+        .carousel {
+            max-width: 1100px;
+            margin: 0 auto 32px auto;
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .carousel-card {
+            min-width: 220px;
+            background: #222;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px #0004;
+            text-align: center;
+            margin-right: 8px;
+            padding-bottom: 12px;
+        }
+        .carousel-card img {
+            width: 100%;
+            border-radius: 8px 8px 0 0;
+            height: 320px;
+            object-fit: cover;
+        }
+        .carousel-card .title {
+            font-weight: bold;
+            margin: 8px 0 4px 0;
+            font-size: 1.1em;
+        }
+        .carousel-card .year {
+            color: #aaa;
+            font-size: 0.95em;
+        }
+        .carousel-card .stats {
+            margin-top: 8px;
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            font-size: 0.98em;
+            color: #7ed957;
+        }
+        .list-section {
+            max-width: 1100px;
+            margin: 0 auto 32px auto;
+        }
+        .list-title {
+            color: #e50914;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+        .list-cards {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+        }
+        .list-card {
+            min-width: 110px;
+            background: #222;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px #0002;
+            text-align: center;
+            padding-bottom: 6px;
+        }
+        .list-card img {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            height: 150px;
+            object-fit: cover;
+        }
+        .list-card .title {
+            font-size: 0.95em;
+            margin: 4px 0 2px 0;
+            color: #fff;
+        }
+        .list-card .year {
+            color: #aaa;
+            font-size: 0.85em;
+        }
+        @media (max-width: 900px) {
+            .carousel, .list-cards { flex-wrap: nowrap; }
+            .carousel-card, .list-card { min-width: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="conteudo-novo.html">Conteúdo Novo</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
+        </ul>
+        <button id="btn-login" onclick="window.location.href='login.html'" style="margin-left: 16px; background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">
+            Entrar na sua conta
+        </button>
+    </nav>
+
+    <!-- Barra de filtros -->
+    <div class="filters">
+        <label for="year">Ano:</label>
+        <select id="year"></select>
+        <label for="genre">Gênero:</label>
+        <select id="genre"></select>
+        <input type="text" id="search-filme" placeholder="Buscar filme/série...">
+        <button id="btn-filtrar" style="background:#e50914; color:#fff; border:none; border-radius:4px; padding:6px 16px; cursor:pointer;">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+
+    <!-- Carrossel de populares -->
+    <div>
+        <div style="max-width:1100px; margin:0 auto;">
+            <h2 style="color:#e50914; margin-bottom:18px;">Populares nesta semana</h2>
+            <div class="carousel" id="carousel-populares"></div>
+        </div>
+    </div>
+
+    <!-- Lista de recém avaliados (exemplo) -->
+    <div class="list-section">
+        <div class="list-title">Recentemente avaliados</div>
+        <div class="list-cards" id="recently-reviewed"></div>
+    </div>
+
+    <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
+        <div style="margin-bottom: 12px;">
+            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+        <div style="font-size:1em; color:#aaa;">
+            &copy; 2025 OpinaFlix. Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <script>
+    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
+
+    // Preencher anos
+    const yearSelect = document.getElementById('year');
+    yearSelect.innerHTML = '<option value="">Todos</option>';
+    for (let y = new Date().getFullYear(); y >= 1980; y--) {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+
+    // Preencher gêneros
+    const genreSelect = document.getElementById('genre');
+    genreSelect.innerHTML = '<option value="">Todos</option>';
+    fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${tmdbApiKey}&language=pt-BR`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.genres) {
+                data.genres.forEach(g => {
+                    genreSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+                });
+            }
+        });
+
+    // Carregar populares (carrossel)
+    async function carregarPopulares() {
+        const url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        let html = '';
+        if (data.results) {
+            data.results.slice(0, 8).forEach(item => {
+                const titulo = item.title || item.name;
+                const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=Sem+Imagem';
+                html += `
+                    <div class="carousel-card">
+                        <img src="${poster}" alt="${titulo}">
+                        <div class="title">${titulo}</div>
+                        <div class="year">${ano}</div>
+                        <div class="stats">
+                            <span><i class="fas fa-eye"></i> ${item.popularity ? Math.round(item.popularity*1000) : '-'}</span>
+                            <span><i class="fas fa-heart"></i> ${item.vote_count || '-'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('carousel-populares').innerHTML = html;
+    }
+    carregarPopulares();
+
+    // Carregar recentemente avaliados (simulação)
+    async function carregarRecentementeAvaliados() {
+        // Aqui você pode buscar do seu backend ou simular
+        const url = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        let html = '';
+        if (data.results) {
+            data.results.slice(0, 10).forEach(item => {
+                const titulo = item.title || item.name;
+                const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                html += `
+                    <div class="list-card">
+                        <img src="${poster}" alt="${titulo}">
+                        <div class="title">${titulo}</div>
+                        <div class="year">${ano}</div>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('recently-reviewed').innerHTML = html;
+    }
+    carregarRecentementeAvaliados();
+
+    // Filtro de busca
+    document.getElementById('btn-filtrar').onclick = async function() {
+        const ano = yearSelect.value;
+        const genero = genreSelect.value;
+        const busca = document.getElementById('search-filme').value.trim();
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${tmdbApiKey}&language=pt-BR&sort_by=popularity.desc&page=1`;
+        if (ano) url += `&year=${ano}`;
+        if (genero) url += `&with_genres=${genero}`;
+        if (busca) url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(busca)}`;
+
+        const resp = await fetch(url);
+        const data = await resp.json();
+        let html = '';
+        if (data.results) {
+            data.results.slice(0, 8).forEach(item => {
+                const titulo = item.title || item.name;
+                const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=Sem+Imagem';
+                html += `
+                    <div class="carousel-card">
+                        <img src="${poster}" alt="${titulo}">
+                        <div class="title">${titulo}</div>
+                        <div class="year">${ano}</div>
+                        <div class="stats">
+                            <span><i class="fas fa-eye"></i> ${item.popularity ? Math.round(item.popularity*1000) : '-'}</span>
+                            <span><i class="fas fa-heart"></i> ${item.vote_count || '-'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            html = '<div style="color:#e50914;">Nenhum resultado encontrado.</div>';
+        }
+        document.getElementById('carousel-populares').innerHTML = html;
+    };
+    </script>
+</body>
+</html>
