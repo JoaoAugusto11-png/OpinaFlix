@@ -241,11 +241,14 @@ async function preencherGeneros(tipo) {
 // Inicialmente, gêneros de filmes
 preencherGeneros('movie');
 
-// Atualiza gêneros ao trocar tipo
+// Atualiza gêneros, carrossel e recentemente avaliados ao trocar tipo
 typeSelect.addEventListener('change', () => {
     const tipo = typeSelect.value;
     if (tipo === 'tv') preencherGeneros('tv');
     else preencherGeneros('movie');
+    carregarPopulares();
+    carregarRecentementeAvaliados();
+    document.getElementById('search-filme').value = '';
 });
 
 // Carregar populares (carrossel)
@@ -283,22 +286,32 @@ async function carregarPopulares() {
     }
     document.getElementById('carousel-populares').innerHTML = html;
 }
-carregarPopulares();
-typeSelect.addEventListener('change', carregarPopulares);
 
-// Carregar recentemente avaliados (simulação)
+// Carregar recentemente avaliados (mistura filmes e séries)
 async function carregarRecentementeAvaliados() {
-    // Exemplo: mistura filmes e séries populares
-    const urlMovie = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
-    const urlTv = `https://api.themoviedb.org/3/tv/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
-    const [respMovie, respTv] = await Promise.all([fetch(urlMovie), fetch(urlTv)]);
-    const dataMovie = await respMovie.json();
-    const dataTv = await respTv.json();
+    const tipo = typeSelect.value;
     let items = [];
-    if (dataMovie.results) items = items.concat(dataMovie.results.slice(0, 5));
-    if (dataTv.results) items = items.concat(dataTv.results.slice(0, 5));
-    // Embaralha para misturar filmes e séries
-    items = items.sort(() => Math.random() - 0.5);
+    if (tipo === 'movie') {
+        const urlMovie = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
+        const respMovie = await fetch(urlMovie);
+        const dataMovie = await respMovie.json();
+        if (dataMovie.results) items = dataMovie.results.slice(0, 10);
+    } else if (tipo === 'tv') {
+        const urlTv = `https://api.themoviedb.org/3/tv/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
+        const respTv = await fetch(urlTv);
+        const dataTv = await respTv.json();
+        if (dataTv.results) items = dataTv.results.slice(0, 10);
+    } else {
+        // Mistura filmes e séries
+        const urlMovie = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
+        const urlTv = `https://api.themoviedb.org/3/tv/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
+        const [respMovie, respTv] = await Promise.all([fetch(urlMovie), fetch(urlTv)]);
+        const dataMovie = await respMovie.json();
+        const dataTv = await respTv.json();
+        if (dataMovie.results) items = items.concat(dataMovie.results.slice(0, 5));
+        if (dataTv.results) items = items.concat(dataTv.results.slice(0, 5));
+        items = items.sort(() => Math.random() - 0.5);
+    }
     let html = '';
     items.forEach(item => {
         const titulo = item.title || item.name;
@@ -315,6 +328,9 @@ async function carregarRecentementeAvaliados() {
     });
     document.getElementById('recently-reviewed').innerHTML = html;
 }
+
+// Carregar ao abrir a página
+carregarPopulares();
 carregarRecentementeAvaliados();
 
 // Filtro de busca

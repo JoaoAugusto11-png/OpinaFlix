@@ -1,4 +1,4 @@
-let usuarios = [];
+const db = require('../db');
 
 class Usuario {
   constructor(id, nome, email, senha) {
@@ -8,15 +8,30 @@ class Usuario {
     this.senha = senha;
   }
 
-  static criar(nome, email, senha) {
-    const id = usuarios.length + 1;
-    const usuario = new Usuario(id, nome, email, senha);
-    usuarios.push(usuario);
-    return usuario;
+  static criar(nome, email, senha, callback) {
+    db.run(
+      `INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)`,
+      [nome, email, senha],
+      function (err) {
+        if (err) return callback(err);
+        callback(null, new Usuario(this.lastID, nome, email, senha));
+      }
+    );
   }
 
-  static encontrarPorEmail(email) {
-    return usuarios.find(u => u.email === email);
+  static encontrarPorEmail(email, callback) {
+    db.get(
+      `SELECT * FROM usuarios WHERE email = ?`,
+      [email],
+      (err, row) => {
+        if (err) return callback(err);
+        if (row) {
+          callback(null, new Usuario(row.id, row.nome, row.email, row.senha));
+        } else {
+          callback(null, null);
+        }
+      }
+    );
   }
 }
 

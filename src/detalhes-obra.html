@@ -94,20 +94,16 @@
         </div>
     </footer>
     <script>
-    // Troque pela sua chave TMDB
-    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba';
-
-    // Pega o id da obra da URL: detalhes-obra.html?id=123
+    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Use sua chave real
     const params = new URLSearchParams(window.location.search);
     const obraId = params.get('id');
-    const tipo = params.get('tipo') || 'movie'; // padrão: filme
+    const tipo = params.get('tipo') || 'movie';
 
     async function carregarDetalhes() {
         if (!obraId) {
             document.getElementById('detalhes-container').innerHTML = '<div style="color:#e50914;">Obra não encontrada.</div>';
             return;
         }
-        // Busca detalhes do filme ou série
         const url = `https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=${tmdbApiKey}&language=pt-BR`;
         const resp = await fetch(url);
         if (!resp.ok) {
@@ -135,91 +131,9 @@
             </div>
         `;
         document.getElementById('detalhes-container').innerHTML = html;
-        document.getElementById('avaliacao-form-container').style.display = 'block';
     }
-
-    // Carregar avaliações do backend
-    async function carregarAvaliacoes() {
-        if (!obraId) return;
-        const url = `http://localhost:3001/api/avaliacoes/${obraId}`;
-        try {
-            const resp = await fetch(url);
-            const avaliacoes = await resp.json();
-            let html = '<h3 style="color:#e50914;">Avaliações da comunidade</h3>';
-            if (avaliacoes.length === 0) {
-                html += '<div style="color:#ccc;">Seja o primeiro a avaliar!</div>';
-            } else {
-                avaliacoes.forEach(a => {
-                    html += `
-                        <div class="avaliacao-card">
-                            <span class="usuario">${a.usuarioNome || 'Usuário'}</span>
-                            <span class="nota"> - Nota: ${a.nota}</span>
-                            <div class="comentario">${a.comentario || ''}</div>
-                        </div>
-                    `;
-                });
-            }
-            document.getElementById('avaliacoes-container').innerHTML = html;
-        } catch {
-            document.getElementById('avaliacoes-container').innerHTML = '<div style="color:#e50914;">Erro ao carregar avaliações.</div>';
-        }
-    }
-
-    // Enviar avaliação
-    document.getElementById('form-avaliacao').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuario) {
-            document.getElementById('mensagem-avaliacao').textContent = 'Você precisa estar logado para avaliar.';
-            document.getElementById('mensagem-avaliacao').style.color = '#e50914';
-            return;
-        }
-        const nota = selectedRating;
-        const comentario = document.getElementById('comentario').value;
-        const resposta = await fetch('http://localhost:3001/api/avaliacoes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuarioId: usuario.id, obraId, nota, comentario })
-        });
-        const resultado = await resposta.json();
-        if (resposta.ok) {
-            document.getElementById('mensagem-avaliacao').textContent = 'Avaliação enviada!';
-            document.getElementById('mensagem-avaliacao').style.color = 'lightgreen';
-            document.getElementById('form-avaliacao').reset();
-            carregarAvaliacoes();
-        } else {
-            document.getElementById('mensagem-avaliacao').textContent = resultado.message || 'Erro ao enviar avaliação.';
-            document.getElementById('mensagem-avaliacao').style.color = '#e50914';
-        }
-    });
-
-    // Estrelas de avaliação 1-10
-    const starRating = document.getElementById('star-rating');
-    const notaInput = document.getElementById('nota');
-    let selectedRating = 0;
-
-    function renderStars(rating = 0, hover = false) {
-        starRating.innerHTML = '';
-        for (let i = 10; i >= 1; i--) {
-            const star = document.createElement('span');
-            star.classList.add('star');
-            star.innerHTML = '<i class="fas fa-star"></i>';
-            if (i <= rating) star.classList.add(hover ? 'hovered' : 'selected');
-            star.dataset.value = i;
-            star.addEventListener('mouseenter', () => renderStars(i, true));
-            star.addEventListener('mouseleave', () => renderStars(selectedRating));
-            star.addEventListener('click', () => {
-                selectedRating = i;
-                notaInput.value = i;
-                renderStars(selectedRating);
-            });
-            starRating.appendChild(star);
-        }
-    }
-    renderStars();
 
     carregarDetalhes();
-    carregarAvaliacoes();
     </script>
 </body>
 </html>

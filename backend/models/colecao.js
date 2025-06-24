@@ -1,4 +1,4 @@
-let colecoes = [];
+const db = require('../db');
 
 class Colecao {
   constructor(id, usuarioId, nome) {
@@ -7,15 +7,26 @@ class Colecao {
     this.nome = nome;
   }
 
-  static criar(usuarioId, nome) {
-    const id = colecoes.length + 1;
-    const colecao = new Colecao(id, usuarioId, nome);
-    colecoes.push(colecao);
-    return colecao;
+  static criar(usuarioId, nome, callback) {
+    db.run(
+      `INSERT INTO colecoes (usuario_id, nome) VALUES (?, ?)`,
+      [usuarioId, nome],
+      function (err) {
+        if (err) return callback(err);
+        callback(null, new Colecao(this.lastID, usuarioId, nome));
+      }
+    );
   }
 
-  static listarPorUsuario(usuarioId) {
-    return colecoes.filter(c => c.usuarioId === usuarioId);
+  static listarPorUsuario(usuarioId, callback) {
+    db.all(
+      `SELECT * FROM colecoes WHERE usuario_id = ?`,
+      [usuarioId],
+      (err, rows) => {
+        if (err) return callback(err);
+        callback(null, rows.map(row => new Colecao(row.id, row.usuario_id, row.nome)));
+      }
+    );
   }
 }
 

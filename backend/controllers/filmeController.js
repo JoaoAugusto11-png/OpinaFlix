@@ -1,17 +1,26 @@
-const { filmes } = require('../models/Filme');
+const db = require('../db');
 
-// Lista todos os filmes
+// Lista todos os filmes (exemplo: busca todos do banco)
 exports.listarFilmes = (req, res) => {
-    res.json(filmes);
+    db.all('SELECT * FROM filmes', [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ message: 'Erro ao buscar filmes.' });
+        }
+        res.json(rows);
+    });
 };
 
 // Busca detalhes de um filme por ID
 exports.obterFilmePorId = (req, res) => {
     const id = parseInt(req.params.id);
-    const filme = filmes.find(f => f.id === id);
-    if (filme) {
-        res.json(filme);
-    } else {
-        res.status(404).json({ message: 'Filme não encontrado.' });
-    }
+    db.get('SELECT * FROM filmes WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            return res.status(500).json({ message: 'Erro ao buscar filme.' });
+        }
+        if (row) {
+            res.json(row);
+        } else {
+            res.status(404).json({ message: 'Filme não encontrado.' });
+        }
+    });
 };
