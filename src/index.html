@@ -133,13 +133,7 @@
             <li><a href="colecoes.html">Coleções</a></li>
             <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
-        <div class="search-bar">
-            <form id="search-form" style="display:inline;">
-                <input type="text" id="search-input" placeholder="Pesquisar filmes, séries...">
-                <button type="submit" id="search-button"><i class="fas fa-search"></i></button>
-            </form>
-            <button id="btn-login" onclick="window.location.href='login.html'">Entrar na sua conta</button>
-        </div>
+        <div id="area-usuario"></div>
     </nav>
 
     <div class="main-content">
@@ -198,80 +192,62 @@
     </footer>
 
     <script>
-    // Busca TMDB
-    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
+const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
 
-    document.getElementById('search-form').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const query = document.getElementById('search-input').value.trim();
-        if (!query) return;
-
-        const url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(query)}`;
-
-        try {
-            const resposta = await fetch(url);
-            const dados = await resposta.json();
-
-            let html = '';
-            if (dados.results && dados.results.length > 0) {
-                html = '<div style="display:flex; flex-wrap:wrap; gap:16px;">';
-                dados.results.forEach(item => {
-                    const titulo = item.title || item.name;
-                    const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-                    const poster = item.poster_path 
-                        ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
-                        : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
-                    const tipo = item.title ? 'movie' : 'tv';
-                    html += `
-                        <div style="width:200px; text-align:center; cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
-                            <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
-                            <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
-                            <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-            } else {
-                html = 'Nenhum resultado encontrado.';
-            }
-            document.getElementById('search-results').innerHTML = html;
-        } catch (e) {
-            document.getElementById('search-results').innerHTML = 'Erro ao buscar resultados.';
+// Populares Nessa semana (TMDB Trending)
+async function carregarPopulares() {
+    const url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
+    try {
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+        let html = '';
+        if (dados.results && dados.results.length > 0) {
+            dados.results.slice(0, 8).forEach(item => {
+                const titulo = item.title || item.name;
+                const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                const poster = item.poster_path 
+                    ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
+                    : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                const tipo = item.title ? 'movie' : 'tv';
+                html += `
+                    <div style="width:200px; text-align:center; cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
+                        <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
+                        <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
+                        <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
+                    </div>
+                `;
+            });
+        } else {
+            html = 'Nenhum resultado encontrado.';
         }
-    });
-
-    // Populares Nessa semana (TMDB Trending)
-    async function carregarPopulares() {
-        const url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
-        try {
-            const resposta = await fetch(url);
-            const dados = await resposta.json();
-            let html = '';
-            if (dados.results && dados.results.length > 0) {
-                dados.results.slice(0, 8).forEach(item => {
-                    const titulo = item.title || item.name;
-                    const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-                    const poster = item.poster_path 
-                        ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
-                        : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
-                    const tipo = item.title ? 'movie' : 'tv';
-                    html += `
-                        <div style="width:200px; text-align:center; cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
-                            <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
-                            <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
-                            <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
-                        </div>
-                    `;
-                });
-            } else {
-                html = 'Nenhum resultado encontrado.';
-            }
-            document.getElementById('populares').innerHTML = html;
-        } catch (e) {
-            document.getElementById('populares').innerHTML = 'Erro ao carregar populares.';
-        }
+        document.getElementById('populares').innerHTML = html;
+    } catch (e) {
+        document.getElementById('populares').innerHTML = 'Erro ao carregar populares.';
     }
-    carregarPopulares();
-    </script>
+}
+
+// Sempre carregue os filmes, independente do login
+carregarPopulares();
+
+// Personalização do cabeçalho
+const usuario = JSON.parse(localStorage.getItem('usuario'));
+const areaUsuario = document.getElementById('area-usuario');
+if (areaUsuario) {
+    if (usuario) {
+        areaUsuario.innerHTML = `
+            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+        `;
+        document.getElementById('btn-logout').onclick = function() {
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        };
+    } else {
+        areaUsuario.innerHTML = `
+            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
+        `;
+    }
+}
+</script>
 </body>
 </html>

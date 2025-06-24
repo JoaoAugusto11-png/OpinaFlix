@@ -48,16 +48,14 @@
     </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul style="list-style:none;display:flex;gap:32px;margin:0;padding:0;">
-            <li><a href="filmes-series.html" style="color:#fff;text-decoration:none;">Filmes e Séries</a></li>
-            <li><a href="colecoes.html" style="color:#fff;text-decoration:none;">Coleções</a></li>
-            <li><a href="review-galera.html" style="color:#fff;text-decoration:none;">Review da Galera</a></li>
+    <nav style="background:#181818;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;">
+        <a href="index.html" class="logo" style="color:#e50914;font-size:2em;font-weight:bold;text-decoration:none;">OpinaFlix</a>
+        <ul style="list-style:none;display:flex;gap:24px;margin:0;padding:0;">
+            <li><a href="filmes-series.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Filmes e Séries</a></li>
+            <li><a href="colecoes.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Coleções</a></li>
+            <li><a href="review-galera.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Review da Galera</a></li>
         </ul>
-        <button id="btn-login" onclick="window.location.href='login.html'" style="margin-left: 16px; background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">
-            Entrar na sua conta
-        </button>
+        <div id="area-usuario"></div>
     </nav>
     <div class="container" id="detalhes-container">
         <!-- Conteúdo dinâmico aqui -->
@@ -65,17 +63,16 @@
     <div class="avaliacoes" id="avaliacoes-container">
         <!-- Avaliações dos usuários -->
     </div>
-    <div class="avaliacao-form" id="avaliacao-form-container" style="max-width:900px;margin:32px auto 0 auto;display:none;">
-        <h3>Deixe sua avaliação</h3>
-        <form id="form-avaliacao">
-            <div class="star-rating" id="star-rating">
+    <div id="avaliar-obra" style="display:flex;flex-direction:column;align-items:center;margin:32px 0;">
+        <h3 style="color:#e50914;">Avalie esta obra</h3>
+        <form id="form-avaliacao" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div id="estrelas" style="font-size:2em;cursor:pointer;">
                 <!-- Estrelas serão geradas via JS -->
             </div>
-            <input type="hidden" id="nota" name="nota" required>
-            <textarea id="comentario" placeholder="Comentário" rows="3"></textarea>
-            <button type="submit">Enviar Avaliação</button>
+            <textarea id="comentario" placeholder="Escreva sua opinião..." rows="3" style="width:320px;max-width:90vw;padding:8px;border-radius:6px;border:none;background:#222;color:#fff;" required></textarea>
+            <button type="submit" style="background:#e50914;color:#fff;padding:8px 24px;border:none;border-radius:4px;font-size:1em;">Enviar Avaliação</button>
         </form>
-        <div id="mensagem-avaliacao"></div>
+        <div id="msg-avaliacao" style="margin-top:8px;"></div>
     </div>
     <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
         <div style="margin-bottom: 12px;">
@@ -94,20 +91,46 @@
         </div>
     </footer>
     <script>
-    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Use sua chave real
+    // Cabeçalho do usuário
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const areaUsuario = document.getElementById('area-usuario');
+    if (usuario) {
+        areaUsuario.innerHTML = `
+            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+        `;
+        document.getElementById('btn-logout').onclick = function() {
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        };
+    } else {
+        areaUsuario.innerHTML = `
+            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
+        `;
+    }
+    </script>
+    <script>
+    // Parâmetros da URL
+    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba';
     const params = new URLSearchParams(window.location.search);
     const obraId = params.get('id');
-    const tipo = params.get('tipo') || 'movie';
+    const tipo = params.get('tipo');
 
+    // Exibe mensagem de erro se faltar parâmetro
+    if (!obraId || !tipo) {
+        document.getElementById('detalhes-container').innerHTML = '<div style="color:#e50914;">Obra não encontrada.</div>';
+        document.getElementById('avaliar-obra').style.display = 'none';
+    } else {
+        carregarDetalhes();
+    }
+
+    // Carrega detalhes da obra
     async function carregarDetalhes() {
-        if (!obraId) {
-            document.getElementById('detalhes-container').innerHTML = '<div style="color:#e50914;">Obra não encontrada.</div>';
-            return;
-        }
         const url = `https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=${tmdbApiKey}&language=pt-BR`;
         const resp = await fetch(url);
         if (!resp.ok) {
             document.getElementById('detalhes-container').innerHTML = '<div style="color:#e50914;">Obra não encontrada.</div>';
+            document.getElementById('avaliar-obra').style.display = 'none';
             return;
         }
         const obra = await resp.json();
@@ -132,8 +155,88 @@
         `;
         document.getElementById('detalhes-container').innerHTML = html;
     }
+    </script>
+    <script>
+    // Avaliação: só mostra se usuário estiver logado e obra existe
+    if (!usuario || !obraId || !tipo) {
+        document.getElementById('avaliar-obra').style.display = 'none';
+    } else {
+        document.getElementById('avaliar-obra').style.display = 'flex';
+    }
 
-    carregarDetalhes();
+    // Sistema de estrelas 1 a 10
+    let notaSelecionada = 0;
+    const estrelasDiv = document.getElementById('estrelas');
+
+    function renderEstrelas(nota) {
+        let html = '';
+        for (let i = 1; i <= 10; i++) {
+            html += `<span data-estrela="${i}" style="color:${i <= nota ? '#ffd700' : '#444'};cursor:pointer;font-size:2em;">★</span>`;
+        }
+        estrelasDiv.innerHTML = html;
+    }
+
+    // Inicializa com a nota selecionada (ou zero)
+    renderEstrelas(notaSelecionada);
+
+    // Mousemove: destaca até a estrela passada
+    estrelasDiv.addEventListener('mousemove', function(e) {
+        const estrela = e.target.closest('span[data-estrela]');
+        if (estrela) {
+            renderEstrelas(Number(estrela.dataset.estrela));
+        }
+    });
+
+    // Mouseleave: volta para a nota selecionada
+    estrelasDiv.addEventListener('mouseleave', function() {
+        renderEstrelas(notaSelecionada);
+    });
+
+    // Clique: define a nota selecionada
+    estrelasDiv.addEventListener('click', function(e) {
+        const estrela = e.target.closest('span[data-estrela]');
+        if (estrela) {
+            notaSelecionada = Number(estrela.dataset.estrela);
+            renderEstrelas(notaSelecionada);
+            console.log('Nota selecionada:', notaSelecionada);
+        }
+    });
+
+    // Envio do formulário
+    document.getElementById('form-avaliacao').onsubmit = async function(e) {
+        e.preventDefault();
+        if (notaSelecionada === 0) {
+            document.getElementById('msg-avaliacao').style.color = '#e50914';
+            document.getElementById('msg-avaliacao').textContent = 'Selecione uma nota!';
+            return;
+        }
+        const comentario = document.getElementById('comentario').value;
+        const params = new URLSearchParams(window.location.search);
+        const obraId = params.get('id');
+        const tipo = params.get('tipo');
+        const resp = await fetch('http://localhost:3001/api/avaliacoes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                usuarioId: usuario.id,
+                obraId,
+                tipo,
+                nota: Number(notaSelecionada), // <-- Garante que é número!
+                comentario
+            })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+            document.getElementById('msg-avaliacao').style.color = 'lightgreen';
+            document.getElementById('msg-avaliacao').textContent = 'Avaliação enviada!';
+            document.getElementById('form-avaliacao').reset();
+            notaSelecionada = 0;
+            renderEstrelas(0);
+        } else {
+            document.getElementById('msg-avaliacao').style.color = '#e50914';
+            document.getElementById('msg-avaliacao').textContent = data.message || 'Erro ao enviar avaliação.';
+        }
+    };
     </script>
 </body>
 </html>

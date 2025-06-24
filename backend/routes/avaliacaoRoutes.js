@@ -8,4 +8,7 @@ router.post('/avaliacoes', avaliacaoController.criarAvaliacao);
 // Listar avaliações de uma obra (filme ou série)
 router.get('/avaliacoes/:obraId', avaliacaoController.listarAvaliacoes);
 
+// Listar avaliações recentes
+router.get('/avaliacoes/recentes', avaliacaoController.listarAvaliacoesRecentes);
+
 module.exports = router;

@@ -1,9 +1,11 @@
 const db = require('../db');
 
 exports.criarAvaliacao = (req, res) => {
-  const { usuarioId, obraId, tipo, nota, comentario } = req.body;
-  if (!usuarioId || !obraId || !tipo || !nota) {
-    return res.status(400).json({ message: 'Dados incompletos.' });
+  const { usuarioId, obraId, tipo, comentario } = req.body;
+  let { nota } = req.body;
+  nota = Number(nota);
+  if (!usuarioId || !obraId || !tipo || isNaN(nota) || nota < 1 || nota > 10) {
+    return res.status(400).json({ message: 'Dados incompletos ou nota inválida.' });
   }
   db.run(
     `INSERT INTO avaliacoes (usuario_id, obra_id, tipo, nota, comentario) VALUES (?, ?, ?, ?, ?)`,
@@ -22,6 +24,19 @@ exports.listarAvaliacoes = (req, res) => {
      LEFT JOIN usuarios u ON a.usuario_id = u.id
      WHERE a.obra_id = ? ORDER BY a.data DESC`,
     [obraId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ message: 'Erro ao buscar avaliações.' });
+      res.json(rows);
+    }
+  );
+};
+
+exports.listarAvaliacoesRecentes = (req, res) => {
+  db.all(
+    `SELECT a.*, u.nome as usuarioNome FROM avaliacoes a
+     LEFT JOIN usuarios u ON a.usuario_id = u.id
+     ORDER BY a.data DESC LIMIT 20`,
+    [],
     (err, rows) => {
       if (err) return res.status(500).json({ message: 'Erro ao buscar avaliações.' });
       res.json(rows);

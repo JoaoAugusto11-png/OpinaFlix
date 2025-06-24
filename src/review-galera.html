@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Review da Galera - OpinaFlix</title>
+    <style>
+        body { background: #181818; color: #fff; font-family: Arial, sans-serif; margin: 0; }
+        .review-list { max-width: 700px; margin: 40px auto; }
+        .review-card { background: #222; border-radius: 8px; margin-bottom: 24px; padding: 24px; box-shadow: 0 2px 8px #0006; }
+        .review-header { display: flex; align-items: center; gap: 16px; }
+        .review-avatar { width: 48px; height: 48px; border-radius: 50%; background: #333; }
+        .review-user { font-weight: bold; color: #e50914; }
+        .review-title { font-size: 1.2em; font-weight: bold; margin-top: 8px; }
+        .review-stars { color: #ffd700; }
+        .review-date { color: #aaa; font-size: 0.9em; margin-left: 8px; }
+        .review-comment { margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <!-- Inclua aqui o seu <nav> padrão -->
+    <div class="review-list" id="review-list"></div>
+    <script>
+    async function carregarReviews() {
+        const resp = await fetch('http://localhost:3001/api/avaliacoes/recentes');
+        const reviews = await resp.json();
+        let html = '';
+        for (const r of reviews) {
+            // Busque detalhes da obra na TMDB
+            const obraResp = await fetch(`https://api.themoviedb.org/3/${r.tipo}/${r.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+            const obra = await obraResp.json();
+            const titulo = obra.title || obra.name;
+            const ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
+            html += `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar"></div>
+                        <div>
+                            <span class="review-user">${r.usuarioNome}</span>
+                            <span class="review-date">${new Date(r.data).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="review-title">${titulo} ${ano ? '('+ano+')' : ''}</div>
+                    <div class="review-stars">${'★'.repeat(r.nota)}${'☆'.repeat(5 - r.nota)}</div>
+                    <div class="review-comment">${r.comentario}</div>
+                </div>
+            `;
+        }
+        document.getElementById('review-list').innerHTML = html;
+    }
+    carregarReviews();
+    </script>
+</body>
+</html>

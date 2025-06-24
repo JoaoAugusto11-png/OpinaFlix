@@ -153,9 +153,7 @@
             <li><a href="colecoes.html">Coleções</a></li>
             <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
-        <button id="btn-login" onclick="window.location.href='login.html'" style="margin-left: 16px; background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">
-            Entrar na sua conta
-        </button>
+        <div id="area-usuario"></div>
     </nav>
 
     <!-- Barra de filtros -->
@@ -389,5 +387,23 @@ document.getElementById('btn-filtrar').onclick = async function() {
     document.getElementById('carousel-populares').innerHTML = html;
 };
     </script>
+    <script>
+const usuario = JSON.parse(localStorage.getItem('usuario'));
+const areaUsuario = document.getElementById('area-usuario');
+if (usuario) {
+    areaUsuario.innerHTML = `
+        <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+        <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+    `;
+    document.getElementById('btn-logout').onclick = function() {
+        localStorage.removeItem('usuario');
+        window.location.href = 'login.html';
+    };
+} else {
+    areaUsuario.innerHTML = `
+        <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
+    `;
+}
+</script>
 </body>
 </html>

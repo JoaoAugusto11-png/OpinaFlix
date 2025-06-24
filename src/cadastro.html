@@ -4,48 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - OpinaFlix</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: #f5f5f5;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
         nav {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            justify-content: space-between;
+            padding: 16px;
+            background: #181818;
+            position: relative;
         }
         .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
             color: #e50914;
+            font-size: 1.5em;
+            font-weight: bold;
             text-decoration: none;
         }
         ul {
             list-style: none;
-            padding: 0;
-            margin: 0;
             display: flex;
+            gap: 16px;
+            margin: 0;
+            padding: 0;
         }
-        li {
-            margin-right: 2rem;
-        }
-        a {
+        ul li a {
+            color: #fff;
             text-decoration: none;
-            color: #333;
-            font-weight: 500;
+            transition: color 0.3s;
         }
-        a:hover {
+        ul li a:hover {
             color: #e50914;
         }
         #btn-login {
-            margin-left: 16px;
             background: #e50914;
             color: #fff;
             border: none;
@@ -53,50 +48,52 @@
             padding: 8px 16px;
             cursor: pointer;
         }
+        #btn-login:hover {
+            background: #c50712;
+        }
         .container {
             max-width: 400px;
-            margin: 4rem auto;
-            background: #fff;
-            padding: 2rem;
+            margin: 60px auto;
+            background: #181818;
+            padding: 32px 24px;
             border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 16px #0006;
         }
         h2 {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
             color: #e50914;
         }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 0.7rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
+        input {
+            padding: 10px;
+            border: none;
             border-radius: 4px;
+            font-size: 1em;
+            background: #222;
+            color: #fff;
+        }
+        input::placeholder {
+            color: #aaa;
         }
         button {
-            width: 100%;
-            padding: 0.8rem;
             background: #e50914;
             color: #fff;
             border: none;
             border-radius: 4px;
-            font-weight: bold;
-            font-size: 1rem;
+            padding: 10px;
+            font-size: 1em;
             cursor: pointer;
-            transition: background 0.3s;
+            margin-top: 8px;
         }
-        button:hover {
-            background: #b2070f;
-        }
-        .success-message {
-            color: green;
+        .mensagem {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-top: 10px;
+            min-height: 20px;
         }
     </style>
 </head>
@@ -112,15 +109,19 @@
             Entrar na sua conta
         </button>
     </nav>
-    <div style="max-width:400px;margin:40px auto;background:#222;padding:32px;border-radius:8px;">
-        <h2 style="color:#e50914;">Cadastro</h2>
+    <div class="container">
+        <h2>Cadastro</h2>
         <form id="form-cadastro">
-            <input type="text" id="nome" placeholder="Nome" required style="width:100%;margin-bottom:8px;">
-            <input type="email" id="email" placeholder="E-mail" required style="width:100%;margin-bottom:8px;">
-            <input type="password" id="senha" placeholder="Senha" required style="width:100%;margin-bottom:16px;">
-            <button type="submit" style="width:100%;background:#e50914;color:#fff;border:none;padding:10px;border-radius:4px;">Cadastrar</button>
+            <input type="text" id="nome" placeholder="Nome" required>
+            <input type="email" id="email" placeholder="E-mail" required>
+            <input type="password" id="senha" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
         </form>
-        <div id="mensagem-cadastro" style="margin-top:12px;color:#e50914;"></div>
+        <div id="mensagem-cadastro" class="mensagem"></div>
+        <div style="text-align:center; margin-top:16px;">
+            <span>Já tem uma conta?</span>
+            <a href="login.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Entrar</a>
+        </div>
     </div>
     <script>
     document.getElementById('form-cadastro').addEventListener('submit', async function(e) {
@@ -135,9 +136,8 @@
         });
         const data = await resp.json();
         if (resp.ok) {
-            document.getElementById('mensagem-cadastro').style.color = 'lightgreen';
-            document.getElementById('mensagem-cadastro').textContent = 'Cadastro realizado com sucesso!';
-            // Redirecionar para login ou logar automaticamente, se quiser
+            localStorage.setItem('usuario', JSON.stringify(data.usuario));
+            window.location.href = 'index.html';
         } else {
             document.getElementById('mensagem-cadastro').style.color = '#e50914';
             document.getElementById('mensagem-cadastro').textContent = data.message || 'Erro ao cadastrar.';
