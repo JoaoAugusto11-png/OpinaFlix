@@ -3,483 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sopranos - OpinaFlix</title>
+    <title>Detalhes da Obra - OpinaFlix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
+        body { background: #181818; color: #fff; font-family: Arial, sans-serif; margin: 0; }
+        nav { background: #111; padding: 0 32px; display: flex; align-items: center; height: 56px; justify-content: space-between; }
+        .logo { color: #e50914; font-size: 2em; font-weight: bold; text-decoration: none; }
+        .container { max-width: 900px; margin: 40px auto; display: flex; gap: 32px; }
+        .poster { min-width: 300px; }
+        .poster img { width: 100%; border-radius: 12px; box-shadow: 0 2px 16px #0008; }
+        .info { flex: 1; }
+        .titulo { font-size: 2em; font-weight: bold; margin-bottom: 8px; }
+        .ano, .generos, .nota { color: #e50914; font-size: 1.1em; margin-bottom: 8px; }
+        .sinopse { margin: 18px 0; color: #ccc; }
+        .avaliacoes { margin-top: 32px; }
+        .avaliacao-card { background: #222; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .avaliacao-card .usuario { color: #e50914; font-weight: bold; }
+        .avaliacao-card .nota { color: #7ed957; font-weight: bold; }
+        .avaliacao-card .comentario { margin-top: 6px; color: #fff; }
+        .avaliacao-form { margin-top: 32px; background: #222; border-radius: 8px; padding: 16px; }
+        .avaliacao-form input, .avaliacao-form textarea { width: 100%; margin-bottom: 8px; border-radius: 4px; border: none; padding: 8px; background: #181818; color: #fff; }
+        .avaliacao-form button { background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+        .star-rating {
+            direction: rtl;
             display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            justify-content: flex-start;
+            font-size: 2em;
+            margin-bottom: 8px;
+            gap: 2px;
         }
-        
-        nav {
-            background-color: #141414;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e50914;
-            margin-right: auto;
-        }
-        
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            flex-grow: 1;
-            margin: 0 2rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            margin: 0 auto;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-            white-space: nowrap;
-        }
-        
-        .nav-links a:hover {
-            color: #e50914;
-        }
-        
-        .search-bar {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-        
-        .search-bar input {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px 0 0 4px;
-            outline: none;
-        }
-        
-        .search-bar button {
-            background-color: #e50914;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0 4px 4px 0;
+        .star-rating .star {
             cursor: pointer;
-        }
-        
-        .main-content {
-            flex: 1;
-        }
-        
-        .detail-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-        
-        .detail-poster {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .detail-poster img {
-            width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .detail-info {
-            flex: 2;
-            min-width: 300px;
-        }
-        
-        .detail-title {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #141414;
-        }
-        
-        .detail-synopsis {
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-            font-size: 1.1rem;
-        }
-        
-        .detail-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .detail-meta div {
-            margin-bottom: 0.5rem;
-        }
-        
-        .detail-rating {
-            font-size: 1.8rem;
-            color: #e50914;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .detail-rating i {
-            font-size: 1.5rem;
-        }
-        
-        .user-actions {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 2rem;
-        }
-        
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .action-button {
-            background-color: #333;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .action-button:hover {
-            background-color: #e50914;
-        }
-        
-        .action-button.primary {
-            background-color: #e50914;
-        }
-        
-        .action-button.primary:hover {
-            background-color: #b2070f;
-        }
-        
-        .user-rating-select {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-        
-        .rating-stars {
-            display: flex;
-            gap: 0.3rem;
-        }
-        
-        .star {
-            font-size: 1.5rem;
-            color: #ddd;
-            cursor: pointer;
+            color: #444;
             transition: color 0.2s;
         }
-        
-        .star.selected {
-            color: #e50914;
+        .star-rating .star.selected,
+        .star-rating .star.hovered {
+            color: #ffd700;
         }
-        
-        .star:hover {
-            color: #e50914;
-        }
-        
-        footer {
-            background-color: #141414;
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            width: 100%;
-        }
-        
-        .social-icons a {
-            color: white;
-            margin: 0 0.5rem;
-            font-size: 1.5rem;
-            transition: color 0.3s;
-        }
-        
-        .social-icons a:hover {
-            color: #e50914;
-        }
-        
-        .copyright {
-            font-size: 0.9rem;
-            color: #777;
-            margin-top: 1rem;
-        }
-
-        #form-avaliacao {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        #form-avaliacao input, #form-avaliacao button {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        #form-avaliacao button {
-            background-color: #e50914;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        #form-avaliacao button:hover {
-            background-color: #b2070f;
-        }
-        
-        #mensagem-avaliacao {
-            text-align: center;
-            font-weight: bold;
-            margin: 1rem 0;
-        }
-        
-        #lista-avaliacoes {
-            margin: 2rem 0;
-        }
-        
-        #lista-avaliacoes ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        
-        #lista-avaliacoes li {
-            background-color: #f9f9f9;
-            margin: 0.5rem 0;
-            padding: 1rem;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        @media (max-width: 900px) {
+            .container { flex-direction: column; align-items: center; }
+            .poster { min-width: 180px; }
         }
     </style>
 </head>
 <body>
     <nav>
-        <div class="logo">OpinaFlix</div>
-        <div class="nav-container">
-            <div class="nav-links">
-                <a href="index.html">Filmes e Séries</a>
-                <a href="colecoes.html">Coleções</a>
-                <a href="#">Conteúdo Novo</a>
-                <a href="#">Review da Galera</a>
-            </div>
-        </div>
-        <div class="search-bar">
-            <input type="text" placeholder="Pesquisar filmes, séries...">
-            <button><i class="fas fa-search"></i></button>
-        </div>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul style="list-style:none;display:flex;gap:32px;margin:0;padding:0;">
+            <li><a href="filmes-series.html" style="color:#fff;text-decoration:none;">Filmes e Séries</a></li>
+            <li><a href="colecoes.html" style="color:#fff;text-decoration:none;">Coleções</a></li>
+            <li><a href="conteudo-novo.html" style="color:#fff;text-decoration:none;">Conteúdo Novo</a></li>
+            <li><a href="review-galera.html" style="color:#fff;text-decoration:none;">Review da Galera</a></li>
+        </ul>
+        <button id="btn-login" onclick="window.location.href='login.html'" style="margin-left: 16px; background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">
+            Entrar na sua conta
+        </button>
     </nav>
-
-    <div class="main-content">
-        <div class="detail-container">
-            <div class="detail-poster">
-                <img src="https://m.media-amazon.com/images/M/MV5BZGJjYzhjYTYtMDBjYy00OWU1LTg5OTYtNmYwOTZmZjE3ZDdhXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_FMjpg_UX1000_.jpg" alt="The Sopranos" onerror="this.onerror=null;this.src='https://via.placeholder.com/500x750?text=The+Sopranos'">
-            </div>
-            <div class="detail-info">
-                <h1 class="detail-title">FAMÍLIA SOPRANO</h1>
-                
-                <div class="detail-rating">
-                    <i class="fas fa-star"></i> 9.8/10
-                </div>
-                
-                <p class="detail-synopsis">
-                    O chefe da máfia de Nova Jersey, Tony Soprano, lida com questões pessoais e profissionais que afetam seu estado mental, 
-                    levando-o a procurar aconselhamento psiquiátrico com a Dra. Jennifer Melfi.
-                </p>
-                
-                <div class="detail-meta">
-                    <div><strong>Gênero:</strong> Drama, Crime</div>
-                    <div><strong>Elenco:</strong> James Gandolfini, Lorraine Bracco, Edie Falco</div>
-                    <div><strong>Criador:</strong> David Chase</div>
-                    <div><strong>Temporadas:</strong> 6</div>
-                    <div><strong>Ano:</strong> 1999-2007</div>
-                    <div><strong>Episódios:</strong> 86</div>
-                </div>
-                
-                <div class="user-actions">
-                    <h3>MINHA INTERAÇÃO</h3>
-                    <div class="action-buttons">
-                        <button class="action-button"><i class="fas fa-check"></i> ASSISTI</button>
-                        <button class="action-button"><i class="fas fa-heart"></i> GOSTEI</button>
-                    </div>
-                    
-                    <div class="user-rating-select">
-                        <label>MINHA NOTA:</label>
-                        <div class="rating-stars">
-                            <div class="star" data-rating="1"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="2"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="3"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="4"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="5"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="6"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="7"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="8"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="9"><i class="far fa-star"></i></div>
-                            <div class="star" data-rating="10"><i class="far fa-star"></i></div>
-                        </div>
-                        <span class="selected-rating">0/10</span>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <button class="action-button primary"><i class="fas fa-edit"></i> FAZER REVIEW</button>
-                        <button class="action-button primary"><i class="fas fa-list"></i> FAZER COLEÇÃO</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="container" id="detalhes-container">
+        <!-- Conteúdo dinâmico aqui -->
+    </div>
+    <div class="avaliacoes" id="avaliacoes-container">
+        <!-- Avaliações dos usuários -->
+    </div>
+    <div class="avaliacao-form" id="avaliacao-form-container" style="max-width:900px;margin:32px auto 0 auto;display:none;">
+        <h3>Deixe sua avaliação</h3>
         <form id="form-avaliacao">
-          <input type="number" id="nota" min="1" max="5" placeholder="Nota (1-5)" required>
-          <input type="text" id="comentario" placeholder="Comentário">
-          <button type="submit">Avaliar</button>
+            <div class="star-rating" id="star-rating">
+                <!-- Estrelas serão geradas via JS -->
+            </div>
+            <input type="hidden" id="nota" name="nota" required>
+            <textarea id="comentario" placeholder="Comentário" rows="3"></textarea>
+            <button type="submit">Enviar Avaliação</button>
         </form>
         <div id="mensagem-avaliacao"></div>
-        <div id="lista-avaliacoes"></div>
     </div>
-
-    <footer>
-        <div class="social-icons">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
+    <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
+        <div style="margin-bottom: 12px;">
+            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-youtube"></i>
+            </a>
         </div>
-        <p class="copyright">&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
+        <div style="font-size:1em; color:#aaa;">
+            &copy; 2025 OpinaFlix. Todos os direitos reservados.
+        </div>
     </footer>
-
     <script>
-        const stars = document.querySelectorAll('.star');
-        const selectedRating = document.querySelector('.selected-rating');
-        
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                const rating = star.getAttribute('data-rating');
-                
-                stars.forEach((s, index) => {
-                    if(index < rating) {
-                        s.classList.add('selected');
-                        s.innerHTML = '<i class="fas fa-star"></i>';
-                    } else {
-                        s.classList.remove('selected');
-                        s.innerHTML = '<i class="far fa-star"></i>';
-                    }
-                });
-                
-                selectedRating.textContent = `${rating}/10`;
-            });
-            
-            star.addEventListener('mouseover', () => {
-                const rating = star.getAttribute('data-rating');
-                
-                stars.forEach((s, index) => {
-                    if(index < rating) {
-                        s.innerHTML = '<i class="fas fa-star"></i>';
-                    } else {
-                        s.innerHTML = '<i class="far fa-star"></i>';
-                    }
-                });
-            });
-            
-            star.addEventListener('mouseout', () => {
-                const selectedStar = document.querySelector('.star.selected');
-                const currentRating = selectedStar ? selectedStar.getAttribute('data-rating') : 0;
-                
-                stars.forEach((s, index) => {
-                    if(index < currentRating) {
-                        s.innerHTML = '<i class="fas fa-star"></i>';
-                    } else {
-                        s.innerHTML = '<i class="far fa-star"></i>';
-                    }
-                });
-            });
-        });
+    // Troque pela sua chave TMDB
+    const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba';
 
+    // Pega o id da obra da URL: detalhes-obra.html?id=123
+    const params = new URLSearchParams(window.location.search);
+    const obraId = params.get('id');
+    const tipo = params.get('tipo') || 'movie'; // padrão: filme
+
+    async function carregarDetalhes() {
+        if (!obraId) {
+            document.getElementById('detalhes-container').innerHTML = '<div style="color:#e50914;">Obra não encontrada.</div>';
+            return;
+        }
+        // Busca detalhes do filme ou série
+        const url = `https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=${tmdbApiKey}&language=pt-BR`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            document.getElementById('detalhes-container').innerHTML = '<div style="color:#e50914;">Obra não encontrada.</div>';
+            return;
+        }
+        const obra = await resp.json();
+        const poster = obra.poster_path ? `https://image.tmdb.org/t/p/w400${obra.poster_path}` : 'https://via.placeholder.com/400x600?text=Sem+Imagem';
+        const generos = obra.genres ? obra.genres.map(g => g.name).join(', ') : '';
+        const titulo = obra.title || obra.name;
+        const ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
+        const sinopse = obra.overview || 'Sem sinopse disponível.';
+        const nota = obra.vote_average ? obra.vote_average.toFixed(1) : '-';
+
+        const html = `
+            <div class="poster">
+                <img src="${poster}" alt="${titulo}">
+            </div>
+            <div class="info">
+                <div class="titulo">${titulo}</div>
+                <div class="ano">${ano}</div>
+                <div class="generos">${generos}</div>
+                <div class="nota"><i class="fas fa-star" style="color:#ffd700;"></i> ${nota}/10</div>
+                <div class="sinopse">${sinopse}</div>
+            </div>
+        `;
+        document.getElementById('detalhes-container').innerHTML = html;
+        document.getElementById('avaliacao-form-container').style.display = 'block';
+    }
+
+    // Carregar avaliações do backend
+    async function carregarAvaliacoes() {
+        if (!obraId) return;
+        const url = `http://localhost:3001/api/avaliacoes/${obraId}`;
+        try {
+            const resp = await fetch(url);
+            const avaliacoes = await resp.json();
+            let html = '<h3 style="color:#e50914;">Avaliações da comunidade</h3>';
+            if (avaliacoes.length === 0) {
+                html += '<div style="color:#ccc;">Seja o primeiro a avaliar!</div>';
+            } else {
+                avaliacoes.forEach(a => {
+                    html += `
+                        <div class="avaliacao-card">
+                            <span class="usuario">${a.usuarioNome || 'Usuário'}</span>
+                            <span class="nota"> - Nota: ${a.nota}</span>
+                            <div class="comentario">${a.comentario || ''}</div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('avaliacoes-container').innerHTML = html;
+        } catch {
+            document.getElementById('avaliacoes-container').innerHTML = '<div style="color:#e50914;">Erro ao carregar avaliações.</div>';
+        }
+    }
+
+    // Enviar avaliação
+    document.getElementById('form-avaliacao').addEventListener('submit', async function(event) {
+        event.preventDefault();
         const usuario = JSON.parse(localStorage.getItem('usuario'));
-        // Exemplo: obtendo o ID da obra da query string (?obraId=123)
-        const params = new URLSearchParams(window.location.search);
-        const obraId = params.get('obraId') || 1; // valor padrão 1 se não houver na URL
-
-        document.getElementById('form-avaliacao').addEventListener('submit', async function(event) {
-          event.preventDefault();
-          const nota = document.getElementById('nota').value;
-          const comentario = document.getElementById('comentario').value;
-
-          const resposta = await fetch('http://localhost:3001/api/avaliacoes', {
+        if (!usuario) {
+            document.getElementById('mensagem-avaliacao').textContent = 'Você precisa estar logado para avaliar.';
+            document.getElementById('mensagem-avaliacao').style.color = '#e50914';
+            return;
+        }
+        const nota = selectedRating;
+        const comentario = document.getElementById('comentario').value;
+        const resposta = await fetch('http://localhost:3001/api/avaliacoes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ usuarioId: usuario.id, obraId, nota, comentario })
-          });
-
-          const resultado = await resposta.json();
-          const mensagemDiv = document.getElementById('mensagem-avaliacao');
-
-          if (resposta.ok) {
-            mensagemDiv.textContent = resultado.message;
-            mensagemDiv.style.color = 'green';
-            listarAvaliacoes();
-          } else {
-            mensagemDiv.textContent = resultado.message;
-            mensagemDiv.style.color = 'red';
-          }
         });
-
-        async function listarAvaliacoes() {
-          const resposta = await fetch(`http://localhost:3001/api/avaliacoes/${obraId}`);
-          const avaliacoes = await resposta.json();
-          let html = '<ul>';
-          avaliacoes.forEach(a => {
-            html += `<li>Nota: ${a.nota} - ${a.comentario}</li>`;
-          });
-          html += '</ul>';
-          document.getElementById('lista-avaliacoes').innerHTML = html;
+        const resultado = await resposta.json();
+        if (resposta.ok) {
+            document.getElementById('mensagem-avaliacao').textContent = 'Avaliação enviada!';
+            document.getElementById('mensagem-avaliacao').style.color = 'lightgreen';
+            document.getElementById('form-avaliacao').reset();
+            carregarAvaliacoes();
+        } else {
+            document.getElementById('mensagem-avaliacao').textContent = resultado.message || 'Erro ao enviar avaliação.';
+            document.getElementById('mensagem-avaliacao').style.color = '#e50914';
         }
+    });
 
-        listarAvaliacoes();
+    // Estrelas de avaliação 1-10
+    const starRating = document.getElementById('star-rating');
+    const notaInput = document.getElementById('nota');
+    let selectedRating = 0;
+
+    function renderStars(rating = 0, hover = false) {
+        starRating.innerHTML = '';
+        for (let i = 10; i >= 1; i--) {
+            const star = document.createElement('span');
+            star.classList.add('star');
+            star.innerHTML = '<i class="fas fa-star"></i>';
+            if (i <= rating) star.classList.add(hover ? 'hovered' : 'selected');
+            star.dataset.value = i;
+            star.addEventListener('mouseenter', () => renderStars(i, true));
+            star.addEventListener('mouseleave', () => renderStars(selectedRating));
+            star.addEventListener('click', () => {
+                selectedRating = i;
+                notaInput.value = i;
+                renderStars(selectedRating);
+            });
+            starRating.appendChild(star);
+        }
+    }
+    renderStars();
+
+    carregarDetalhes();
+    carregarAvaliacoes();
     </script>
 </body>
 </html>

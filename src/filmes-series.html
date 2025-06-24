@@ -236,8 +236,9 @@
                 const titulo = item.title || item.name;
                 const ano = (item.release_date || item.first_air_date || '').slice(0,4);
                 const poster = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=Sem+Imagem';
+                const tipo = item.title ? 'movie' : 'tv';
                 html += `
-                    <div class="carousel-card">
+                    <div class="carousel-card" style="cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
                         <img src="${poster}" alt="${titulo}">
                         <div class="title">${titulo}</div>
                         <div class="year">${ano}</div>

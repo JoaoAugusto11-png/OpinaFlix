@@ -222,8 +222,9 @@
                     const poster = item.poster_path 
                         ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
                         : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                    const tipo = item.title ? 'movie' : 'tv';
                     html += `
-                        <div style="width:200px; text-align:center;">
+                        <div style="width:200px; text-align:center; cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
                             <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
                             <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
                             <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
@@ -254,8 +255,9 @@
                     const poster = item.poster_path 
                         ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
                         : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                    const tipo = item.title ? 'movie' : 'tv';
                     html += `
-                        <div style="width:200px; text-align:center;">
+                        <div style="width:200px; text-align:center; cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
                             <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
                             <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
                             <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
