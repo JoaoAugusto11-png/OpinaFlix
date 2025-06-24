@@ -239,19 +239,15 @@
 </head>
 <body>
     <nav>
-        <div class="logo">OpinaFlix</div>
-        <div class="nav-container">
-            <div class="nav-links">
-                <a href="index.html">Filmes e Séries</a>
-                <a href="colecoes.html">Coleções</a>
-                <a href="#">Conteúdo Novo</a>
-                <a href="#">Review da Galera</a>
-            </div>
-        </div>
-        <div class="search-bar">
-            <input type="text" placeholder="Pesquisar filmes, séries...">
-            <button><i class="fas fa-search"></i></button>
-        </div>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
+        </ul>
+        <button id="btn-login" onclick="window.location.href='login.html'" style="margin-left: 16px; background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">
+            Entrar na sua conta
+        </button>
     </nav>
 
     <div class="main-content">
