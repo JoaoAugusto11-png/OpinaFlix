@@ -117,104 +117,42 @@
             Entrar na sua conta
         </button>
     </nav>
-    <div class="container">
-        <div style="text-align:center; margin-bottom: 24px;">
-            <a href="index.html" style="text-decoration:none;">
-                <span style="color:#e50914; font-size:2em; font-weight:bold;">OpinaFlix</span>
-            </a>
-        </div>
-        <h2 id="titulo-form">Entrar na sua conta</h2>
+    <div style="max-width:400px;margin:40px auto;background:#222;padding:32px;border-radius:8px;">
+        <h2 style="color:#e50914;">Entrar</h2>
         <form id="form-login">
-            <input type="email" id="login-email" placeholder="E-mail" required>
-            <input type="password" id="login-senha" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
+            <input type="email" id="email" placeholder="E-mail" required style="width:100%;margin-bottom:8px;">
+            <input type="password" id="senha" placeholder="Senha" required style="width:100%;margin-bottom:16px;">
+            <button type="submit" style="width:100%;background:#e50914;color:#fff;border:none;padding:10px;border-radius:4px;">Entrar</button>
         </form>
-        <form id="form-cadastro" style="display:none;">
-            <input type="text" id="cadastro-nome" placeholder="Nome" required>
-            <input type="email" id="cadastro-email" placeholder="E-mail" required>
-            <input type="password" id="cadastro-senha" placeholder="Senha" required>
-            <button type="submit">Cadastrar</button>
-        </form>
-        <button class="toggle" id="toggle-form">Não tem conta? Cadastre-se</button>
-        <div class="mensagem" id="mensagem"></div>
+        <div id="mensagem-login" style="margin-top:12px;color:#e50914;"></div>
+        <div style="text-align:center; margin-top:16px;">
+            <span>Não tem uma conta?</span>
+            <a href="cadastro.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Cadastre-se</a>
+        </div>
     </div>
     <script>
-        // Alternar entre login e cadastro
-        const toggle = document.getElementById('toggle-form');
-        const formLogin = document.getElementById('form-login');
-        const formCadastro = document.getElementById('form-cadastro');
-        const tituloForm = document.getElementById('titulo-form');
-        const mensagem = document.getElementById('mensagem');
-
-        toggle.onclick = () => {
-            if (formLogin.style.display !== 'none') {
-                formLogin.style.display = 'none';
-                formCadastro.style.display = 'flex';
-                tituloForm.textContent = 'Cadastre-se no OpinaFlix';
-                toggle.textContent = 'Já tem conta? Entrar';
-                mensagem.textContent = '';
-            } else {
-                formLogin.style.display = 'flex';
-                formCadastro.style.display = 'none';
-                tituloForm.textContent = 'Entrar na sua conta';
-                toggle.textContent = 'Não tem conta? Cadastre-se';
-                mensagem.textContent = '';
-            }
-        };
-
-        // Login
-        formLogin.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-senha').value;
-
-            const resposta = await fetch('http://localhost:3001/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
-            });
-
-            const resultado = await resposta.json();
-
-            if (resposta.ok) {
-                mensagem.textContent = resultado.message;
-                mensagem.style.color = 'lightgreen';
-                localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1200);
-            } else {
-                mensagem.textContent = resultado.message;
-                mensagem.style.color = '#e50914';
-            }
+    document.getElementById('form-login').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const resp = await fetch('http://localhost:3001/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha })
         });
-
-        // Cadastro
-        formCadastro.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const nome = document.getElementById('cadastro-nome').value;
-            const email = document.getElementById('cadastro-email').value;
-            const senha = document.getElementById('cadastro-senha').value;
-
-            const resposta = await fetch('http://localhost:3001/api/usuarios', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email, senha })
-            });
-
-            const resultado = await resposta.json();
-
-            if (resposta.ok) {
-                mensagem.textContent = 'Cadastro realizado! Agora faça login.';
-                mensagem.style.color = 'lightgreen';
-                setTimeout(() => {
-                    toggle.click();
-                }, 1200);
-            } else {
-                mensagem.textContent = resultado.message;
-                mensagem.style.color = '#e50914';
-            }
-        });
+        const data = await resp.json();
+        if (resp.ok) {
+            // Salva usuário no localStorage
+            localStorage.setItem('usuario', JSON.stringify(data));
+            document.getElementById('mensagem-login').style.color = 'lightgreen';
+            document.getElementById('mensagem-login').textContent = 'Login realizado com sucesso!';
+            // Redireciona para a página principal ou dashboard
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        } else {
+            document.getElementById('mensagem-login').style.color = '#e50914';
+            document.getElementById('mensagem-login').textContent = data.message || 'Erro ao fazer login.';
+        }
+    });
     </script>
 </body>
 </html>

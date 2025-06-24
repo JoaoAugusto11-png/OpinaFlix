@@ -9,20 +9,8 @@ exports.criarAvaliacao = (req, res) => {
     `INSERT INTO avaliacoes (usuario_id, obra_id, tipo, nota, comentario) VALUES (?, ?, ?, ?, ?)`,
     [usuarioId, obraId, tipo, nota, comentario],
     function (err) {
-      if (err) {
-        return res.status(500).json({ message: 'Erro ao registrar avaliação.' });
-      }
-      res.status(201).json({
-        message: 'Avaliação registrada!',
-        avaliacao: {
-          id: this.lastID,
-          usuarioId,
-          obraId,
-          tipo,
-          nota,
-          comentario,
-        },
-      });
+      if (err) return res.status(500).json({ message: 'Erro ao registrar avaliação.' });
+      res.status(201).json({ id: this.lastID, usuarioId, obraId, tipo, nota, comentario });
     }
   );
 };

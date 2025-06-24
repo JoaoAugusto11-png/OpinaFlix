@@ -5,29 +5,32 @@ exports.cadastrarUsuario = (req, res) => {
   if (!nome || !email || !senha) {
     return res.status(400).json({ message: 'Preencha todos os campos.' });
   }
-
-  // Verifica se o e-mail já está cadastrado
   db.get('SELECT * FROM usuarios WHERE email = ?', [email], (err, row) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erro ao verificar e-mail.' });
-    }
-    if (row) {
-      return res.status(409).json({ message: 'E-mail já cadastrado.' });
-    }
-
-    // Insere novo usuário
+    if (err) return res.status(500).json({ message: 'Erro ao verificar e-mail.' });
+    if (row) return res.status(409).json({ message: 'E-mail já cadastrado.' });
     db.run(
       'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)',
       [nome, email, senha],
       function (err) {
-        if (err) {
-          return res.status(500).json({ message: 'Erro ao cadastrar usuário.' });
-        }
-        res.status(201).json({
-          message: 'Usuário cadastrado!',
-          usuario: { id: this.lastID, nome, email }
-        });
+        if (err) return res.status(500).json({ message: 'Erro ao cadastrar usuário.' });
+        res.status(201).json({ id: this.lastID, nome, email });
       }
     );
+  });
+};
+
+exports.login = (req, res) => {
+  const { email, senha } = req.body;
+  if (!email || !senha) {
+    return res.status(400).json({ message: 'Preencha todos os campos.' });
+  }
+  db.get('SELECT * FROM usuarios WHERE email = ?', [email], (err, row) => {
+    if (err) return res.status(500).json({ message: 'Erro ao buscar usuário.' });
+    if (!row || row.senha !== senha) {
+      return res.status(401).json({ message: 'E-mail ou senha inválidos.' });
+    }
+    // Não envie a senha para o frontend!
+    const { id, nome, email: userEmail } = row;
+    res.json({ id, nome, email: userEmail });
   });
 };
