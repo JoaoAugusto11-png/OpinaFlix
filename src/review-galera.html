@@ -5,47 +5,102 @@
     <title>Review da Galera - OpinaFlix</title>
     <style>
         body { background: #181818; color: #fff; font-family: Arial, sans-serif; margin: 0; }
-        .review-list { max-width: 700px; margin: 40px auto; }
-        .review-card { background: #222; border-radius: 8px; margin-bottom: 24px; padding: 24px; box-shadow: 0 2px 8px #0006; }
-        .review-header { display: flex; align-items: center; gap: 16px; }
-        .review-avatar { width: 48px; height: 48px; border-radius: 50%; background: #333; }
+        .review-list { max-width: 800px; margin: 40px auto; }
+        .review-card { background: #222; border-radius: 8px; margin-bottom: 32px; padding: 24px; box-shadow: 0 2px 8px #0006; display: flex; gap: 24px; }
+        .review-poster { width: 100px; min-width: 100px; }
+        .review-poster img { width: 100px; border-radius: 6px; }
+        .review-content { flex: 1; }
+        .review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
         .review-user { font-weight: bold; color: #e50914; }
-        .review-title { font-size: 1.2em; font-weight: bold; margin-top: 8px; }
-        .review-stars { color: #ffd700; }
+        .review-title { font-size: 1.1em; font-weight: bold; }
+        .review-stars { color: #ffd700; font-size: 1.2em; margin: 4px 0; }
         .review-date { color: #aaa; font-size: 0.9em; margin-left: 8px; }
-        .review-comment { margin-top: 12px; }
+        .review-comment { margin-top: 8px; }
     </style>
 </head>
 <body>
-    <!-- Inclua aqui o seu <nav> padrão -->
+    <nav style="background:#181818;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;">
+        <a href="index.html" class="logo" style="color:#e50914;font-size:2em;font-weight:bold;text-decoration:none;">OpinaFlix</a>
+        <ul style="list-style:none;display:flex;gap:24px;margin:0;padding:0;">
+            <li><a href="filmes-series.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Filmes e Séries</a></li>
+            <li><a href="colecoes.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Coleções</a></li>
+            <li><a href="review-galera.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Review da Galera</a></li>
+        </ul>
+        <div id="area-usuario"></div>
+    </nav>
     <div class="review-list" id="review-list"></div>
+    <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
+        <div style="margin-bottom: 12px;">
+            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+        <div style="font-size:1em; color:#aaa;">
+            &copy; 2025 OpinaFlix. Todos os direitos reservados.
+        </div>
+    </footer>
     <script>
+    // Cabeçalho do usuário
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const areaUsuario = document.getElementById('area-usuario');
+    if (usuario) {
+        areaUsuario.innerHTML = `
+            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+        `;
+        document.getElementById('btn-logout').onclick = function() {
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        };
+    } else {
+        areaUsuario.innerHTML = `
+            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
+        `;
+    }
+    </script>
+    <script>
+    // Carrega os reviews da galera
     async function carregarReviews() {
         const resp = await fetch('http://localhost:3001/api/avaliacoes/recentes');
         const reviews = await resp.json();
         let html = '';
         for (const r of reviews) {
-            // Busque detalhes da obra na TMDB
-            const obraResp = await fetch(`https://api.themoviedb.org/3/${r.tipo}/${r.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
-            const obra = await obraResp.json();
-            const titulo = obra.title || obra.name;
-            const ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
+            // Busca detalhes da obra na TMDB
+            let titulo = '', ano = '', poster = '', tipo = r.tipo;
+            try {
+                const obraResp = await fetch(`https://api.themoviedb.org/3/${tipo}/${r.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+                const obra = await obraResp.json();
+                titulo = obra.title || obra.name || 'Título não encontrado';
+                ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
+                poster = obra.poster_path ? `https://image.tmdb.org/t/p/w200${obra.poster_path}` : 'https://via.placeholder.com/100x150?text=Sem+Imagem';
+            } catch {
+                titulo = 'Título não encontrado';
+                poster = 'https://via.placeholder.com/100x150?text=Sem+Imagem';
+            }
             html += `
                 <div class="review-card">
-                    <div class="review-header">
-                        <div class="review-avatar"></div>
-                        <div>
-                            <span class="review-user">${r.usuarioNome}</span>
+                    <div class="review-poster">
+                        <img src="${poster}" alt="${titulo}">
+                    </div>
+                    <div class="review-content">
+                        <div class="review-header">
+                            <span class="review-user">${r.usuarioNome || 'Usuário'}</span>
                             <span class="review-date">${new Date(r.data).toLocaleDateString()}</span>
                         </div>
+                        <div class="review-title">${titulo} ${ano ? '('+ano+')' : ''}</div>
+                        <div class="review-stars">${'★'.repeat(r.nota)}${'☆'.repeat(10 - r.nota)}</div>
+                        <div class="review-comment">${r.comentario}</div>
                     </div>
-                    <div class="review-title">${titulo} ${ano ? '('+ano+')' : ''}</div>
-                    <div class="review-stars">${'★'.repeat(r.nota)}${'☆'.repeat(5 - r.nota)}</div>
-                    <div class="review-comment">${r.comentario}</div>
                 </div>
             `;
         }
-        document.getElementById('review-list').innerHTML = html;
+        document.getElementById('review-list').innerHTML = html || '<div style="color:#e50914;text-align:center;">Nenhuma avaliação encontrada.</div>';
     }
     carregarReviews();
     </script>

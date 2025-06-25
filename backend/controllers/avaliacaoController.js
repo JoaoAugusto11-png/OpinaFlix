@@ -35,7 +35,7 @@ exports.listarAvaliacoesRecentes = (req, res) => {
   db.all(
     `SELECT a.*, u.nome as usuarioNome FROM avaliacoes a
      LEFT JOIN usuarios u ON a.usuario_id = u.id
-     ORDER BY a.data DESC LIMIT 20`,
+     ORDER BY a.data DESC LIMIT 30`,
     [],
     (err, rows) => {
       if (err) return res.status(500).json({ message: 'Erro ao buscar avaliações.' });
