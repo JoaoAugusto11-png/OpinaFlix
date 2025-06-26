@@ -6,14 +6,12 @@
     <title>Coleções - OpinaFlix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-       
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
         body {
             background-color: #f5f5f5;
             color: #333;
@@ -21,8 +19,6 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        
-        
         nav {
             background-color: #141414;
             color: white;
@@ -34,27 +30,23 @@
             top: 0;
             z-index: 100;
         }
-        
         .logo {
             font-size: 2rem;
             font-weight: bold;
             color: #e50914;
             margin-right: auto;
         }
-        
         .nav-container {
             display: flex;
             justify-content: center;
             flex-grow: 1;
             margin: 0 2rem;
         }
-        
         .nav-links {
             display: flex;
             gap: 2rem;
             margin: 0 auto;
         }
-        
         .nav-links a {
             color: white;
             text-decoration: none;
@@ -62,24 +54,20 @@
             transition: color 0.3s;
             white-space: nowrap;
         }
-        
         .nav-links a:hover {
             color: #e50914;
         }
-        
         .search-bar {
             display: flex;
             align-items: center;
             margin-left: auto;
         }
-        
         .search-bar input {
             padding: 0.5rem 1rem;
             border: none;
             border-radius: 4px 0 0 4px;
             outline: none;
         }
-        
         .search-bar button {
             background-color: #e50914;
             color: white;
@@ -88,19 +76,14 @@
             border-radius: 0 4px 4px 0;
             cursor: pointer;
         }
-        
-     
         .main-content {
             flex: 1;
         }
-        
-        
         .collections-container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
-        
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -109,12 +92,10 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-        
         .page-title {
             font-size: 2rem;
             color: #141414;
         }
-        
         .new-collection-btn {
             background-color: #e50914;
             color: white;
@@ -128,17 +109,14 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
         .new-collection-btn:hover {
             background-color: #b2070f;
         }
-        
         .collections-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 2rem;
         }
-        
         .collection-card {
             background: white;
             border-radius: 8px;
@@ -146,24 +124,20 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: all 0.3s;
         }
-        
         .collection-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-        
         .collection-cover {
             height: 180px;
             position: relative;
             overflow: hidden;
         }
-        
         .collection-cover img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
         .collection-cover .overlay {
             position: absolute;
             bottom: 0;
@@ -173,30 +147,25 @@
             padding: 1rem;
             color: white;
         }
-        
         .collection-info {
             padding: 1.5rem;
         }
-        
         .collection-title {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
             color: #141414;
         }
-        
         .collection-meta {
             color: #666;
             font-size: 0.9rem;
             margin-bottom: 1rem;
         }
-        
         .collection-author {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-top: 1rem;
         }
-        
         .author-avatar {
             width: 30px;
             height: 30px;
@@ -204,8 +173,6 @@
             object-fit: cover;
             border: 2px solid #e50914;
         }
-        
-        
         footer {
             background-color: #141414;
             color: white;
@@ -213,38 +180,73 @@
             text-align: center;
             width: 100%;
         }
-        
         .social-icons {
             display: flex;
             justify-content: center;
             gap: 1.5rem;
             margin-bottom: 1rem;
         }
-        
         .social-icons a {
             color: white;
             font-size: 1.5rem;
             transition: color 0.3s;
         }
-        
         .social-icons a:hover {
             color: #e50914;
         }
-        
         .copyright {
             font-size: 0.9rem;
             color: #777;
         }
+        /* Modal styles */
+        #modal-colecao {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        #modal-colecao .modal-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            min-width: 320px;
+            max-width: 90vw;
+        }
+        #modal-colecao input, #modal-colecao textarea {
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 0.7rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #modal-colecao button {
+            background: #e50914;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.7rem 1.5rem;
+            cursor: pointer;
+        }
+        #modal-colecao .close-btn {
+            background: #ccc;
+            color: #222;
+            margin-left: 1rem;
+        }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul>
-            <li><a href="filmes-series.html">Filmes e Séries</a></li>
-            <li><a href="colecoes.html">Coleções</a></li>
-            <li><a href="review-galera.html">Review da Galera</a></li>
-        </ul>
+    <nav style="background:#141414;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;">
+        <a href="index.html" class="logo" style="font-size:2rem;font-weight:bold;color:#e50914;text-decoration:none;">OpinaFlix</a>
+        <div style="flex:1;display:flex;justify-content:center;">
+            <ul style="display:flex;gap:2rem;list-style:none;margin:0;">
+                <li><a href="filmes-series.html" style="color:white;text-decoration:none;font-weight:500;">Filmes e Séries</a></li>
+                <li><a href="colecoes.html" style="color:white;text-decoration:none;font-weight:500;">Coleções</a></li>
+                <li><a href="review-galera.html" style="color:white;text-decoration:none;font-weight:500;">Review da Galera</a></li>
+            </ul>
+        </div>
         <div id="area-usuario"></div>
     </nav>
 
@@ -252,82 +254,26 @@
         <div class="collections-container">
             <div class="page-header">
                 <h1 class="page-title">Coleções</h1>
-                <button class="new-collection-btn">
+                <button class="new-collection-btn" id="btn-nova-colecao">
                     <i class="fas fa-plus"></i> Nova Coleção
                 </button>
             </div>
-            
             <div class="collections-grid">
-                <a href="detalhes-obra.html" style="text-decoration:none; color:inherit;">
-                    <div class="collection-card">
-                        <div class="collection-cover">
-                            <img src="https://m.media-amazon.com/images/M/MV5BMDdmZGU3NDQtY2E5My00ZTliLWIzOTUtMTY4ZGI1YjdiNjk3XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_FMjpg_UX1000_.jpg" 
-                                 alt="Titanic" 
-                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/500x750?text=Melhores+Filmes'">
-                            <div class="overlay">
-                                <span>12 itens</span>
-                            </div>
-                        </div>
-                        <div class="collection-info">
-                            <h3 class="collection-title">Melhores Filmes que Vi</h3>
-                            <p class="collection-meta">Uma seleção dos filmes mais marcantes que já assisti</p>
-                            <div class="collection-author">
-                                <img src="https://media.licdn.com/dms/image/v2/D4D03AQHCPfE0oeIokg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1725745231859?e=1751500800&v=beta&t=_S0PH93Y74IV1XljwOkwBvKI_-KFT5JOPrH5OeUN7gI" alt="João Augusto" class="author-avatar">
-                                <span>João Augusto</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                
-                <a href="detalhes-obra.html" style="text-decoration:none; color:inherit;">
-                    <div class="collection-card">
-                        <div class="collection-cover">
-                            <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/1Wtfucko1wQBAN4rJbRnqA6kqQQ.jpg" 
-                                 alt="Duna: The Sisterhood" 
-                                 onerror="this.onerror=null;this.src='https://www.themoviedb.org/t/p/w600_and_h900_bestv2/1Wtfucko1wQBAN4rJbRnqA6kqQQ.jpg'">
-                            <div class="overlay">
-                                <span>8 itens</span>
-                            </div>
-                        </div>
-                        <div class="collection-info">
-                            <h3 class="collection-title">Séries do Ano!</h3>
-                            <p class="collection-meta">As melhores séries lançadas em 2025</p>
-                            <div class="collection-author">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Maria Silva" class="author-avatar">
-                                <span>Maria Silva</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                
-                <a href="detalhes-obra.html" style="text-decoration:none; color:inherit;">
-                    <div class="collection-card">
-                        <div class="collection-cover">
-                            <img src="https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_FMjpg_UX1000_.jpg" 
-                                 alt="Vingadores" 
-                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/500x750?text=Ficção+Científica'">
-                            <div class="overlay">
-                                <span>5 itens</span>
-                            </div>
-                        </div>
-                        <div class="collection-info">
-                            <h3 class="collection-title">Ficção Científica Essencial</h3>
-                            <p class="collection-meta">Os filmes que definiram o gênero</p>
-                            <div class="collection-author">
-                                <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Carlos Oliveira" class="author-avatar">
-                                <span>Carlos Oliveira</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
+                <!-- Coleções dinâmicas aqui -->
             </div>
-            
-            <form id="form-colecao">
-              <input type="text" id="nome-colecao" placeholder="Nome da coleção" required>
-              <button type="submit">Criar Coleção</button>
-            </form>
             <div id="mensagem-colecao"></div>
-            <div id="lista-colecoes"></div>
+        </div>
+    </div>
+
+    <!-- Modal para criar coleção -->
+    <div id="modal-colecao">
+        <div class="modal-content">
+            <form id="form-colecao">
+                <input type="text" id="nome-colecao" placeholder="Nome da coleção" required>
+                <textarea id="descricao-colecao" placeholder="Descrição (opcional)"></textarea>
+                <button type="submit">Criar Coleção</button>
+                <button type="button" class="close-btn" onclick="fecharModal()">Cancelar</button>
+            </form>
         </div>
     </div>
 
@@ -341,59 +287,116 @@
     </footer>
 
     <script>
-const usuario = JSON.parse(localStorage.getItem('usuario'));
-const areaUsuario = document.getElementById('area-usuario');
-if (usuario) {
-    areaUsuario.innerHTML = `
-        <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
-        <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
-    `;
-    document.getElementById('btn-logout').onclick = function() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'login.html';
+    // Usuário logado
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const areaUsuario = document.getElementById('area-usuario');
+    if (usuario) {
+        areaUsuario.innerHTML = `
+            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+        `;
+        document.getElementById('btn-logout').onclick = function() {
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        };
+    } else {
+        areaUsuario.innerHTML = `
+            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
+        `;
+    }
+    </script>
+    <script>
+    // Modal de nova coleção
+    document.getElementById('btn-nova-colecao').onclick = function() {
+        document.getElementById('modal-colecao').style.display = 'flex';
     };
-} else {
-    areaUsuario.innerHTML = `
-        <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
-    `;
-}
-</script>
-<script>
-document.getElementById('form-colecao').addEventListener('submit', async function(event) {
-  event.preventDefault();
-  const nome = document.getElementById('nome-colecao').value;
+    function fecharModal() {
+        document.getElementById('modal-colecao').style.display = 'none';
+        document.getElementById('form-colecao').reset();
+        document.getElementById('mensagem-colecao').textContent = '';
+    }
+    // Fecha modal ao clicar fora do conteúdo
+    document.getElementById('modal-colecao').onclick = function(e) {
+        if (e.target === this) fecharModal();
+    };
+    </script>
+    <script>
+    // Criação e listagem de coleções
+    async function carregarColecoes() {
+        const resp = await fetch(`http://localhost:3001/api/colecoes?usuarioId=${usuario.id}`);
+        const colecoes = await resp.json();
+        let html = '';
+        for (const c of colecoes) {
+            // Busca os itens da coleção
+            let poster = '';
+            let qtd_itens = 0;
+            try {
+                const itensResp = await fetch(`http://localhost:3001/api/colecoes/${c.id}/itens`);
+                const itens = await itensResp.json();
+                qtd_itens = Array.isArray(itens) ? itens.length : 0;
+                if (qtd_itens > 0) {
+                    const primeiro = itens[0];
+                    // Busca detalhes da obra na TMDB
+                    const obraResp = await fetch(`https://api.themoviedb.org/3/${primeiro.tipo}/${primeiro.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+                    const obra = await obraResp.json();
+                    poster = obra.poster_path ? `https://image.tmdb.org/t/p/w500${obra.poster_path}` : '';
+                }
+            } catch {}
+            html += `
+                <div class="collection-card">
+                    <div class="collection-cover">
+                        ${poster ? `<img src="${poster}" alt="${c.nome}">` : `<div style="width:100%;height:100%;background:#222;"></div>`}
+                        <div class="overlay">
+                            <span>${qtd_itens} ${qtd_itens === 1 ? 'item' : 'itens'}</span>
+                        </div>
+                    </div>
+                    <div class="collection-info">
+                        <h3 class="collection-title">${c.titulo || c.nome}</h3>
+                        <p class="collection-meta">${c.descricao || ''}</p>
+                        <div class="collection-author">
+                            <span>${usuario.nome}</span>
+                        </div>
+                        <a href="colecao-detalhe.html?id=${c.id}" style="background:#e50914;color:#fff;padding:6px 16px;border-radius:4px;text-decoration:none;display:inline-block;margin-top:10px;">Ver coleção</a>
+                    </div>
+                </div>
+            `;
+        }
+        document.querySelector('.collections-grid').innerHTML = html || '<p>Nenhuma coleção criada ainda.</p>';
+    }
+    carregarColecoes();
 
-  const resposta = await fetch('http://localhost:3001/api/colecoes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ usuarioId: usuario.id, nome })
-  });
+    document.getElementById('form-colecao').onsubmit = async function(e) {
+        e.preventDefault();
+        const nome = document.getElementById('nome-colecao').value;
+        const descricao = document.getElementById('descricao-colecao').value;
+        const resposta = await fetch('http://localhost:3001/api/colecoes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuarioId: usuario.id, nome, descricao })
+        });
+        const resultado = await resposta.json();
+        const mensagemDiv = document.getElementById('mensagem-colecao');
+        if (resposta.ok) {
+            mensagemDiv.textContent = resultado.message || 'Coleção criada!';
+            mensagemDiv.style.color = 'green';
+            fecharModal();
+            await carregarColecoes();
+        } else {
+            mensagemDiv.textContent = resultado.message || 'Erro ao criar coleção.';
+            mensagemDiv.style.color = 'red';
+        }
+    };
 
-  const resultado = await resposta.json();
-  const mensagemDiv = document.getElementById('mensagem-colecao');
-
-  if (resposta.ok) {
-    mensagemDiv.textContent = resultado.message;
-    mensagemDiv.style.color = 'green';
-    listarColecoes();
-  } else {
-    mensagemDiv.textContent = resultado.message;
-    mensagemDiv.style.color = 'red';
-  }
-});
-
-async function listarColecoes() {
-  const resposta = await fetch(`http://localhost:3001/api/colecoes/${usuario.id}`);
-  const colecoes = await resposta.json();
-  let html = '<ul>';
-  colecoes.forEach(c => {
-    html += `<li>${c.nome}</li>`;
-  });
-  html += '</ul>';
-  document.getElementById('lista-colecoes').innerHTML = html;
-}
-
-listarColecoes();
-</script>
+    // Carregar itens da coleção (exemplo de função)
+    async function carregarItensColecao(colecaoId) {
+        const resp = await fetch(`http://localhost:3001/api/colecoes/${colecaoId}/itens`);
+        const itens = await resp.json();
+        let html = '';
+        for (const item of itens) {
+            // ...renderização do item...
+        }
+        document.getElementById('itens-colecao').innerHTML = html || '<p style="color:#aaa;">Nenhum item nesta coleção.</p>';
+    }
+    </script>
 </body>
 </html>

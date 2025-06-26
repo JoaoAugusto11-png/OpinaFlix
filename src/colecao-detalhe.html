@@ -1,0 +1,191 @@
+<!-- colecao-detalhe.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes da Coleção - OpinaFlix</title>
+    <style>
+        body { background: #181818; color: #fff; font-family: Arial, sans-serif; margin: 0; }
+        .container { max-width: 700px; margin: 40px auto; }
+        .colecao-header { margin-bottom: 32px; }
+        .item-card { background: #222; border-radius: 8px; margin-bottom: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; }
+        .item-poster img { width: 60px; border-radius: 4px; }
+        .item-info { flex: 1; }
+        .item-remove { background: #e50914; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; }
+        nav { background:#141414;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100; }
+        .logo { font-size:2rem;font-weight:bold;color:#e50914;text-decoration:none; }
+        nav ul { display:flex;gap:2rem;list-style:none;margin:0; }
+        nav a { color:white;text-decoration:none;font-weight:500; }
+        .btn-voltar { display:inline-block;margin-bottom:24px;background:#e50914;color:#fff;padding:8px 20px;border-radius:4px;text-decoration:none;font-weight:bold; }
+        .area-usuario { margin-left:auto; }
+        .usuario-info { color:#fff;margin-right:12px; }
+        .btn-logout { background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer; }
+        .btn-entrar { background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
+        </ul>
+        <div class="area-usuario" id="area-usuario"></div>
+    </nav>
+
+    <div class="container">
+        <a href="colecoes.html" class="btn-voltar">
+            &larr; Voltar para Coleções
+        </a>
+
+        <div class="colecao-header">
+            <h2 id="colecao-titulo">Coleção</h2>
+            <p id="colecao-descricao"></p>
+        </div>
+
+        <h3>Adicionar Filme ou Série</h3>
+        <form id="form-add-item" style="margin-bottom:24px;">
+            <input type="text" id="busca-obra" placeholder="Digite o nome do filme ou série" autocomplete="off" style="width:60%;margin-bottom:8px;">
+            <div id="sugestoes-obras" style="background:#222;position:absolute;z-index:10;width:60%;"></div>
+            <input type="hidden" id="obra_id">
+            <input type="hidden" id="tipo">
+            <button type="submit">Adicionar</button>
+        </form>
+
+        <h3>Itens da Coleção</h3>
+        <div id="itens-colecao"></div>
+    </div>
+
+    <script>
+    // Cabeçalho do usuário (igual ao padrão)
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const areaUsuario = document.getElementById('area-usuario');
+    if (usuario) {
+        areaUsuario.innerHTML = `
+            <span class="usuario-info">Olá, ${usuario.nome}</span>
+            <button id="btn-logout" class="btn-logout">Sair</button>
+        `;
+        document.getElementById('btn-logout').onclick = function() {
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        };
+    } else {
+        areaUsuario.innerHTML = `
+            <button onclick="window.location.href='login.html'" class="btn-entrar">Entrar na sua conta</button>
+        `;
+    }
+
+    // Verifica login
+    if (!usuario) window.location.href = 'login.html';
+
+    // Pega o ID da coleção da URL
+    const params = new URLSearchParams(window.location.search);
+    const colecaoId = params.get('id');
+    if (!colecaoId) {
+        document.body.innerHTML = '<div style="color:#e50914;text-align:center;margin-top:40px;">Coleção não encontrada.</div>';
+        throw new Error('Coleção não encontrada');
+    }
+
+    // Carrega dados da coleção
+    async function carregarColecao() {
+        const resp = await fetch(`http://localhost:3001/api/colecoes?usuarioId=${usuario.id}`);
+        const colecoes = await resp.json();
+        const colecao = colecoes.find(c => c.id == colecaoId);
+        if (!colecao) {
+            document.body.innerHTML = '<div style="color:#e50914;text-align:center;margin-top:40px;">Coleção não encontrada.</div>';
+            return;
+        }
+        document.getElementById('colecao-titulo').textContent = colecao.titulo || colecao.nome || 'Coleção';
+        document.getElementById('colecao-descricao').textContent = colecao.descricao || '';
+    }
+
+    // Carrega itens da coleção
+    async function carregarItensColecao() {
+        const resp = await fetch(`http://localhost:3001/api/colecoes/${colecaoId}/itens`);
+        const itens = await resp.json();
+        let html = '';
+        for (const item of itens) {
+            // Busca detalhes da obra na TMDB
+            let titulo = '', poster = '', ano = '';
+            try {
+                const obraResp = await fetch(`https://api.themoviedb.org/3/${item.tipo}/${item.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+                const obra = await obraResp.json();
+                titulo = obra.title || obra.name || 'Título não encontrado';
+                ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
+                poster = obra.poster_path ? `https://image.tmdb.org/t/p/w200${obra.poster_path}` : 'https://via.placeholder.com/60x90?text=Sem+Imagem';
+            } catch {
+                titulo = 'Título não encontrado';
+                poster = 'https://via.placeholder.com/60x90?text=Sem+Imagem';
+            }
+            html += `
+                <div class="item-card">
+                    <div class="item-poster"><img src="${poster}" alt="${titulo}"></div>
+                    <div class="item-info">
+                        <div><b>${titulo}</b> ${ano ? '('+ano+')' : ''}</div>
+                        <div style="color:#aaa;font-size:0.95em;">${item.tipo === 'movie' ? 'Filme' : 'Série'} | TMDB ID: ${item.obra_id}</div>
+                    </div>
+                    <button class="item-remove" onclick="removerItemColecao(${item.id})">Remover</button>
+                </div>
+            `;
+        }
+        document.getElementById('itens-colecao').innerHTML = html || '<p style="color:#aaa;">Nenhum item nesta coleção.</p>';
+    }
+
+    // Adiciona item à coleção
+    document.getElementById('form-add-item').onsubmit = async function(e) {
+        e.preventDefault();
+        const obra_id = document.getElementById('obra_id').value;
+        const tipo = document.getElementById('tipo').value;
+        if (!obra_id || !tipo) {
+            alert('Selecione uma obra da lista!');
+            return;
+        }
+        await fetch(`http://localhost:3001/api/colecoes/${colecaoId}/itens`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ obra_id, tipo })
+        });
+        document.getElementById('form-add-item').reset();
+        document.getElementById('busca-obra').value = '';
+        carregarItensColecao(); // <-- Isso atualiza a lista na tela!
+    };
+
+    // Remove item da coleção
+    async function removerItemColecao(itemId) {
+        await fetch(`http://localhost:3001/api/colecoes/${colecaoId}/itens/${itemId}`, {
+            method: 'DELETE'
+        });
+        carregarItensColecao();
+    }
+    window.removerItemColecao = removerItemColecao;
+
+    // Inicialização
+    carregarColecao();
+    carregarItensColecao();
+
+    document.getElementById('busca-obra').addEventListener('input', async function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            document.getElementById('sugestoes-obras').innerHTML = '';
+            return;
+        }
+        const resp = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR&query=${encodeURIComponent(query)}`);
+        const data = await resp.json();
+        let html = '';
+        for (const r of data.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv')) {
+            const nome = r.title || r.name;
+            html += `<div style="padding:6px;cursor:pointer;" onclick="selecionarObra(${r.id},'${r.media_type}','${nome.replace(/'/g, "\\'")}')">${nome} (${r.media_type === 'movie' ? 'Filme' : 'Série'})</div>`;
+        }
+        document.getElementById('sugestoes-obras').innerHTML = html;
+    });
+
+    function selecionarObra(id, tipo, nome) {
+        document.getElementById('busca-obra').value = nome;
+        document.getElementById('obra_id').value = id;
+        document.getElementById('tipo').value = tipo;
+        document.getElementById('sugestoes-obras').innerHTML = '';
+    }
+    </script>
+</body>
+</html>
