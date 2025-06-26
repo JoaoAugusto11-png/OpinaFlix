@@ -5,7 +5,7 @@ const app = express();
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const colecaoRoutes = require('./routes/colecaoRoutes');
 const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
-// const filmeRoutes = require('./routes/filmeRoutes'); // Descomente se existir
+const perfilRoutes = require('./routes/perfilRoutes');
 
 const PORT = 3001;
 
@@ -15,7 +15,7 @@ app.use(express.json());
 app.use('/api', usuarioRoutes);
 app.use('/api', colecaoRoutes);
 app.use('/api', avaliacaoRoutes);
-// app.use('/api', filmeRoutes); // Descomente se existir
+app.use('/api', perfilRoutes);
 
 // Middleware de erro global (opcional)
 app.use((err, req, res, next) => {

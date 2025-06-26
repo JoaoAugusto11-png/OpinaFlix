@@ -388,11 +388,12 @@ document.getElementById('btn-filtrar').onclick = async function() {
 };
     </script>
     <script>
+// Script padrão para área do usuário
 const usuario = JSON.parse(localStorage.getItem('usuario'));
 const areaUsuario = document.getElementById('area-usuario');
 if (usuario) {
     areaUsuario.innerHTML = `
-        <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+        <a href="perfil.html" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
         <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
     `;
     document.getElementById('btn-logout').onclick = function() {

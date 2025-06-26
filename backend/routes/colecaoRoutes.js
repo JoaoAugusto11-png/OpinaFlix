@@ -14,4 +14,7 @@ router.delete('/colecoes/:colecaoId/itens/:itemId', colecaoController.removerIte
 // Listar itens de uma coleção
 router.get('/colecoes/:colecaoId/itens', colecaoController.listarItensColecao);
 
+// Excluir coleção
+router.delete('/colecoes/:colecaoId', colecaoController.excluirColecao);
+
 module.exports = router;

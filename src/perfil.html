@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário - OpinaFlix</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #181818; color: #fff; font-family: Arial, sans-serif; }
+        
+        nav {
+            background: #141414; padding: 1rem 2rem; display: flex; 
+            justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 2rem; font-weight: bold; color: #e50914; text-decoration: none; }
+        nav ul { display: flex; gap: 2rem; list-style: none; }
+        nav a { color: white; text-decoration: none; font-weight: 500; }
+        
+        .perfil-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .perfil-header {
+            background: linear-gradient(135deg, #e50914, #b81d24);
+            padding: 40px; border-radius: 12px; text-align: center; margin-bottom: 30px;
+        }
+        .foto-perfil {
+            width: 120px; height: 120px; border-radius: 50%; 
+            object-fit: cover; border: 4px solid white; margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .nome-usuario { font-size: 2rem; margin-bottom: 20px; }
+        .estatisticas { display: flex; justify-content: center; gap: 40px; }
+        .stat { text-align: center; }
+        .stat-numero { font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-size: 0.9rem; opacity: 0.9; }
+        
+        .secao { background: #222; padding: 25px; border-radius: 8px; margin-bottom: 25px; }
+        .secao h3 { margin-bottom: 20px; color: #e50914; }
+        .filme-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 20px; 
+        }
+        .filme-item { 
+            text-align: center; 
+            cursor: pointer; 
+            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .filme-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(229, 9, 20, 0.3);
+        }
+        .filme-poster { 
+            width: 100%; 
+            aspect-ratio: 2/3; 
+            background: #333; 
+            border-radius: 6px; 
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+        .filme-nota { 
+            background: #e50914; 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 0.9rem; 
+            font-weight: bold;
+            margin: 8px auto 5px auto;
+            display: inline-block;
+        }
+        .filme-titulo {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .filme-ano {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .colecoes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .colecao-card { background: #333; border-radius: 8px; padding: 15px; }
+        .colecao-titulo { font-weight: bold; margin-bottom: 5px; }
+        .colecao-info { font-size: 0.9rem; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <div style="flex:1;display:flex;justify-content:center;">
+            <ul>
+                <li><a href="filmes-series.html">Filmes e Séries</a></li>
+                <li><a href="colecoes.html">Coleções</a></li>
+                <li><a href="review-galera.html">Review da Galera</a></li>
+            </ul>
+        </div>
+        <div id="area-usuario"></div>
+    </nav>
+
+    <div class="perfil-container">
+        <div class="perfil-header">
+            <img id="foto-perfil" class="foto-perfil" src="https://via.placeholder.com/120x120?text=User" alt="Foto do perfil" onclick="alterarFoto()">
+            <h2 id="nome-usuario" class="nome-usuario">Carregando...</h2>
+            <div class="estatisticas">
+                <div class="stat">
+                    <div id="total-seguidores" class="stat-numero">0</div>
+                    <div class="stat-label">Seguidores</div>
+                </div>
+                <div class="stat">
+                    <div id="total-reviews" class="stat-numero">0</div>
+                    <div class="stat-label">Reviews</div>
+                </div>
+                <div class="stat">
+                    <div id="total-colecoes" class="stat-numero">0</div>
+                    <div class="stat-label">Coleções</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="secao">
+            <h3>Visto Recentemente</h3>
+            <div id="reviews-recentes" class="filme-grid">
+                <!-- Reviews serão carregados aqui -->
+            </div>
+        </div>
+
+        <div class="secao">
+            <h3>Minhas Coleções</h3>
+            <div id="minhas-colecoes" class="colecoes-grid">
+                <!-- Coleções serão carregadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="uploadFoto()">
+
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario'));
+        if (!usuario) window.location.href = 'login.html';
+
+        // Pega o ID do usuário da URL ou usa o usuário logado
+        const params = new URLSearchParams(window.location.search);
+        const perfilId = params.get('id') || usuario.id;
+        const isOwnProfile = perfilId == usuario.id;
+
+        // Carrega dados do perfil
+        async function carregarPerfil() {
+            const resp = await fetch(`http://localhost:3001/api/perfil/${perfilId}`);
+            const perfil = await resp.json();
+            
+            document.getElementById('nome-usuario').textContent = perfil.nome;
+            document.getElementById('total-reviews').textContent = perfil.total_reviews;
+            document.getElementById('total-colecoes').textContent = perfil.total_colecoes;
+            document.getElementById('total-seguidores').textContent = perfil.total_seguidores;
+            
+            if (perfil.foto_perfil) {
+                document.getElementById('foto-perfil').src = perfil.foto_perfil;
+            }
+            
+            // Só permite alterar foto se for o próprio perfil
+            if (!isOwnProfile) {
+                document.getElementById('foto-perfil').style.cursor = 'default';
+                document.getElementById('foto-perfil').onclick = null;
+            }
+        }
+
+        // Carrega reviews recentes
+        async function carregarReviews() {
+            const resp = await fetch(`http://localhost:3001/api/perfil/${perfilId}/reviews`);
+            const reviews = await resp.json();
+            let html = '';
+            
+            if (reviews.length === 0) {
+                html = '<p style="color:#aaa;text-align:center;grid-column:1/-1;">Nenhum review feito ainda.</p>';
+            } else {
+                for (const review of reviews.slice(0, 6)) {
+                    // Busca dados da obra na TMDB
+                    try {
+                        const obraResp = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+                        const obra = await obraResp.json();
+                        const poster = obra.poster_path ? `https://image.tmdb.org/t/p/w200${obra.poster_path}` : 'https://via.placeholder.com/120x180?text=Sem+Poster';
+                        const titulo = obra.title || obra.name;
+                        const ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
+                        
+                        html += `
+                            <div class="filme-item" onclick="irParaReview(${review.obra_id}, '${review.tipo}')">
+                                <img class="filme-poster" src="${poster}" alt="${titulo}">
+                                <div class="filme-nota">${review.nota}/10</div>
+                                <div class="filme-titulo">${titulo}</div>
+                                <div class="filme-ano">${ano}</div>
+                            </div>
+                        `;
+                    } catch (error) {
+                        console.error('Erro ao buscar dados da obra:', error);
+                        html += `
+                            <div class="filme-item">
+                                <div class="filme-poster" style="background:#333;display:flex;align-items:center;justify-content:center;color:#666;">Erro</div>
+                                <div class="filme-nota">${review.nota}/10</div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            document.getElementById('reviews-recentes').innerHTML = html;
+        }
+
+        // Função para ir para a página de review da galera
+        function irParaReview(obraId, tipo) {
+            window.location.href = `review-galera.html?obra_id=${obraId}&tipo=${tipo}`;
+        }
+
+        // Carrega coleções
+        async function carregarColecoes() {
+            const resp = await fetch(`http://localhost:3001/api/perfil/${perfilId}/colecoes`);
+            const colecoes = await resp.json();
+            let html = '';
+            
+            for (const colecao of colecoes) {
+                html += `
+                    <div class="colecao-card">
+                        <div class="colecao-titulo">${colecao.titulo || colecao.nome}</div>
+                        <div class="colecao-info">${colecao.descricao || 'Sem descrição'}</div>
+                        <a href="colecao-detalhe.html?id=${colecao.id}" style="color:#e50914;text-decoration:none;">Ver coleção →</a>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('minhas-colecoes').innerHTML = html || '<p>Nenhuma coleção criada.</p>';
+        }
+
+        // Alterar foto de perfil
+        function alterarFoto() {
+            if (isOwnProfile) {
+                document.getElementById('input-foto').click();
+            }
+        }
+
+        // Upload de foto
+        function uploadFoto() {
+            const file = document.getElementById('input-foto').files[0];
+            if (!file) return;
+            
+            // Aqui você pode implementar upload real para um serviço
+            // Por enquanto, vamos usar uma URL de exemplo
+            const fotoUrl = 'https://via.placeholder.com/120x120?text=Nova+Foto';
+            
+            fetch(`http://localhost:3001/api/perfil/${usuario.id}/foto`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ foto_url: fotoUrl })
+            }).then(() => {
+                document.getElementById('foto-perfil').src = fotoUrl;
+                alert('Foto atualizada!');
+            });
+        }
+
+        // Área do usuário na página de perfil
+        const areaUsuario = document.getElementById('area-usuario');
+        areaUsuario.innerHTML = `
+            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+            <button onclick="localStorage.removeItem('usuario'); window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+        `;
+
+        // Inicialização
+        carregarPerfil();
+        carregarReviews();
+        carregarColecoes();
+    </script>
+</body>
+</html>

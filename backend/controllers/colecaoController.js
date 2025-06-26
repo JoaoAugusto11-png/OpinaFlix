@@ -25,15 +25,14 @@ exports.criarColecao = (req, res) => {
   );
 };
 
-// Listar coleções de um usuário
+// Listar todas as coleções (visível para todos)
 exports.listarColecoes = (req, res) => {
-  const usuarioId = parseInt(req.query.usuarioId);
-  if (!usuarioId) {
-    return res.status(400).json({ message: 'Usuário não informado.' });
-  }
+  // Remove o filtro por usuário para mostrar todas as coleções
   db.all(
-    `SELECT * FROM colecoes WHERE usuario_id = ?`,
-    [usuarioId],
+    `SELECT c.*, u.nome as criador_nome FROM colecoes c 
+     LEFT JOIN usuarios u ON c.usuario_id = u.id 
+     ORDER BY c.id DESC`,
+    [],
     (err, rows) => {
       if (err) {
         return res.status(500).json({ message: 'Erro ao buscar coleções.' });
@@ -86,6 +85,53 @@ exports.listarItensColecao = (req, res) => {
         return res.status(500).json({ message: 'Erro ao buscar itens.' });
       }
       res.json(rows);
+    }
+  );
+};
+
+// Excluir coleção (apenas o criador pode excluir)
+exports.excluirColecao = (req, res) => {
+  const colecaoId = parseInt(req.params.colecaoId);
+  const { usuarioId } = req.body;
+  
+  if (!colecaoId || !usuarioId) {
+    return res.status(400).json({ message: 'Dados incompletos.' });
+  }
+
+  // Verifica se a coleção pertence ao usuário
+  db.get(
+    `SELECT * FROM colecoes WHERE id = ? AND usuario_id = ?`,
+    [colecaoId, usuarioId],
+    (err, row) => {
+      if (err) {
+        return res.status(500).json({ message: 'Erro ao verificar coleção.' });
+      }
+      if (!row) {
+        return res.status(403).json({ message: 'Você não tem permissão para excluir esta coleção.' });
+      }
+
+      // Primeiro, remove todos os itens da coleção
+      db.run(
+        `DELETE FROM colecao_itens WHERE colecao_id = ?`,
+        [colecaoId],
+        (err) => {
+          if (err) {
+            return res.status(500).json({ message: 'Erro ao remover itens da coleção.' });
+          }
+
+          // Depois, remove a coleção
+          db.run(
+            `DELETE FROM colecoes WHERE id = ?`,
+            [colecaoId],
+            (err) => {
+              if (err) {
+                return res.status(500).json({ message: 'Erro ao excluir coleção.' });
+              }
+              res.json({ success: true, message: 'Coleção excluída com sucesso.' });
+            }
+          );
+        }
+      );
     }
   );
 };

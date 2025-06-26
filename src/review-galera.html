@@ -51,7 +51,7 @@
     const areaUsuario = document.getElementById('area-usuario');
     if (usuario) {
         areaUsuario.innerHTML = `
-            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
+            <a href="perfil.html" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
             <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
         `;
         document.getElementById('btn-logout').onclick = function() {
@@ -63,8 +63,35 @@
             <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
         `;
     }
-    </script>
-    <script>
+
+    window.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const obraId = params.get('obra_id');
+        const tipo = params.get('tipo');
+        
+        if (obraId && tipo) {
+            // Se vier da página de perfil, busca a obra específica
+            buscarObraEspecifica(obraId, tipo);
+        }
+    });
+
+    async function buscarObraEspecifica(obraId, tipo) {
+        try {
+            // Busca dados da obra na TMDB
+            const resp = await fetch(`https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+            const obra = await resp.json();
+            
+            // Busca reviews dessa obra específica
+            const reviewsResp = await fetch(`http://localhost:3001/api/reviews?obra_id=${obraId}&tipo=${tipo}`);
+            const reviews = await reviewsResp.json();
+            
+            // Exibe a obra e seus reviews
+            exibirObraEReviews(obra, reviews, tipo);
+        } catch (error) {
+            console.error('Erro ao buscar obra específica:', error);
+        }
+    }
+
     // Carrega os reviews da galera
     async function carregarReviews() {
         const resp = await fetch('http://localhost:3001/api/avaliacoes/recentes');
