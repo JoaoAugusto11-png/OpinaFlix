@@ -117,7 +117,9 @@
                     </div>
                     <div class="review-content">
                         <div class="review-header">
-                            <span class="review-user">${r.usuarioNome || 'Usuário'}</span>
+                            <a href="perfil.html?id=${r.usuario_id}" style="color:#e50914;text-decoration:none;font-weight:bold;">
+                                ${r.usuarioNome || 'Usuário'}
+                            </a>
                             <span class="review-date">${new Date(r.data).toLocaleDateString()}</span>
                         </div>
                         <div class="review-title">${titulo} ${ano ? '('+ano+')' : ''}</div>

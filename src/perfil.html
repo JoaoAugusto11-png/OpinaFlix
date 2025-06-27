@@ -134,6 +134,7 @@
         </div>
     </div>
 
+    <!-- No HTML, melhore o input: -->
     <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="uploadFoto()">
 
     <script>
@@ -144,6 +145,8 @@
         const params = new URLSearchParams(window.location.search);
         const perfilId = params.get('id') || usuario.id;
         const isOwnProfile = perfilId == usuario.id;
+
+        let isFollowing = false;
 
         // Carrega dados do perfil
         async function carregarPerfil() {
@@ -163,6 +166,74 @@
             if (!isOwnProfile) {
                 document.getElementById('foto-perfil').style.cursor = 'default';
                 document.getElementById('foto-perfil').onclick = null;
+                
+                // Adicionar botão seguir se não for o próprio perfil
+                await adicionarBotaoSeguir();
+            }
+        }
+
+        // Adicionar botão de seguir
+        async function adicionarBotaoSeguir() {
+            // Verificar se já está seguindo
+            const resp = await fetch(`http://localhost:3001/api/perfil/${perfilId}/seguindo/${usuario.id}`);
+            const data = await resp.json();
+            isFollowing = data.seguindo;
+            
+            // Criar botão
+            const botaoContainer = document.querySelector('.estatisticas');
+            const botaoSeguir = document.createElement('button');
+            botaoSeguir.id = 'btn-seguir';
+            botaoSeguir.style.cssText = `
+                background: ${isFollowing ? '#6c757d' : '#e50914'};
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+                margin-top: 15px;
+            `;
+            botaoSeguir.textContent = isFollowing ? 'Seguindo' : 'Seguir';
+            botaoSeguir.onclick = toggleSeguir;
+            
+            // Adicionar após as estatísticas
+            botaoContainer.parentNode.insertBefore(botaoSeguir, botaoContainer.nextSibling);
+        }
+
+        // Toggle seguir/deixar de seguir
+        async function toggleSeguir() {
+            const botao = document.getElementById('btn-seguir');
+            
+            try {
+                if (isFollowing) {
+                    // Deixar de seguir
+                    await fetch(`http://localhost:3001/api/perfil/${perfilId}/seguir`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ seguidor_id: usuario.id })
+                    });
+                    
+                    isFollowing = false;
+                    botao.textContent = 'Seguir';
+                    botao.style.background = '#e50914';
+                } else {
+                    // Seguir
+                    await fetch(`http://localhost:3001/api/perfil/${perfilId}/seguir`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ seguidor_id: usuario.id })
+                    });
+                    
+                    isFollowing = true;
+                    botao.textContent = 'Seguindo';
+                    botao.style.background = '#6c757d';
+                }
+                
+                // Atualizar contagem de seguidores
+                await carregarPerfil();
+            } catch (error) {
+                console.error('Erro ao seguir/deixar de seguir:', error);
+                alert('Erro ao atualizar seguimento');
             }
         }
 
@@ -243,17 +314,56 @@
             const file = document.getElementById('input-foto').files[0];
             if (!file) return;
             
-            // Aqui você pode implementar upload real para um serviço
-            // Por enquanto, vamos usar uma URL de exemplo
-            const fotoUrl = 'https://via.placeholder.com/120x120?text=Nova+Foto';
+            // Verificar se é imagem
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, selecione apenas arquivos de imagem!');
+                return;
+            }
             
+            // Verificar tamanho (5MB máximo)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 5MB!');
+                return;
+            }
+            
+            // Criar FormData para envio
+            const formData = new FormData();
+            formData.append('foto', file);
+            
+            // Mostrar loading
+            const fotoElement = document.getElementById('foto-perfil');
+            const originalSrc = fotoElement.src;
+            fotoElement.style.opacity = '0.5';
+            
+            // Enviar arquivo
             fetch(`http://localhost:3001/api/perfil/${usuario.id}/foto`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ foto_url: fotoUrl })
-            }).then(() => {
-                document.getElementById('foto-perfil').src = fotoUrl;
-                alert('Foto atualizada!');
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualizar foto na página
+                    fotoElement.src = data.foto_url;
+                    fotoElement.style.opacity = '1';
+                    
+                    // Atualizar localStorage se necessário
+                    const usuarioAtualizado = JSON.parse(localStorage.getItem('usuario'));
+                    usuarioAtualizado.foto_perfil = data.foto_url;
+                    localStorage.setItem('usuario', JSON.stringify(usuarioAtualizado));
+                    
+                    alert('Foto atualizada com sucesso!');
+                } else {
+                    fotoElement.src = originalSrc;
+                    fotoElement.style.opacity = '1';
+                    alert('Erro ao atualizar foto: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                fotoElement.src = originalSrc;
+                fotoElement.style.opacity = '1';
+                alert('Erro ao enviar foto. Tente novamente.');
             });
         }
 
