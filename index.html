@@ -13,7 +13,8 @@
             <div class="header-content">
                 <a href="index.html" class="logo">OpinaFlix</a>
                 <nav class="nav">
-                    <a href="index.html" class="active">Filmes e Séries</a>
+                    <a href="index.html" class="active">Início</a>
+                    <a href="filmes-series.html">Filmes e Séries</a>
                     <a href="colecoes.html">Coleções</a>
                     <a href="review-galera.html">Review da Galera</a>
                 </nav>
@@ -33,8 +34,8 @@
                     <h1>Bem-vindo ao OpinaFlix</h1>
                     <p>Registre, avalie e compartilhe suas opiniões sobre seus filmes e séries favoritos. Descubra novas obras e veja o que a galera está assistindo!</p>
                     <div class="hero-actions">
-                        <a href="cadastro.html" class="btn-primary">CADASTRE-SE GRÁTIS</a>
-                        <a href="#populares" class="btn-secondary">EXPLORAR FILMES</a>
+                        <a href="cadastro.html" class="btn btn-primary">CADASTRE-SE GRÁTIS</a>
+                        <a href="#populares" class="btn btn-secondary">EXPLORAR FILMES</a>
                     </div>
                 </div>
             </div>
@@ -90,7 +91,7 @@
         <section class="populares" id="populares">
             <div class="container">
                 <h2>Filmes Populares</h2>
-                <div id="popularMovies" class="movies-grid">
+                <div id="popularMovies" class="content-grid">
                     <!-- Será preenchido pelo JavaScript -->
                 </div>
             </div>
@@ -122,6 +123,7 @@
                     <h4>Links</h4>
                     <ul>
                         <li><a href="index.html">Início</a></li>
+                        <li><a href="filmes-series.html">Filmes e Séries</a></li>
                         <li><a href="review-galera.html">Reviews</a></li>
                         <li><a href="colecoes.html">Coleções</a></li>
                     </ul>
@@ -273,12 +275,17 @@
                 const nota = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
                 
                 return `
-                    <div class="search-result-card" onclick="verDetalhes(${item.id}, '${tipo}')">
-                        <img src="${poster}" alt="${titulo}" loading="lazy">
+                    <div class="content-card" onclick="verDetalhes(${item.id}, '${tipo}')">
+                        <div class="card-poster">
+                            <img src="${poster}" alt="${titulo}" loading="lazy">
+                        </div>
                         <div class="card-info">
-                            <h4>${titulo}</h4>
-                            <p class="card-year">${ano || 'N/A'} • ${tipo === 'movie' ? 'Filme' : 'Série'}</p>
-                            <p class="card-rating">⭐ ${nota}/10</p>
+                            <h4 class="card-title">${titulo}</h4>
+                            <div class="card-meta">
+                                <span class="card-year">${ano || 'N/A'}</span>
+                                <span class="card-type">${tipo === 'movie' ? 'Filme' : 'Série'}</span>
+                            </div>
+                            <div class="card-rating">⭐ ${nota}/10</div>
                         </div>
                     </div>
                 `;
@@ -326,12 +333,17 @@
                 const nota = filme.vote_average ? filme.vote_average.toFixed(1) : 'N/A';
                 
                 return `
-                    <div class="movie-card" onclick="verDetalhes(${filme.id}, 'movie')">
-                        <img src="${poster}" alt="${filme.title}" loading="lazy">
-                        <div class="movie-info">
-                            <h4>${filme.title}</h4>
-                            <p class="movie-year">${ano}</p>
-                            <p class="movie-rating">⭐ ${nota}/10</p>
+                    <div class="content-card" onclick="verDetalhes(${filme.id}, 'movie')">
+                        <div class="card-poster">
+                            <img src="${poster}" alt="${filme.title}" loading="lazy">
+                        </div>
+                        <div class="card-info">
+                            <h4 class="card-title">${filme.title}</h4>
+                            <div class="card-meta">
+                                <span class="card-year">${ano}</span>
+                                <span class="card-type">Filme</span>
+                            </div>
+                            <div class="card-rating">⭐ ${nota}/10</div>
                         </div>
                     </div>
                 `;
@@ -415,297 +427,5 @@
             window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
         }
     </script>
-
-    <style>
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-menu span {
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .btn-perfil {
-            background: #4f46e5;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-
-        .btn-perfil:hover {
-            background: #3b34d1;
-        }
-
-        .btn-logout {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-
-        .btn-logout:hover {
-            background: #c0392b;
-        }
-
-        .search-results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .search-result-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .search-result-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .search-result-card img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-        }
-
-        .card-info {
-            padding: 15px;
-        }
-
-        .card-info h4 {
-            margin: 0 0 8px 0;
-            color: #fff;
-            font-size: 16px;
-        }
-
-        .card-year, .card-rating {
-            margin: 0;
-            font-size: 14px;
-            color: #ccc;
-        }
-
-        .movies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .movie-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .movie-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .movie-card img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-        }
-
-        .movie-info {
-            padding: 15px;
-        }
-
-        .movie-info h4 {
-            margin: 0 0 8px 0;
-            color: #fff;
-            font-size: 16px;
-        }
-
-        .movie-year, .movie-rating {
-            margin: 0;
-            font-size: 14px;
-            color: #ccc;
-        }
-
-        .reviews-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .review-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: #e50914;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .user-info h5 {
-            margin: 0;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .review-date {
-            margin: 0;
-            color: #666;
-            font-size: 12px;
-        }
-
-        .review-rating {
-            color: #f39c12;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .review-movie {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .review-movie img {
-            width: 60px;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .review-movie h4 {
-            margin: 0 0 5px 0;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .review-movie h4:hover {
-            color: #e50914;
-        }
-
-        .movie-type {
-            margin: 0;
-            color: #666;
-            font-size: 12px;
-        }
-
-        .review-comment {
-            color: #ccc;
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        .section-footer {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .loading-message, .search-message {
-            text-align: center;
-            color: #ccc;
-            padding: 20px;
-        }
-
-        .error-message {
-            text-align: center;
-            color: #e74c3c;
-            padding: 20px;
-        }
-
-        .empty-reviews {
-            text-align: center;
-            color: #666;
-            padding: 40px;
-        }
-
-        .empty-reviews a {
-            color: #e50914;
-            text-decoration: none;
-        }
-
-        .empty-reviews a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .footer-section h4 {
-            color: #fff;
-            margin-bottom: 15px;
-        }
-
-        .footer-section p {
-            color: #ccc;
-            line-height: 1.5;
-        }
-
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 8px;
-        }
-
-        .footer-section ul li a {
-            color: #ccc;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-section ul li a:hover {
-            color: #e50914;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            color: #666;
-        }
-    </style>
 </body>
 </html>
