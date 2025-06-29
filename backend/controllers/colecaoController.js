@@ -1,137 +1,375 @@
-const db = require('../db');
+const { db } = require('../config/firebase');
 
-// Criar coleção
-exports.criarColecao = (req, res) => {
-  const { usuarioId, nome } = req.body;
-  if (!usuarioId || !nome) {
-    return res.status(400).json({ message: 'Dados incompletos.' });
-  }
-  db.run(
-    `INSERT INTO colecoes (usuario_id, nome) VALUES (?, ?)`,
-    [usuarioId, nome],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ message: 'Erro ao criar coleção.' });
-      }
-      res.status(201).json({
-        message: 'Coleção criada!',
-        colecao: {
-          id: this.lastID,
-          usuarioId,
-          nome,
-        },
+exports.criarColecao = async (req, res) => {
+  try {
+    const { usuario_id, nome, descricao } = req.body;
+    
+    if (!usuario_id || !nome) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Campos obrigatórios: usuario_id e nome.' 
       });
     }
-  );
-};
 
-// Listar todas as coleções (visível para todos)
-exports.listarColecoes = (req, res) => {
-  // Remove o filtro por usuário para mostrar todas as coleções
-  db.all(
-    `SELECT c.*, u.nome as criador_nome FROM colecoes c 
-     LEFT JOIN usuarios u ON c.usuario_id = u.id 
-     ORDER BY c.id DESC`,
-    [],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erro ao buscar coleções.' });
-      }
-      res.json(rows);
+    // Verificar se usuário já tem uma coleção com este nome
+    const colecoesRef = db.collection('colecoes');
+    const existeQuery = await colecoesRef
+      .where('usuario_id', '==', usuario_id)
+      .where('nome', '==', nome)
+      .get();
+    
+    if (!existeQuery.empty) {
+      return res.status(409).json({ 
+        success: false,
+        message: 'Você já possui uma coleção com este nome.' 
+      });
     }
-  );
-};
 
-// Adicionar obra à coleção
-exports.adicionarItemColecao = (req, res) => {
-  const colecaoId = parseInt(req.params.colecaoId);
-  const { obra_id, tipo, ordem } = req.body;
-  if (!colecaoId || !obra_id || !tipo) {
-    return res.status(400).json({ message: 'Dados incompletos.' });
+    // Criar nova coleção no Firebase
+    const novaColecao = {
+      usuario_id,
+      nome,
+      descricao: descricao || '',
+      itens: [],
+      dataCriacao: new Date().toISOString(),
+      dataAtualizacao: new Date().toISOString(),
+      ativa: true,
+      totalItens: 0
+    };
+
+    const docRef = await colecoesRef.add(novaColecao);
+
+    res.status(201).json({ 
+      success: true,
+      message: 'Coleção criada com sucesso!',
+      colecao: {
+        id: docRef.id,
+        ...novaColecao
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao criar coleção:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao criar coleção.',
+      error: error.message 
+    });
   }
-  db.run(
-    `INSERT INTO colecao_itens (colecao_id, obra_id, tipo, ordem) VALUES (?, ?, ?, ?)`,
-    [colecaoId, obra_id, tipo, ordem || 0],
-    function (err) {
-      if (err) return res.status(500).json({ message: 'Erro ao adicionar item.' });
-      res.status(201).json({ id: this.lastID, colecao_id: colecaoId, obra_id, tipo, ordem: ordem || 0 });
-    }
-  );
 };
 
-// Remover obra da coleção
-exports.removerItemColecao = (req, res) => {
-  const colecaoId = parseInt(req.params.colecaoId);
-  const itemId = parseInt(req.params.itemId);
-  db.run(
-    `DELETE FROM colecao_itens WHERE id = ? AND colecao_id = ?`,
-    [itemId, colecaoId],
-    function (err) {
-      if (err) return res.status(500).json({ message: 'Erro ao remover item.' });
-      res.json({ success: true });
+exports.obterColecoes = async (req, res) => {
+  try {
+    const { usuario_id, limit = 20 } = req.query;
+    
+    let query = db.collection('colecoes');
+    
+    // Filtrar por usuário se fornecido
+    if (usuario_id) {
+      query = query.where('usuario_id', '==', usuario_id);
     }
-  );
-};
+    
+    // Filtrar apenas coleções ativas
+    query = query.where('ativa', '==', true);
+    
+    // Ordenar por data de criação mais recente e limitar
+    query = query.orderBy('dataCriacao', 'desc').limit(parseInt(limit));
+    
+    const snapshot = await query.get();
+    
+    const colecoes = [];
+    snapshot.forEach(doc => {
+      colecoes.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
 
-// Listar itens de uma coleção
-exports.listarItensColecao = (req, res) => {
-  const colecaoId = parseInt(req.params.colecaoId);
-  db.all(
-    `SELECT * FROM colecao_itens WHERE colecao_id = ? ORDER BY ordem ASC, id ASC`,
-    [colecaoId],
-    (err, rows) => {
-      if (err) {
-        console.error('Erro ao buscar itens:', err); // Adicione esta linha
-        return res.status(500).json({ message: 'Erro ao buscar itens.' });
-      }
-      res.json(rows);
-    }
-  );
-};
+    res.json({ 
+      success: true,
+      colecoes,
+      total: colecoes.length
+    });
 
-// Excluir coleção (apenas o criador pode excluir)
-exports.excluirColecao = (req, res) => {
-  const colecaoId = parseInt(req.params.colecaoId);
-  const { usuarioId } = req.body;
-  
-  if (!colecaoId || !usuarioId) {
-    return res.status(400).json({ message: 'Dados incompletos.' });
+  } catch (error) {
+    console.error('Erro ao obter coleções:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao obter coleções.',
+      error: error.message 
+    });
   }
+};
 
-  // Verifica se a coleção pertence ao usuário
-  db.get(
-    `SELECT * FROM colecoes WHERE id = ? AND usuario_id = ?`,
-    [colecaoId, usuarioId],
-    (err, row) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erro ao verificar coleção.' });
-      }
-      if (!row) {
-        return res.status(403).json({ message: 'Você não tem permissão para excluir esta coleção.' });
-      }
-
-      // Primeiro, remove todos os itens da coleção
-      db.run(
-        `DELETE FROM colecao_itens WHERE colecao_id = ?`,
-        [colecaoId],
-        (err) => {
-          if (err) {
-            return res.status(500).json({ message: 'Erro ao remover itens da coleção.' });
-          }
-
-          // Depois, remove a coleção
-          db.run(
-            `DELETE FROM colecoes WHERE id = ?`,
-            [colecaoId],
-            (err) => {
-              if (err) {
-                return res.status(500).json({ message: 'Erro ao excluir coleção.' });
-              }
-              res.json({ success: true, message: 'Coleção excluída com sucesso.' });
-            }
-          );
-        }
-      );
+exports.obterColecaoPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID da coleção é obrigatório.' 
+      });
     }
-  );
+
+    // Buscar coleção no Firebase
+    const colecaoRef = db.collection('colecoes').doc(id);
+    const doc = await colecaoRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Coleção não encontrada.' 
+      });
+    }
+
+    const colecaoData = doc.data();
+
+    res.json({ 
+      success: true,
+      colecao: {
+        id: doc.id,
+        ...colecaoData
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao obter coleção:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao obter coleção.',
+      error: error.message 
+    });
+  }
+};
+
+exports.adicionarItemColecao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { obra_id, tipo, titulo, poster, data_adicao } = req.body;
+    
+    if (!id || !obra_id || !tipo || !titulo) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Campos obrigatórios: obra_id, tipo e titulo.' 
+      });
+    }
+
+    // Buscar coleção
+    const colecaoRef = db.collection('colecoes').doc(id);
+    const doc = await colecaoRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Coleção não encontrada.' 
+      });
+    }
+
+    const colecaoData = doc.data();
+    const itensAtuais = colecaoData.itens || [];
+    
+    // Verificar se item já existe na coleção
+    const itemExiste = itensAtuais.some(item => item.obra_id === obra_id);
+    if (itemExiste) {
+      return res.status(409).json({ 
+        success: false,
+        message: 'Este item já está na coleção.' 
+      });
+    }
+
+    // Adicionar novo item
+    const novoItem = {
+      obra_id,
+      tipo,
+      titulo,
+      poster: poster || '',
+      data_adicao: data_adicao || new Date().toISOString()
+    };
+
+    const itensAtualizados = [...itensAtuais, novoItem];
+
+    // Atualizar coleção no Firebase
+    await colecaoRef.update({
+      itens: itensAtualizados,
+      totalItens: itensAtualizados.length,
+      dataAtualizacao: new Date().toISOString()
+    });
+
+    res.json({ 
+      success: true,
+      message: 'Item adicionado à coleção com sucesso!',
+      item: novoItem
+    });
+
+  } catch (error) {
+    console.error('Erro ao adicionar item à coleção:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao adicionar item à coleção.',
+      error: error.message 
+    });
+  }
+};
+
+exports.removerItemColecao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { obra_id } = req.body;
+    
+    if (!id || !obra_id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID da coleção e obra_id são obrigatórios.' 
+      });
+    }
+
+    // Buscar coleção
+    const colecaoRef = db.collection('colecoes').doc(id);
+    const doc = await colecaoRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Coleção não encontrada.' 
+      });
+    }
+
+    const colecaoData = doc.data();
+    const itensAtuais = colecaoData.itens || [];
+    
+    // Remover item da lista
+    const itensAtualizados = itensAtuais.filter(item => item.obra_id !== obra_id);
+    
+    if (itensAtualizados.length === itensAtuais.length) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Item não encontrado na coleção.' 
+      });
+    }
+
+    // Atualizar coleção no Firebase
+    await colecaoRef.update({
+      itens: itensAtualizados,
+      totalItens: itensAtualizados.length,
+      dataAtualizacao: new Date().toISOString()
+    });
+
+    res.json({ 
+      success: true,
+      message: 'Item removido da coleção com sucesso!'
+    });
+
+  } catch (error) {
+    console.error('Erro ao remover item da coleção:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao remover item da coleção.',
+      error: error.message 
+    });
+  }
+};
+
+exports.atualizarColecao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, descricao } = req.body;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID da coleção é obrigatório.' 
+      });
+    }
+
+    // Verificar se coleção existe
+    const colecaoRef = db.collection('colecoes').doc(id);
+    const doc = await colecaoRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Coleção não encontrada.' 
+      });
+    }
+
+    // Preparar dados para atualização
+    const dadosAtualizacao = {
+      dataAtualizacao: new Date().toISOString()
+    };
+    
+    if (nome !== undefined) {
+      dadosAtualizacao.nome = nome;
+    }
+    
+    if (descricao !== undefined) {
+      dadosAtualizacao.descricao = descricao;
+    }
+
+    // Atualizar no Firebase
+    await colecaoRef.update(dadosAtualizacao);
+    
+    // Buscar coleção atualizada
+    const colecaoAtualizada = await colecaoRef.get();
+
+    res.json({ 
+      success: true,
+      message: 'Coleção atualizada com sucesso!',
+      colecao: {
+        id: colecaoAtualizada.id,
+        ...colecaoAtualizada.data()
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao atualizar coleção:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao atualizar coleção.',
+      error: error.message 
+    });
+  }
+};
+
+exports.deletarColecao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID da coleção é obrigatório.' 
+      });
+    }
+
+    // Verificar se coleção existe
+    const colecaoRef = db.collection('colecoes').doc(id);
+    const doc = await colecaoRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Coleção não encontrada.' 
+      });
+    }
+
+    // Soft delete - marcar como inativa
+    await colecaoRef.update({
+      ativa: false,
+      dataExclusao: new Date().toISOString()
+    });
+
+    res.json({ 
+      success: true,
+      message: 'Coleção deletada com sucesso!' 
+    });
+
+  } catch (error) {
+    console.error('Erro ao deletar coleção:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao deletar coleção.',
+      error: error.message 
+    });
+  }
 };

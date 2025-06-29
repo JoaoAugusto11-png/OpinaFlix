@@ -1,198 +1,278 @@
-const db = require('../db');
+const { db } = require('../config/firebase');
 
 // Obter dados do perfil
-exports.obterPerfil = (req, res) => {
-  const usuarioId = parseInt(req.params.usuarioId);
-  
-  if (!usuarioId || isNaN(usuarioId)) {
-    return res.status(400).json({ message: 'ID de usuário inválido.' });
-  }
-  
-  db.get(
-    `SELECT id, nome, email, foto_perfil FROM usuarios WHERE id = ?`,
-    [usuarioId],
-    (err, usuario) => {
-      if (err) {
-        console.error('Erro ao buscar usuário:', err);
-        return res.status(500).json({ message: 'Erro ao buscar usuário.' });
-      }
-      
-      if (!usuario) {
-        return res.status(404).json({ message: 'Usuário não encontrado.' });
-      }
-      
-      // Buscar estatísticas incluindo seguidores
-      db.get(
-        `SELECT 
-          COALESCE((SELECT COUNT(*) FROM avaliacoes WHERE usuario_id = ?), 0) as total_reviews,
-          COALESCE((SELECT COUNT(*) FROM colecoes WHERE usuario_id = ?), 0) as total_colecoes,
-          COALESCE((SELECT COUNT(*) FROM seguidores WHERE seguindo_id = ?), 0) as total_seguidores
-        `,
-        [usuarioId, usuarioId, usuarioId],
-        (err, stats) => {
-          if (err) {
-            console.error('Erro ao buscar estatísticas:', err);
-            stats = { total_reviews: 0, total_colecoes: 0, total_seguidores: 0 };
-          }
-          
-          const resultado = {
-            ...usuario,
-            total_reviews: stats?.total_reviews || 0,
-            total_colecoes: stats?.total_colecoes || 0,
-            total_seguidores: stats?.total_seguidores || 0
-          };
-          
-          res.json(resultado);
-        }
-      );
-    }
-  );
-};
-
-// Atualizar foto de perfil
-exports.atualizarFoto = (req, res) => {
-  const usuarioId = parseInt(req.params.usuarioId);
-  const { foto_url } = req.body;
-  
-  db.run(
-    `UPDATE usuarios SET foto_perfil = ? WHERE id = ?`,
-    [foto_url, usuarioId],
-    function(err) {
-      if (err) {
-        console.error('Erro ao atualizar foto:', err);
-        return res.status(500).json({ message: 'Erro ao atualizar foto.' });
-      }
-      res.json({ success: true, message: 'Foto atualizada com sucesso!' });
-    }
-  );
-};
-
-// Atualizar foto com upload de arquivo
-exports.atualizarFotoUpload = (req, res) => {
-  const usuarioId = parseInt(req.params.usuarioId);
-  
-  if (!req.file) {
-    return res.status(400).json({ message: 'Nenhum arquivo enviado.' });
-  }
-  
-  // URL da foto será: http://localhost:3001/uploads/perfil/filename
-  const fotoUrl = `http://localhost:3001/uploads/perfil/${req.file.filename}`;
-  
-  db.run(
-    `UPDATE usuarios SET foto_perfil = ? WHERE id = ?`,
-    [fotoUrl, usuarioId],
-    function(err) {
-      if (err) {
-        console.error('Erro ao atualizar foto:', err);
-        return res.status(500).json({ message: 'Erro ao atualizar foto.' });
-      }
-      res.json({ 
-        success: true, 
-        message: 'Foto atualizada com sucesso!',
-        foto_url: fotoUrl
+exports.obterPerfil = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID do usuário é obrigatório.' 
       });
     }
-  );
-};
 
-// Obter reviews do usuário (com coluna correta)
-exports.obterReviews = (req, res) => {
-  console.log('=== obterReviews chamado ===');
-  const usuarioId = parseInt(req.params.usuarioId);
-  console.log('Buscando reviews para usuário:', usuarioId);
-  
-  db.all(
-    `SELECT id, obra_id, tipo, nota, comentario, data as data_review 
-     FROM avaliacoes 
-     WHERE usuario_id = ? 
-     ORDER BY data DESC 
-     LIMIT 10`,
-    [usuarioId],
-    (err, reviews) => {
-      if (err) {
-        console.error('Erro ao buscar reviews:', err);
-        return res.status(500).json({ error: err.message });
-      }
-      console.log('Reviews encontrados:', reviews);
-      res.json(reviews || []);
+    // Buscar usuário no Firebase
+    const usuarioRef = db.collection('usuarios').doc(id);
+    const usuarioDoc = await usuarioRef.get();
+    
+    if (!usuarioDoc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado.' 
+      });
     }
-  );
-};
 
-// Obter coleções do usuário
-exports.obterColecoes = (req, res) => {
-  const usuarioId = parseInt(req.params.usuarioId);
-  
-  db.all(
-    `SELECT * FROM colecoes WHERE usuario_id = ? ORDER BY id DESC`,
-    [usuarioId],
-    (err, colecoes) => {
-      if (err) {
-        console.error('Erro ao buscar coleções:', err);
-        return res.json([]);
-      }
-      res.json(colecoes || []);
-    }
-  );
-};
+    const userData = usuarioDoc.data();
 
-// Seguir usuário
-exports.seguirUsuario = (req, res) => {
-  const seguindoId = parseInt(req.params.usuarioId);
-  const { seguidor_id } = req.body;
-  
-  if (seguindoId === seguidor_id) {
-    return res.status(400).json({ message: 'Não é possível seguir a si mesmo.' });
+    // Buscar estatísticas do usuário em paralelo
+    const [avaliacoesSnapshot, colecoesSnapshot] = await Promise.all([
+      db.collection('avaliacoes').where('usuario_id', '==', id).get(),
+      db.collection('colecoes').where('usuario_id', '==', id).where('ativa', '==', true).get()
+    ]);
+
+    // Calcular estatísticas das avaliações
+    const avaliacoes = [];
+    avaliacoesSnapshot.forEach(doc => {
+      avaliacoes.push(doc.data());
+    });
+
+    const totalAvaliacoes = avaliacoes.length;
+    const filmesAvaliados = avaliacoes.filter(a => a.tipo === 'movie').length;
+    const seriesAvaliadas = avaliacoes.filter(a => a.tipo === 'tv').length;
+    
+    let somaNotas = 0;
+    avaliacoes.forEach(a => somaNotas += a.nota);
+    const mediaNotas = totalAvaliacoes > 0 ? (somaNotas / totalAvaliacoes).toFixed(1) : 0;
+
+    // Calcular estatísticas das coleções
+    const colecoes = [];
+    let totalItensColecoes = 0;
+    colecoesSnapshot.forEach(doc => {
+      const colecaoData = doc.data();
+      colecoes.push({
+        id: doc.id,
+        ...colecaoData
+      });
+      totalItensColecoes += colecaoData.totalItens || 0;
+    });
+
+    // Montar perfil completo
+    const perfil = {
+      id: usuarioDoc.id,
+      nome: userData.nome,
+      email: userData.email,
+      dataCadastro: userData.dataCadastro,
+      ativo: userData.ativo,
+      avatar: userData.avatar || null,
+      bio: userData.bio || '',
+      estatisticas: {
+        total_avaliacoes: totalAvaliacoes,
+        filmes_avaliados: filmesAvaliados,
+        series_avaliadas: seriesAvaliadas,
+        media_notas: parseFloat(mediaNotas),
+        total_colecoes: colecoes.length,
+        total_itens_colecoes: totalItensColecoes
+      },
+      avaliacoes_recentes: avaliacoes
+        .sort((a, b) => new Date(b.data) - new Date(a.data))
+        .slice(0, 5),
+      colecoes: colecoes.slice(0, 5) // Últimas 5 coleções
+    };
+
+    res.json({ 
+      success: true,
+      perfil
+    });
+
+  } catch (error) {
+    console.error('Erro ao obter perfil:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao obter perfil.',
+      error: error.message 
+    });
   }
-  
-  db.run(
-    `INSERT INTO seguidores (seguidor_id, seguindo_id) VALUES (?, ?)`,
-    [seguidor_id, seguindoId],
-    function(err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ message: 'Você já segue este usuário.' });
-        }
-        console.error('Erro ao seguir usuário:', err);
-        return res.status(500).json({ message: 'Erro ao seguir usuário.' });
-      }
-      res.json({ success: true, message: 'Usuário seguido com sucesso!' });
-    }
-  );
 };
 
-// Deixar de seguir
-exports.deixarDeSeguir = (req, res) => {
-  const seguindoId = parseInt(req.params.usuarioId);
-  const { seguidor_id } = req.body;
-  
-  db.run(
-    `DELETE FROM seguidores WHERE seguidor_id = ? AND seguindo_id = ?`,
-    [seguidor_id, seguindoId],
-    function(err) {
-      if (err) {
-        console.error('Erro ao deixar de seguir:', err);
-        return res.status(500).json({ message: 'Erro ao deixar de seguir.' });
-      }
-      res.json({ success: true, message: 'Deixou de seguir o usuário.' });
+// Atualizar perfil
+exports.atualizarPerfil = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, bio, avatar } = req.body;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID do usuário é obrigatório.' 
+      });
     }
-  );
+
+    // Verificar se usuário existe
+    const usuarioRef = db.collection('usuarios').doc(id);
+    const doc = await usuarioRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado.' 
+      });
+    }
+
+    // Preparar dados para atualização
+    const dadosAtualizacao = {
+      dataAtualizacao: new Date().toISOString()
+    };
+    
+    if (nome !== undefined && nome.trim() !== '') {
+      dadosAtualizacao.nome = nome.trim();
+    }
+    
+    if (bio !== undefined) {
+      dadosAtualizacao.bio = bio.trim();
+    }
+    
+    if (avatar !== undefined) {
+      dadosAtualizacao.avatar = avatar;
+    }
+
+    // Atualizar no Firebase
+    await usuarioRef.update(dadosAtualizacao);
+    
+    // Buscar usuário atualizado
+    const usuarioAtualizado = await usuarioRef.get();
+    const userData = usuarioAtualizado.data();
+
+    res.json({ 
+      success: true,
+      message: 'Perfil atualizado com sucesso!',
+      usuario: {
+        id: usuarioAtualizado.id,
+        nome: userData.nome,
+        email: userData.email,
+        bio: userData.bio,
+        avatar: userData.avatar
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao atualizar perfil.',
+      error: error.message 
+    });
+  }
 };
 
-// Verificar se está seguindo
-exports.verificarSeguindo = (req, res) => {
-  const seguindoId = parseInt(req.params.usuarioId);
-  const seguidorId = parseInt(req.params.seguidorId);
-  
-  db.get(
-    `SELECT id FROM seguidores WHERE seguidor_id = ? AND seguindo_id = ?`,
-    [seguidorId, seguindoId],
-    (err, row) => {
-      if (err) {
-        console.error('Erro ao verificar seguimento:', err);
-        return res.status(500).json({ seguindo: false });
-      }
-      res.json({ seguindo: !!row });
+// Alterar senha
+exports.alterarSenha = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { senhaAtual, novaSenha } = req.body;
+    
+    if (!id || !senhaAtual || !novaSenha) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID, senha atual e nova senha são obrigatórios.' 
+      });
     }
-  );
+
+    if (novaSenha.length < 6) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'A nova senha deve ter pelo menos 6 caracteres.' 
+      });
+    }
+
+    // Buscar usuário
+    const usuarioRef = db.collection('usuarios').doc(id);
+    const doc = await usuarioRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Usuário não encontrado.' 
+      });
+    }
+
+    const userData = doc.data();
+
+    // Verificar senha atual
+    if (userData.senha !== senhaAtual) {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Senha atual incorreta.' 
+      });
+    }
+
+    // Atualizar senha
+    await usuarioRef.update({
+      senha: novaSenha,
+      dataAtualizacao: new Date().toISOString()
+    });
+
+    res.json({ 
+      success: true,
+      message: 'Senha alterada com sucesso!' 
+    });
+
+  } catch (error) {
+    console.error('Erro ao alterar senha:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao alterar senha.',
+      error: error.message 
+    });
+  }
+};
+
+// Obter estatísticas detalhadas
+exports.obterEstatisticasDetalhadas = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID do usuário é obrigatório.' 
+      });
+    }
+
+    // Buscar todas as avaliações do usuário
+    const avaliacoesSnapshot = await db.collection('avaliacoes')
+      .where('usuario_id', '==', id)
+      .get();
+    
+    const avaliacoes = [];
+    avaliacoesSnapshot.forEach(doc => {
+      avaliacoes.push(doc.data());
+    });
+
+    // Calcular estatísticas detalhadas
+    const estatisticasDetalhadas = avaliacoes.map(avaliacao => {
+      return {
+        id: avaliacao.id,
+        obra_id: avaliacao.obra_id,
+        tipo: avaliacao.tipo,
+        nota: avaliacao.nota,
+        comentario: avaliacao.comentario,
+        data: avaliacao.data,
+        usuario_id: avaliacao.usuario_id
+      };
+    });
+
+    res.json({ 
+      success: true,
+      estatisticas: estatisticasDetalhadas 
+    });
+
+  } catch (error) {
+    console.error('Erro ao obter estatísticas detalhadas:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao obter estatísticas detalhadas.',
+      error: error.message 
+    });
+  }
 };
