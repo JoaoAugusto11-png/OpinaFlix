@@ -273,6 +273,20 @@ app.post('/api/colecoes', (req, res) => {
     });
 });
 
+// ========== IMPORTAR ROUTES ==========
+const usuarioRoutes = require('./routes/usuarioRoutes');
+const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
+const colecaoRoutes = require('./routes/colecaoRoutes');
+const perfilRoutes = require('./routes/perfilRoutes');
+const filmeRoutes = require('./routes/filmeRoutes');
+
+// ========== USAR ROTAS ==========
+app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/avaliacoes', avaliacaoRoutes);
+app.use('/api/colecoes', colecaoRoutes);
+app.use('/api/perfis', perfilRoutes);
+app.use('/api/filmes', filmeRoutes);
+
 // ========== 404 HANDLER ==========
 app.use('*', (req, res) => {
     res.status(404).json({

@@ -3,42 +3,97 @@ const router = express.Router();
 const perfilController = require('../controllers/perfilController');
 const { uploadPerfil } = require('../middleware/upload');
 
-// Adicione este log temporário
-console.log('perfilRoutes carregado!');
+console.log('✅ perfilRoutes carregado com Firebase!');
 
-// Teste simples primeiro
+// Teste de funcionamento
 router.get('/perfil/teste', (req, res) => {
-    res.json({ message: 'Rota de perfil funcionando!' });
+    res.json({ 
+        message: '🔥 Rota de perfil funcionando com Firebase!',
+        timestamp: new Date().toISOString()
+    });
 });
 
-// Buscar dados do perfil do usuário
-router.get('/perfil/:usuarioId', perfilController.obterPerfil);
+// ========== ROTAS PRINCIPAIS ==========
 
-// Buscar reviews do usuário
-router.get('/perfil/:usuarioId/reviews', perfilController.obterReviews);
+// Obter perfil completo do usuário
+router.get('/perfil/:id', perfilController.obterPerfil);
+
+// Atualizar perfil (com avatar por URL)
+router.put('/perfil/:id', 
+    uploadPerfil, // Validar URL do avatar
+    perfilController.atualizarPerfil
+);
+
+// Alterar senha
+router.put('/perfil/:id/senha', perfilController.alterarSenha);
+
+// Obter estatísticas detalhadas
+router.get('/perfil/:id/estatisticas', perfilController.obterEstatisticasDetalhadas);
+
+// Obter histórico de avaliações
+router.get('/perfil/:id/avaliacoes', perfilController.obterHistoricoAvaliacoes);
+
+// ========== ROTAS LEGACY (COMPATIBILIDADE) ==========
+
+// Buscar dados do perfil (alias)
+router.get('/perfil/:usuarioId/dados', perfilController.obterPerfil);
+
+// Buscar reviews do usuário (alias para avaliacoes)
+router.get('/perfil/:usuarioId/reviews', (req, res) => {
+    req.params.id = req.params.usuarioId;
+    perfilController.obterHistoricoAvaliacoes(req, res);
+});
 
 // Buscar coleções do usuário
-router.get('/perfil/:usuarioId/colecoes', perfilController.obterColecoes);
+router.get('/perfil/:usuarioId/colecoes', async (req, res) => {
+    try {
+        // Redirecionar para rota de coleções
+        const { usuarioId } = req.params;
+        res.redirect(`/api/colecoes?usuario_id=${usuarioId}`);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar coleções',
+            error: error.message
+        });
+    }
+});
 
-// Atualizar foto de perfil (com upload real)
-router.post('/perfil/:usuarioId/foto', upload.single('foto'), perfilController.atualizarFotoUpload);
+// Atualizar foto por URL (alias)
+router.put('/perfil/:usuarioId/foto', (req, res) => {
+    req.params.id = req.params.usuarioId;
+    req.body.avatar_url = req.body.foto_url || req.body.avatar_url;
+    perfilController.atualizarPerfil(req, res);
+});
 
-// Manter a rota PUT para URL externa (se necessário)
-router.put('/perfil/:usuarioId/foto', perfilController.atualizarFoto);
+// ========== ROTAS DE RELACIONAMENTO (PLACEHOLDER) ==========
 
-// Seguir usuário
-router.post('/perfil/:usuarioId/seguir', perfilController.seguirUsuario);
+// Seguir usuário (não implementado ainda)
+router.post('/perfil/:usuarioId/seguir', (req, res) => {
+    res.json({
+        success: false,
+        message: 'Funcionalidade de seguir ainda não implementada',
+        feature: 'coming_soon'
+    });
+});
 
-// Deixar de seguir
-router.delete('/perfil/:usuarioId/seguir', perfilController.deixarDeSeguir);
+// Deixar de seguir (não implementado ainda)
+router.delete('/perfil/:usuarioId/seguir', (req, res) => {
+    res.json({
+        success: false,
+        message: 'Funcionalidade de deixar de seguir ainda não implementada',
+        feature: 'coming_soon'
+    });
+});
 
-// Verificar se está seguindo
-router.get('/perfil/:usuarioId/seguindo/:seguidorId', perfilController.verificarSeguindo);
-
-// Atualizar perfil com avatar
-router.put('/perfil/:id', 
-  uploadPerfil, // Validar URL do avatar
-  perfilController.atualizarPerfil
-);
+// Verificar se está seguindo (não implementado ainda)
+router.get('/perfil/:usuarioId/seguindo/:seguidorId', (req, res) => {
+    res.json({
+        success: false,
+        seguindo: false,
+        message: 'Funcionalidade de verificar seguidores ainda não implementada',
+        feature: 'coming_soon'
+    });
+});
 
 module.exports = router;
