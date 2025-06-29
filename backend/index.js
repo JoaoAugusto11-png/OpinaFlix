@@ -15,7 +15,7 @@ app.use(cors({
     origin: [
         'http://localhost:5500',
         'http://127.0.0.1:8080',
-        'https://opinaflix.vercel.app', // Será atualizado depois
+        'https://opinaflix.vercel.app', // Vercel (será criado)
         'https://seudominio.com', // Seu domínio da Hostinger
         'https://www.seudominio.com'
     ],
