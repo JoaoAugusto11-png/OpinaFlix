@@ -1,134 +1,284 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+
 const app = express();
 
-const usuarioRoutes = require('./routes/usuarioRoutes');
-const colecaoRoutes = require('./routes/colecaoRoutes');
-const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
-const perfilRoutes = require('./routes/perfilRoutes');
-
-const PORT = process.env.PORT || 3001;
-
-// ========== CORS UNIVERSAL PARA TODOS OS SEUS DOMÍNIOS ==========
+// ========== CORS ==========
 app.use(cors({
-    origin: function (origin, callback) {
-        // Lista de domínios permitidos
-        const allowedOrigins = [
-            'http://localhost:3000',
-            'http://localhost:5000',
-            'http://localhost:5500',
-            'http://127.0.0.1:5500',
-            /^https:\/\/opinaflix.*\.vercel\.app$/, // Qualquer subdomínio opinaflix
-            /^https:\/\/.*joao-augustos-projects.*\.vercel\.app$/ // Qualquer projeto seu
-        ];
-        
-        // Permitir se não há origin (Postman, etc) ou se está na lista
-        if (!origin) {
-            return callback(null, true);
-        }
-        
-        const isAllowed = allowedOrigins.some(allowed => {
-            if (typeof allowed === 'string') {
-                return allowed === origin;
-            } else if (allowed instanceof RegExp) {
-                return allowed.test(origin);
-            }
-            return false;
-        });
-        
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            console.log('❌ CORS bloqueou origin:', origin);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-    preflightContinue: false,
-    optionsSuccessStatus: 200
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
-
-// ========== MIDDLEWARE PARA GARANTIR CORS ==========
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    
-    // Log para debug
-    console.log('🌐 Request from origin:', origin);
-    
-    // Definir headers CORS manualmente para garantir
-    if (origin && (
-        origin.includes('vercel.app') || 
-        origin.includes('localhost') || 
-        origin.includes('127.0.0.1')
-    )) {
-        res.header('Access-Control-Allow-Origin', origin);
-        res.header('Access-Control-Allow-Credentials', 'true');
-    }
-    
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, Accept');
-    
-    // Responder a requisições OPTIONS
-    if (req.method === 'OPTIONS') {
-        console.log('✅ Responding to OPTIONS request');
-        res.sendStatus(200);
-    } else {
-        next();
-    }
-});
 
 // ========== MIDDLEWARES ==========
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Servir arquivos estáticos
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ========== IMPORTAR FIREBASE (COM FALLBACK) ==========
+let db = null;
+let useFirebase = false;
 
-// ========== ROTA DE TESTE ==========
+try {
+    const firebase = require('./config/firebase');
+    db = firebase.db;
+    useFirebase = true;
+    console.log('✅ Firebase conectado!');
+} catch (error) {
+    console.log('⚠️ Firebase não disponível, usando dados em memória:', error.message);
+    useFirebase = false;
+}
+
+// ========== DADOS EM MEMÓRIA (FALLBACK) ==========
+let usuarios = [
+    {
+        id: 1,
+        nome: 'Usuário Teste',
+        email: 'teste@teste.com',
+        senha: '123456'
+    }
+];
+
+let avaliacoes = [];
+let colecoes = [];
+
+// ========== ROTA PRINCIPAL ==========
 app.get('/', (req, res) => {
     res.json({
-        message: '🚀 OpinaFlix Backend - CORS Universal!',
+        message: '🔥 OpinaFlix Backend com Firebase!',
         timestamp: new Date().toISOString(),
         platform: 'Vercel',
-        cors: 'CORS configurado universalmente',
-        environment: process.env.NODE_ENV || 'development',
-        node_version: process.version,
-        origin: req.headers.origin || 'No origin header',
-        userAgent: req.headers['user-agent']?.substring(0, 50) + '...'
+        database: useFirebase ? 'Firestore' : 'Memory',
+        status: 'OK',
+        firebase_connected: useFirebase,
+        uptime: process.uptime()
     });
 });
 
 // ========== HEALTH CHECK ==========
 app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: '✅ Healthy - CORS Universal',
-        uptime: process.uptime(),
+    res.json({
+        status: '✅ Healthy',
         timestamp: new Date().toISOString(),
         platform: 'Vercel',
-        cors: 'Universal OK',
-        memory: process.memoryUsage(),
-        origin: req.headers.origin,
-        requests_count: Math.floor(process.uptime() * 10) // Mock counter
+        database: useFirebase ? 'Firestore' : 'Memory',
+        firebase_connected: useFirebase,
+        uptime: process.uptime()
     });
 });
 
-// ========== ROTAS DA API ==========
-app.use('/api', usuarioRoutes);
-app.use('/api', colecaoRoutes);
-app.use('/api', avaliacaoRoutes);
-app.use('/api', perfilRoutes);
+// ========== LOGIN ==========
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+        
+        console.log('🔐 Login attempt:', email);
+        
+        if (!email || !senha) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email e senha são obrigatórios'
+            });
+        }
+        
+        if (useFirebase) {
+            // ========== FIREBASE LOGIN ==========
+            const usuariosRef = db.collection('usuarios');
+            const query = await usuariosRef.where('email', '==', email).where('senha', '==', senha).get();
+            
+            if (query.empty) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Email ou senha incorretos'
+                });
+            }
+            
+            const usuario = query.docs[0];
+            const userData = usuario.data();
+            
+            res.json({
+                success: true,
+                message: 'Login realizado com sucesso (Firebase)',
+                usuario: {
+                    id: usuario.id,
+                    nome: userData.nome,
+                    email: userData.email
+                }
+            });
+            
+        } else {
+            // ========== MEMORY LOGIN ==========
+            const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+            
+            if (usuario) {
+                res.json({
+                    success: true,
+                    message: 'Login realizado com sucesso (Memory)',
+                    usuario: {
+                        id: usuario.id,
+                        nome: usuario.nome,
+                        email: usuario.email
+                    }
+                });
+            } else {
+                res.status(401).json({
+                    success: false,
+                    message: 'Email ou senha incorretos'
+                });
+            }
+        }
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message
+        });
+    }
+});
 
-// ========== MIDDLEWARE 404 ==========
+// ========== CADASTRO ==========
+app.post('/api/cadastro', async (req, res) => {
+    try {
+        const { nome, email, senha } = req.body;
+        
+        console.log('📝 Cadastro attempt:', { nome, email });
+        
+        if (!nome || !email || !senha) {
+            return res.status(400).json({
+                success: false,
+                message: 'Todos os campos são obrigatórios'
+            });
+        }
+        
+        if (useFirebase) {
+            // ========== FIREBASE CADASTRO ==========
+            const usuariosRef = db.collection('usuarios');
+            const existeQuery = await usuariosRef.where('email', '==', email).get();
+            
+            if (!existeQuery.empty) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Email já está em uso'
+                });
+            }
+            
+            const novoUsuario = {
+                nome,
+                email,
+                senha,
+                dataCadastro: new Date().toISOString(),
+                ativo: true
+            };
+            
+            const docRef = await usuariosRef.add(novoUsuario);
+            
+            res.status(201).json({
+                success: true,
+                message: 'Usuário criado com sucesso (Firebase)',
+                usuario: {
+                    id: docRef.id,
+                    nome,
+                    email
+                }
+            });
+            
+        } else {
+            // ========== MEMORY CADASTRO ==========
+            const usuarioExistente = usuarios.find(u => u.email === email);
+            if (usuarioExistente) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Email já está em uso'
+                });
+            }
+            
+            const novoUsuario = {
+                id: Date.now(),
+                nome,
+                email,
+                senha
+            };
+            
+            usuarios.push(novoUsuario);
+            
+            res.status(201).json({
+                success: true,
+                message: 'Usuário criado com sucesso (Memory)',
+                usuario: {
+                    id: novoUsuario.id,
+                    nome: novoUsuario.nome,
+                    email: novoUsuario.email
+                }
+            });
+        }
+        
+    } catch (error) {
+        console.error('Cadastro error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message
+        });
+    }
+});
+
+// ========== ROTAS BÁSICAS DE AVALIAÇÕES E COLEÇÕES ==========
+app.get('/api/avaliacoes', (req, res) => {
+    res.json({
+        success: true,
+        avaliacoes: avaliacoes,
+        database: useFirebase ? 'Firebase' : 'Memory'
+    });
+});
+
+app.post('/api/avaliacoes', (req, res) => {
+    const novaAvaliacao = {
+        id: Date.now(),
+        ...req.body,
+        data: new Date().toISOString()
+    };
+    
+    avaliacoes.push(novaAvaliacao);
+    
+    res.status(201).json({
+        success: true,
+        message: 'Avaliação criada com sucesso',
+        avaliacao: novaAvaliacao
+    });
+});
+
+app.get('/api/colecoes', (req, res) => {
+    res.json({
+        success: true,
+        colecoes: colecoes,
+        database: useFirebase ? 'Firebase' : 'Memory'
+    });
+});
+
+app.post('/api/colecoes', (req, res) => {
+    const novaColecao = {
+        id: Date.now(),
+        ...req.body,
+        dataCriacao: new Date().toISOString()
+    };
+    
+    colecoes.push(novaColecao);
+    
+    res.status(201).json({
+        success: true,
+        message: 'Coleção criada com sucesso',
+        colecao: novaColecao
+    });
+});
+
+// ========== 404 HANDLER ==========
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
-        message: `🔍 Rota ${req.originalUrl} não encontrada`,
-        platform: 'Vercel',
-        method: req.method,
-        origin: req.headers.origin,
+        message: `Rota ${req.originalUrl} não encontrada`,
+        database: useFirebase ? 'Firebase' : 'Memory',
         availableRoutes: [
             'GET /',
             'GET /health',
@@ -142,26 +292,15 @@ app.use('*', (req, res) => {
     });
 });
 
-// ========== MIDDLEWARE DE ERRO ==========
+// ========== ERROR HANDLER ==========
 app.use((err, req, res, next) => {
-    console.error('❌ Erro capturado:', err.stack);
-    
-    res.status(err.status || 500).json({
+    console.error('❌ Error:', err);
+    res.status(500).json({
         success: false,
-        message: err.message || 'Erro interno do servidor',
-        platform: 'Vercel',
-        origin: req.headers.origin,
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        message: 'Erro interno do servidor',
+        database: useFirebase ? 'Firebase' : 'Memory',
+        error: err.message
     });
 });
-
-// ========== EXPORT PARA VERCEL ==========
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`🚀 Servidor local rodando na porta ${PORT}`);
-        console.log(`📍 URL: http://localhost:${PORT}`);
-        console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-    });
-}
 
 module.exports = app;
