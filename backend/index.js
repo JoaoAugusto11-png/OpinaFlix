@@ -8,21 +8,20 @@ const colecaoRoutes = require('./routes/colecaoRoutes');
 const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
 
+// Para Vercel, não definimos PORT fixo
 const PORT = process.env.PORT || 3001;
 
-// ========== CORS CORRIGIDO ==========
+// ========== CORS OTIMIZADO PARA VERCEL ==========
 app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:5000',
         'http://localhost:5500',
         'http://127.0.0.1:5500',
-        'http://127.0.0.1:8080',
-        'https://opinaflix-azy0ktrjt-joao-augustos-projects-4cd91631.vercel.app', // Seu domínio atual do Vercel
-        'https://opinaflix.vercel.app', // Domínio personalizado do Vercel
-        'https://opinaflix.site', // Seu domínio da Hostinger
-        'https://www.opinaflix.site',
-        /^https:\/\/.*\.vercel\.app$/ // Permite qualquer subdomínio do Vercel
+        'https://opinaflix-azy0ktrjt-joao-augustos-projects-4cd91631.vercel.app',
+        'https://opinaflix.vercel.app',
+        'https://opinaflix-backend.vercel.app', // Nova URL do backend
+        /^https:\/\/.*\.vercel\.app$/ // Qualquer subdomínio do Vercel
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -32,28 +31,32 @@ app.use(cors({
 }));
 
 // ========== MIDDLEWARES ==========
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Servir arquivos estáticos da pasta uploads
+// Servir arquivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ========== ROTA DE TESTE ==========
 app.get('/', (req, res) => {
     res.json({
-        message: 'OpinaFlix Backend funcionando!',
+        message: '🚀 OpinaFlix Backend no Vercel!',
         timestamp: new Date().toISOString(),
-        cors: 'Configurado para Vercel e outros domínios',
-        environment: process.env.NODE_ENV || 'development'
+        platform: 'Vercel',
+        cors: 'Configurado para frontend Vercel',
+        environment: process.env.NODE_ENV || 'development',
+        node_version: process.version
     });
 });
 
-// ========== ROTA DE HEALTH CHECK ==========
+// ========== HEALTH CHECK ==========
 app.get('/health', (req, res) => {
     res.status(200).json({
-        status: 'OK',
+        status: '✅ Healthy',
         uptime: process.uptime(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        platform: 'Vercel',
+        memory: process.memoryUsage()
     });
 });
 
@@ -63,11 +66,12 @@ app.use('/api', colecaoRoutes);
 app.use('/api', avaliacaoRoutes);
 app.use('/api', perfilRoutes);
 
-// ========== MIDDLEWARE DE ERRO 404 ==========
+// ========== MIDDLEWARE 404 ==========
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
-        message: `Rota ${req.originalUrl} não encontrada`,
+        message: `🔍 Rota ${req.originalUrl} não encontrada`,
+        platform: 'Vercel',
         availableRoutes: [
             'GET /',
             'GET /health',
@@ -81,32 +85,27 @@ app.use('*', (req, res) => {
     });
 });
 
-// ========== MIDDLEWARE DE ERRO GLOBAL ==========
+// ========== MIDDLEWARE DE ERRO ==========
 app.use((err, req, res, next) => {
-    console.error('Erro capturado:', err.stack);
+    console.error('❌ Erro capturado:', err.stack);
     
     res.status(err.status || 500).json({
         success: false,
         message: err.message || 'Erro interno do servidor',
+        platform: 'Vercel',
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 });
 
-// ========== INICIAR SERVIDOR ==========
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📍 URL: http://localhost:${PORT}`);
-    console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`✅ CORS configurado para Vercel`);
-});
+// ========== EXPORT PARA VERCEL ==========
+if (process.env.NODE_ENV !== 'production') {
+    // Desenvolvimento local
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor local rodando na porta ${PORT}`);
+        console.log(`📍 URL: http://localhost:${PORT}`);
+        console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    });
+}
 
-// ========== GRACEFUL SHUTDOWN ==========
-process.on('SIGTERM', () => {
-    console.log('🛑 SIGTERM recebido. Fechando servidor...');
-    process.exit(0);
-});
-
-process.on('SIGINT', () => {
-    console.log('🛑 SIGINT recebido. Fechando servidor...');
-    process.exit(0);
-});
+// Export para Vercel
+module.exports = app;
