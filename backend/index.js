@@ -1,83 +1,40 @@
 const express = require('express');
-const cors = require('cors');
 
 const app = express();
 
-// ========== CORS MELHORADO ==========
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Permitir todas as origens do Vercel e localhost
-        const allowedOrigins = [
-            'https://opinaflix-ecqutlaw1-joao-augustos-projects-4cd91631.vercel.app',
-            'http://localhost:3000',
-            'http://localhost:5173',
-            'http://127.0.0.1:5173',
-            'http://127.0.0.1:3000'
-        ];
-        
-        // Permitir todas as origens do Vercel (que começam com https://opinaflix)
-        if (!origin || 
-            allowedOrigins.indexOf(origin) !== -1 || 
-            origin.includes('opinaflix') || 
-            origin.includes('vercel.app') ||
-            origin.includes('localhost')) {
-            callback(null, true);
-        } else {
-            callback(null, true); // Permitir todas por enquanto
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: [
-        'Origin',
-        'X-Requested-With',
-        'Content-Type',
-        'Accept',
-        'Authorization',
-        'Cache-Control',
-        'X-HTTP-Method-Override'
-    ],
-    exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
-    maxAge: 86400 // 24 horas
-};
-
-app.use(cors(corsOptions));
-
-// ========== MIDDLEWARE MANUAL DE CORS ==========
+// ========== CORS SUPER SIMPLES ==========
 app.use((req, res, next) => {
+    // Permitir TODAS as origens
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-HTTP-Method-Override');
-    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    res.header('Access-Control-Max-Age', '86400');
     
-    // Responder a requisições OPTIONS
+    // Responder OPTIONS imediatamente
     if (req.method === 'OPTIONS') {
-        res.status(200).json({
-            success: true,
-            message: 'CORS preflight OK'
-        });
-        return;
+        return res.status(200).end();
     }
     
     next();
 });
 
 // ========== MIDDLEWARES ==========
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ========== BANCO DE DADOS EM MEMÓRIA ==========
 const memoryDB = require('./data/memoryDB');
 
 // ========== ROTA PRINCIPAL ==========
 app.get('/', (req, res) => {
-    res.json({
-        message: '🔥 OpinaFlix Backend - Funcionando Perfeitamente!',
+    res.status(200).json({
+        message: '🔥 OpinaFlix Backend - CORS CORRIGIDO!',
         timestamp: new Date().toISOString(),
         platform: 'Vercel',
         database: 'Memory Storage',
         status: 'READY',
-        cors: 'ENABLED',
+        cors: 'FUNCIONANDO',
+        origin: req.headers.origin || 'none',
         stats: {
             usuarios: memoryDB.usuarios.size,
             avaliacoes: memoryDB.avaliacoes.size,
@@ -89,24 +46,24 @@ app.get('/', (req, res) => {
 
 // ========== HEALTH CHECK ==========
 app.get('/health', (req, res) => {
-    res.json({
-        status: '✅ HEALTHY - MEMORY DB WORKING',
+    res.status(200).json({
+        status: '✅ HEALTHY - CORS WORKING',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        database: 'Memory Storage',
-        cors: 'ENABLED'
+        cors: 'ENABLED',
+        origin: req.headers.origin || 'none'
     });
 });
 
 // ========== TESTE DE CORS ==========
 app.get('/api/cors-test', (req, res) => {
-    res.json({
+    res.status(200).json({
         success: true,
-        message: '🎉 CORS funcionando perfeitamente!',
-        origin: req.headers.origin,
+        message: '🎉 CORS funcionando 100%!',
+        origin: req.headers.origin || 'none',
         method: req.method,
-        headers: req.headers
+        timestamp: new Date().toISOString(),
+        headers: Object.keys(req.headers)
     });
 });
 
@@ -115,12 +72,19 @@ app.post('/api/cadastro', (req, res) => {
     try {
         const { nome, email, senha } = req.body;
         
-        console.log('📝 Cadastro attempt:', { nome, email });
+        console.log('📝 Cadastro:', { nome, email, origin: req.headers.origin });
         
         if (!nome || !email || !senha) {
             return res.status(400).json({
                 success: false,
                 message: 'Nome, email e senha são obrigatórios'
+            });
+        }
+        
+        if (senha.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Senha deve ter pelo menos 6 caracteres'
             });
         }
         
@@ -135,8 +99,8 @@ app.post('/api/cadastro', (req, res) => {
         
         // Criar usuário
         const novoUsuario = memoryDB.criarUsuario({
-            nome,
-            email,
+            nome: nome.trim(),
+            email: email.toLowerCase().trim(),
             senha,
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=4f46e5&color=ffffff`,
             bio: ''
@@ -145,6 +109,8 @@ app.post('/api/cadastro', (req, res) => {
         // Remover senha da resposta
         const { senha: _, ...usuarioSemSenha } = novoUsuario;
         
+        console.log('✅ Usuário criado:', usuarioSemSenha.id);
+        
         res.status(201).json({
             success: true,
             message: 'Usuário cadastrado com sucesso!',
@@ -152,10 +118,10 @@ app.post('/api/cadastro', (req, res) => {
         });
         
     } catch (error) {
-        console.error('Cadastro error:', error);
+        console.error('❌ Erro cadastro:', error);
         res.status(500).json({
             success: false,
-            message: 'Erro ao cadastrar usuário',
+            message: 'Erro interno do servidor',
             error: error.message
         });
     }
@@ -165,7 +131,7 @@ app.post('/api/login', (req, res) => {
     try {
         const { email, senha } = req.body;
         
-        console.log('🔐 Login attempt:', email);
+        console.log('🔐 Login:', { email, origin: req.headers.origin });
         
         if (!email || !senha) {
             return res.status(400).json({
@@ -174,7 +140,7 @@ app.post('/api/login', (req, res) => {
             });
         }
         
-        const usuario = memoryDB.obterUsuarioPorEmail(email);
+        const usuario = memoryDB.obterUsuarioPorEmail(email.toLowerCase().trim());
         
         if (!usuario || usuario.senha !== senha) {
             return res.status(401).json({
@@ -186,17 +152,19 @@ app.post('/api/login', (req, res) => {
         // Remover senha da resposta
         const { senha: _, ...usuarioSemSenha } = usuario;
         
-        res.json({
+        console.log('✅ Login OK:', usuarioSemSenha.id);
+        
+        res.status(200).json({
             success: true,
             message: 'Login realizado com sucesso!',
             usuario: usuarioSemSenha
         });
         
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('❌ Erro login:', error);
         res.status(500).json({
             success: false,
-            message: 'Erro no login',
+            message: 'Erro interno do servidor',
             error: error.message
         });
     }
@@ -215,13 +183,14 @@ app.get('/api/avaliacoes', (req, res) => {
         let avaliacoes = memoryDB.listarAvaliacoes(filtros);
         avaliacoes = avaliacoes.slice(0, parseInt(limit));
         
-        res.json({
+        res.status(200).json({
             success: true,
             avaliacoes,
             total: avaliacoes.length
         });
         
     } catch (error) {
+        console.error('❌ Erro avaliacoes:', error);
         res.status(500).json({
             success: false,
             message: 'Erro ao obter avaliações',
@@ -243,7 +212,7 @@ app.post('/api/avaliacoes', (req, res) => {
         
         // Buscar nome do usuário
         const usuario = memoryDB.obterUsuarioPorId(usuario_id);
-        const usuarioNome = usuario ? usuario.nome : 'Usuário Desconhecido';
+        const usuarioNome = usuario ? usuario.nome : 'Usuário';
         
         const novaAvaliacao = memoryDB.criarAvaliacao({
             usuarioId: usuario_id,
@@ -263,6 +232,7 @@ app.post('/api/avaliacoes', (req, res) => {
         });
         
     } catch (error) {
+        console.error('❌ Erro criar avaliacao:', error);
         res.status(500).json({
             success: false,
             message: 'Erro ao criar avaliação',
@@ -278,13 +248,14 @@ app.get('/api/filmes/buscar', (req, res) => {
         
         const filmes = memoryDB.buscarFilmes(query);
         
-        res.json({
+        res.status(200).json({
             success: true,
             resultados: filmes,
             total: filmes.length
         });
         
     } catch (error) {
+        console.error('❌ Erro buscar filmes:', error);
         res.status(500).json({
             success: false,
             message: 'Erro ao buscar filmes',
@@ -293,7 +264,7 @@ app.get('/api/filmes/buscar', (req, res) => {
     }
 });
 
-// ========== ROTA DE PERFIL ==========
+// ========== ROTAS DE PERFIL ==========
 app.get('/api/perfil/:id', (req, res) => {
     try {
         const { id } = req.params;
@@ -307,13 +278,13 @@ app.get('/api/perfil/:id', (req, res) => {
             });
         }
         
-        // Buscar estatísticas do usuário
+        // Buscar estatísticas
         const avaliacoes = memoryDB.listarAvaliacoes({ usuarioId: id });
         const colecoes = memoryDB.listarColecoesPorUsuario(id);
         
         const { senha: _, ...usuarioSemSenha } = usuario;
         
-        res.json({
+        res.status(200).json({
             success: true,
             usuario: {
                 ...usuarioSemSenha,
@@ -327,6 +298,7 @@ app.get('/api/perfil/:id', (req, res) => {
         });
         
     } catch (error) {
+        console.error('❌ Erro perfil:', error);
         res.status(500).json({
             success: false,
             message: 'Erro ao obter perfil',
@@ -335,33 +307,24 @@ app.get('/api/perfil/:id', (req, res) => {
     }
 });
 
-// ========== 404 HANDLER ==========
+// ========== CATCH ALL ==========
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
-        message: `Rota ${req.originalUrl} não encontrada`,
-        database: 'Memory Storage',
+        message: `Rota ${req.method} ${req.originalUrl} não encontrada`,
         cors: 'ENABLED'
     });
 });
 
 // ========== ERROR HANDLER ==========
 app.use((err, req, res, next) => {
-    console.error('❌ Error:', err);
+    console.error('❌ Server Error:', err);
     res.status(500).json({
         success: false,
         message: 'Erro interno do servidor',
-        error: err.message
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Error'
     });
 });
 
-const PORT = process.env.PORT || 3000;
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`🚀 Servidor rodando na porta ${PORT}`);
-        console.log(`💾 Banco de dados em memória carregado`);
-        console.log(`🌐 CORS habilitado para todas as origens`);
-    });
-}
-
+// ========== EXPORT ==========
 module.exports = app;
