@@ -4,98 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - OpinaFlix</title>
-    <style>
-        body {
-            background: #111;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: #181818;
-            position: relative;
-        }
-        .logo {
-            color: #e50914;
-            font-size: 1.5em;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 16px;
-            margin: 0;
-            padding: 0;
-        }
-        ul li a {
-            color: #fff;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        ul li a:hover {
-            color: #e50914;
-        }
-        #btn-login {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        #btn-login:hover {
-            background: #c50712;
-        }
-        .container {
-            max-width: 400px;
-            margin: 60px auto;
-            background: #181818;
-            padding: 32px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 16px #0006;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            color: #e50914;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        input {
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            background: #222;
-            color: #fff;
-        }
-        input::placeholder {
-            color: #aaa;
-        }
-        button {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .mensagem {
-            text-align: center;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <nav>
@@ -115,6 +25,7 @@
             <input type="text" id="nome" placeholder="Nome" required>
             <input type="email" id="email" placeholder="E-mail" required>
             <input type="password" id="senha" placeholder="Senha" required>
+            <input type="password" id="confirmar-senha" placeholder="Confirmar Senha" required>
             <button type="submit">Cadastrar</button>
         </form>
         <div id="mensagem-cadastro" class="mensagem"></div>
@@ -124,24 +35,53 @@
         </div>
     </div>
     <script>
-    document.getElementById('form-cadastro').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    async function fazerCadastro() {
         const nome = document.getElementById('nome').value;
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
-        const resp = await fetch('http://localhost:3001/api/usuarios', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, email, senha })
-        });
-        const data = await resp.json();
-        if (resp.ok) {
-            localStorage.setItem('usuario', JSON.stringify(data.usuario));
-            window.location.href = 'index.html';
-        } else {
-            document.getElementById('mensagem-cadastro').style.color = '#e50914';
-            document.getElementById('mensagem-cadastro').textContent = data.message || 'Erro ao cadastrar.';
+        const confirmarSenha = document.getElementById('confirmar-senha').value;
+        
+        if (!nome || !email || !senha || !confirmarSenha) {
+            alert('Por favor, preencha todos os campos');
+            return;
         }
+        
+        if (senha !== confirmarSenha) {
+            alert('As senhas não coincidem');
+            return;
+        }
+        
+        if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/cadastro`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome, email, senha })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                window.location.href = 'login.html';
+            } else {
+                alert('Erro: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erro ao fazer cadastro:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    document.getElementById('form-cadastro').addEventListener('submit', function(e) {
+        e.preventDefault();
+        fazerCadastro();
     });
     </script>
 </body>

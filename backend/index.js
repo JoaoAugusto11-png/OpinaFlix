@@ -8,9 +8,20 @@ const colecaoRoutes = require('./routes/colecaoRoutes');
 const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
 const perfilRoutes = require('./routes/perfilRoutes');
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS para produção
+app.use(cors({
+    origin: [
+        'http://localhost:5500',
+        'http://127.0.0.1:8080',
+        'https://opinaflix.vercel.app', // Será atualizado depois
+        'https://seudominio.com', // Seu domínio da Hostinger
+        'https://www.seudominio.com'
+    ],
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Servir arquivos estáticos da pasta uploads
@@ -27,6 +38,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Erro interno do servidor.' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
 });

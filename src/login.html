@@ -3,107 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar ou Cadastrar - OpinaFlix</title>
-    <style>
-        body {
-            background: #111;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: #181818;
-            position: relative;
-        }
-        .logo {
-            color: #e50914;
-            font-size: 1.5em;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 16px;
-            margin: 0;
-            padding: 0;
-        }
-        ul li a {
-            color: #fff;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        ul li a:hover {
-            color: #e50914;
-        }
-        #btn-login {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        #btn-login:hover {
-            background: #c50712;
-        }
-        .container {
-            max-width: 400px;
-            margin: 60px auto;
-            background: #181818;
-            padding: 32px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 16px #0006;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            color: #e50914;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        input {
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            background: #222;
-            color: #fff;
-        }
-        input::placeholder {
-            color: #aaa;
-        }
-        button {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .toggle {
-            background: none;
-            color: #e50914;
-            border: none;
-            cursor: pointer;
-            margin-top: 8px;
-            text-align: center;
-        }
-        .mensagem {
-            text-align: center;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-    </style>
+    <title>Login - OpinaFlix</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <nav>
@@ -131,27 +33,40 @@
         </div>
     </div>
     <script>
-    document.getElementById('form-login').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    async function fazerLogin() {
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
-        const resp = await fetch('http://localhost:3001/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, senha })
-        });
-        const data = await resp.json();
-        if (resp.ok) {
-            // Salva usuário no localStorage
-            localStorage.setItem('usuario', JSON.stringify(data));
-            document.getElementById('mensagem-login').style.color = 'lightgreen';
-            document.getElementById('mensagem-login').textContent = 'Login realizado com sucesso!';
-            // Redireciona para a página principal ou dashboard
-            setTimeout(() => window.location.href = 'index.html', 1000);
-        } else {
-            document.getElementById('mensagem-login').style.color = '#e50914';
-            document.getElementById('mensagem-login').textContent = data.message || 'Erro ao fazer login.';
+        
+        if (!email || !senha) {
+            alert('Por favor, preencha todos os campos');
+            return;
         }
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, senha })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                window.location.href = 'index.html';
+            } else {
+                alert('Erro: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erro ao fazer login:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+    document.getElementById('form-login').addEventListener('submit', function(e) {
+        e.preventDefault();
+        fazerLogin();
     });
     </script>
 </body>

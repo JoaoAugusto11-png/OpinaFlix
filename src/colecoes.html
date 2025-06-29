@@ -3,239 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coleções - OpinaFlix</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        nav {
-            background-color: #141414;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e50914;
-            margin-right: auto;
-        }
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            flex-grow: 1;
-            margin: 0 2rem;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            margin: 0 auto;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-            white-space: nowrap;
-        }
-        .nav-links a:hover {
-            color: #e50914;
-        }
-        .search-bar {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-        .search-bar input {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px 0 0 4px;
-            outline: none;
-        }
-        .search-bar button {
-            background-color: #e50914;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0 4px 4px 0;
-            cursor: pointer;
-        }
-        .main-content {
-            flex: 1;
-        }
-        .collections-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .page-title {
-            font-size: 2rem;
-            color: #141414;
-        }
-        .new-collection-btn {
-            background-color: #e50914;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .new-collection-btn:hover {
-            background-color: #b2070f;
-        }
-        .collections-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-        .collection-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-        }
-        .collection-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-        .collection-cover {
-            height: 180px;
-            position: relative;
-            overflow: hidden;
-        }
-        .collection-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .collection-cover .overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            padding: 1rem;
-            color: white;
-        }
-        .collection-info {
-            padding: 1.5rem;
-        }
-        .collection-title {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            color: #141414;
-        }
-        .collection-meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        .collection-author {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        .author-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e50914;
-        }
-        footer {
-            background-color: #141414;
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            width: 100%;
-        }
-        .social-icons {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .social-icons a {
-            color: white;
-            font-size: 1.5rem;
-            transition: color 0.3s;
-        }
-        .social-icons a:hover {
-            color: #e50914;
-        }
-        .copyright {
-            font-size: 0.9rem;
-            color: #777;
-        }
-        /* Modal styles */
-        #modal-colecao {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        #modal-colecao .modal-content {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            min-width: 320px;
-            max-width: 90vw;
-        }
-        #modal-colecao input, #modal-colecao textarea {
-            width: 100%;
-            margin-bottom: 1rem;
-            padding: 0.7rem;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        #modal-colecao button {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 0.7rem 1.5rem;
-            cursor: pointer;
-        }
-        #modal-colecao .close-btn {
-            background: #ccc;
-            color: #222;
-            margin-left: 1rem;
-        }
-    </style>
+    <title>Minhas Coleções - OpinaFlix</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <nav style="background:#141414;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;">
@@ -287,141 +57,170 @@
     </footer>
 
     <script>
-    // Usuário logado
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    // Script para área do usuário
-    const areaUsuario = document.getElementById('area-usuario');
-    if (usuario) {
-        areaUsuario.innerHTML = `
-            <a href="perfil.html" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
-            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
-        `;
-        document.getElementById('btn-logout').onclick = function() {
-            localStorage.removeItem('usuario');
-            window.location.href = 'login.html';
-        };
-    } else {
-        areaUsuario.innerHTML = `
-            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
-        `;
-    }
-    </script>
-    <script>
-    // Modal de nova coleção
-    document.getElementById('btn-nova-colecao').onclick = function() {
-        document.getElementById('modal-colecao').style.display = 'flex';
-    };
-    function fecharModal() {
-        document.getElementById('modal-colecao').style.display = 'none';
-        document.getElementById('form-colecao').reset();
-        document.getElementById('mensagem-colecao').textContent = '';
-    }
-    // Fecha modal ao clicar fora do conteúdo
-    document.getElementById('modal-colecao').onclick = function(e) {
-        if (e.target === this) fecharModal();
-    };
-    </script>
-    <script>
-    // Criação e listagem de coleções
-    async function carregarColecoes() {
-        // Remove o filtro por usuário - agora busca todas as coleções
-        const resp = await fetch(`http://localhost:3001/api/colecoes`);
-        const colecoes = await resp.json();
-        let html = '';
-        for (const c of colecoes) {
-            // Busca os itens da coleção
-            let poster = '';
-            let qtd_itens = 0;
-            try {
-                const itensResp = await fetch(`http://localhost:3001/api/colecoes/${c.id}/itens`);
-                const itens = await itensResp.json();
-                qtd_itens = Array.isArray(itens) ? itens.length : 0;
-                if (qtd_itens > 0) {
-                    const primeiro = itens[0];
-                    // Busca detalhes da obra na TMDB
-                    const obraResp = await fetch(`https://api.themoviedb.org/3/${primeiro.tipo}/${primeiro.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
-                    const obra = await obraResp.json();
-                    poster = obra.poster_path ? `https://image.tmdb.org/t/p/w500${obra.poster_path}` : '';
-                }
-            } catch {}
+    let usuario;
 
-            // Verifica se o usuário atual é o criador da coleção
-            const isCreator = usuario.id === c.usuario_id;
-            const criadorNome = c.criador_nome || 'Usuário';
+window.onload = function() {
+    usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario) {
+        alert('Você precisa estar logado!');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    carregarColecoes();
+};
 
-            html += `
-                <div class="collection-card">
-                    <div class="collection-cover">
-                        ${poster ? `<img src="${poster}" alt="${c.nome}">` : `<div style="width:100%;height:100%;background:#222;"></div>`}
-                        <div class="overlay">
-                            <span>${qtd_itens} ${qtd_itens === 1 ? 'item' : 'itens'}</span>
-                        </div>
-                    </div>
-                    <div class="collection-info">
-                        <h3 class="collection-title">${c.titulo || c.nome}</h3>
-                        <p class="collection-meta">${c.descricao || ''}</p>
-                        <div class="collection-author">
-                            <span>${criadorNome}</span>
-                        </div>
-                        <div style="display:flex;gap:10px;margin-top:10px;">
-                            <a href="colecao-detalhe.html?id=${c.id}" style="background:#e50914;color:#fff;padding:6px 16px;border-radius:4px;text-decoration:none;">Ver coleção</a>
-                            ${isCreator ? `<button onclick="excluirColecao(${c.id}, '${(c.titulo || c.nome).replace(/'/g, "\\'")}')" style="background:#dc3545;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">Excluir</button>` : ''}
-                        </div>
+async function carregarColecoes() {
+    try {
+        const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/usuario/${usuario.id}`);
+        const colecoes = await response.json();
+        
+        exibirColecoes(colecoes);
+    } catch (error) {
+        console.error('Erro ao carregar coleções:', error);
+        document.getElementById('colecoes-lista').innerHTML = '<p>Erro ao carregar coleções.</p>';
+    }
+}
+
+function exibirColecoes(colecoes) {
+    const container = document.getElementById('colecoes-lista');
+    
+    if (colecoes.length === 0) {
+        container.innerHTML = `
+            <div class="sem-colecoes">
+                <h3>Você ainda não tem coleções</h3>
+                <p>Crie sua primeira coleção para organizar seus filmes e séries favoritos!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    colecoes.forEach(colecao => {
+        html += `
+            <div class="colecao-card">
+                <div class="colecao-header">
+                    <h3>${colecao.titulo || colecao.nome}</h3>
+                    <div class="colecao-acoes">
+                        <button onclick="editarColecao(${colecao.id})" class="btn-editar">Editar</button>
+                        <button onclick="excluirColecao(${colecao.id})" class="btn-excluir">Excluir</button>
                     </div>
                 </div>
-            `;
-        }
-        document.querySelector('.collections-grid').innerHTML = html || '<p>Nenhuma coleção criada ainda.</p>';
+                <p class="colecao-descricao">${colecao.descricao || 'Sem descrição'}</p>
+                <div class="colecao-info">
+                    <span>Criada em: ${new Date(colecao.data_criacao).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <a href="colecao-detalhe.html?id=${colecao.id}" class="btn-ver-colecao">Ver Coleção</a>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+async function criarColecao() {
+    const nome = prompt('Nome da coleção:');
+    if (!nome || nome.trim() === '') {
+        alert('Nome da coleção é obrigatório!');
+        return;
     }
-    carregarColecoes();
-
-    document.getElementById('form-colecao').onsubmit = async function(e) {
-        e.preventDefault();
-        const nome = document.getElementById('nome-colecao').value;
-        const descricao = document.getElementById('descricao-colecao').value;
-        const resposta = await fetch('http://localhost:3001/api/colecoes', {
+    
+    const descricao = prompt('Descrição da coleção (opcional):') || '';
+    
+    try {
+        const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuarioId: usuario.id, nome, descricao })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                usuario_id: usuario.id,
+                nome: nome.trim(),
+                titulo: nome.trim(),
+                descricao: descricao.trim()
+            })
         });
-        const resultado = await resposta.json();
-        const mensagemDiv = document.getElementById('mensagem-colecao');
-        if (resposta.ok) {
-            mensagemDiv.textContent = resultado.message || 'Coleção criada!';
-            mensagemDiv.style.color = 'green';
-            fecharModal();
-            await carregarColecoes();
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Coleção criada com sucesso!');
+            carregarColecoes(); // Recarregar lista
         } else {
-            mensagemDiv.textContent = resultado.message || 'Erro ao criar coleção.';
-            mensagemDiv.style.color = 'red';
+            alert('Erro: ' + data.message);
         }
-    };
+    } catch (error) {
+        console.error('Erro ao criar coleção:', error);
+        alert('Erro de conexão. Tente novamente.');
+    }
+}
 
-    // Exclusão de coleção
-    async function excluirColecao(colecaoId, nomeColecao) {
-        if (!confirm(`Tem certeza que deseja excluir a coleção "${nomeColecao}"?\nEsta ação não pode ser desfeita.`)) {
+async function editarColecao(colecaoId) {
+    try {
+        // Buscar dados atuais da coleção
+        const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}`);
+        const colecao = await response.json();
+        
+        const novoNome = prompt('Novo nome da coleção:', colecao.titulo || colecao.nome);
+        if (novoNome === null) return; // Cancelou
+        
+        if (!novoNome || novoNome.trim() === '') {
+            alert('Nome da coleção é obrigatório!');
             return;
         }
         
-        try {
-            const resp = await fetch(`http://localhost:3001/api/colecoes/${colecaoId}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuarioId: usuario.id })
-            });
-            
-            const resultado = await resp.json();
-            
-            if (resp.ok) {
-                alert('Coleção excluída com sucesso!');
-                carregarColecoes(); // Recarrega a lista
-            } else {
-                alert(resultado.message || 'Erro ao excluir coleção.');
-            }
-        } catch (error) {
-            alert('Erro ao excluir coleção.');
+        const novaDescricao = prompt('Nova descrição da coleção:', colecao.descricao || '');
+        if (novaDescricao === null) return; // Cancelou
+        
+        const updateResponse = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nome: novoNome.trim(),
+                titulo: novoNome.trim(),
+                descricao: novaDescricao.trim()
+            })
+        });
+        
+        const result = await updateResponse.json();
+        
+        if (result.success) {
+            alert('Coleção atualizada com sucesso!');
+            carregarColecoes();
+        } else {
+            alert('Erro: ' + result.message);
         }
+    } catch (error) {
+        console.error('Erro ao editar coleção:', error);
+        alert('Erro de conexão. Tente novamente.');
     }
+}
+
+async function excluirColecao(colecaoId) {
+    if (!confirm('Tem certeza que deseja excluir esta coleção? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Coleção excluída com sucesso!');
+            carregarColecoes();
+        } else {
+            alert('Erro: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Erro ao excluir coleção:', error);
+        alert('Erro de conexão. Tente novamente.');
+    }
+}
     </script>
 </body>
 </html>

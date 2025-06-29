@@ -2,21 +2,10 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Review da Galera - OpinaFlix</title>
-    <style>
-        body { background: #181818; color: #fff; font-family: Arial, sans-serif; margin: 0; }
-        .review-list { max-width: 800px; margin: 40px auto; }
-        .review-card { background: #222; border-radius: 8px; margin-bottom: 32px; padding: 24px; box-shadow: 0 2px 8px #0006; display: flex; gap: 24px; }
-        .review-poster { width: 100px; min-width: 100px; }
-        .review-poster img { width: 100px; border-radius: 6px; }
-        .review-content { flex: 1; }
-        .review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .review-user { font-weight: bold; color: #e50914; }
-        .review-title { font-size: 1.1em; font-weight: bold; }
-        .review-stars { color: #ffd700; font-size: 1.2em; margin: 4px 0; }
-        .review-date { color: #aaa; font-size: 0.9em; margin-left: 8px; }
-        .review-comment { margin-top: 8px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews da Galera - OpinaFlix</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <nav style="background:#181818;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;">
@@ -78,11 +67,11 @@
     async function buscarObraEspecifica(obraId, tipo) {
         try {
             // Busca dados da obra na TMDB
-            const resp = await fetch(`https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+            const resp = await fetch(`https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
             const obra = await resp.json();
             
             // Busca reviews dessa obra específica
-            const reviewsResp = await fetch(`http://localhost:3001/api/reviews?obra_id=${obraId}&tipo=${tipo}`);
+            const reviewsResp = await fetch(`${window.CONFIG.API_URL}/api/reviews?obra_id=${obraId}&tipo=${tipo}`);
             const reviews = await reviewsResp.json();
             
             // Exibe a obra e seus reviews
@@ -94,14 +83,14 @@
 
     // Carrega os reviews da galera
     async function carregarReviews() {
-        const resp = await fetch('http://localhost:3001/api/avaliacoes/recentes');
+        const resp = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/recentes`);
         const reviews = await resp.json();
         let html = '';
         for (const r of reviews) {
             // Busca detalhes da obra na TMDB
             let titulo = '', ano = '', poster = '', tipo = r.tipo;
             try {
-                const obraResp = await fetch(`https://api.themoviedb.org/3/${tipo}/${r.obra_id}?api_key=25aa122e262151673e05f311eaeb56ba&language=pt-BR`);
+                const obraResp = await fetch(`https://api.themoviedb.org/3/${tipo}/${r.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
                 const obra = await obraResp.json();
                 titulo = obra.title || obra.name || 'Título não encontrado';
                 ano = (obra.release_date || obra.first_air_date || '').slice(0,4);

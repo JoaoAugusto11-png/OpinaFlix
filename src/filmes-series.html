@@ -4,146 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Filmes e Séries - OpinaFlix</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background: #181818;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        nav {
-            background: #111;
-            padding: 0 32px;
-            display: flex;
-            align-items: center;
-            height: 56px;
-            justify-content: space-between;
-        }
-        .logo {
-            color: #e50914;
-            font-size: 2em;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 32px;
-            margin: 0;
-            padding: 0;
-        }
-        ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        ul li a:hover {
-            color: #e50914;
-        }
-        .filters {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin: 32px auto 24px auto;
-            max-width: 1100px;
-            justify-content: flex-start;
-        }
-        .filters select, .filters input {
-            padding: 6px 10px;
-            border-radius: 4px;
-            border: none;
-            font-size: 1em;
-            background: #222;
-            color: #fff;
-        }
-        .filters label {
-            color: #ccc;
-            font-size: 1em;
-        }
-        .carousel {
-            max-width: 1100px;
-            margin: 0 auto 32px auto;
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-        .carousel-card {
-            min-width: 220px;
-            background: #222;
-            border-radius: 8px;
-            box-shadow: 0 2px 16px #0004;
-            text-align: center;
-            margin-right: 8px;
-            padding-bottom: 12px;
-        }
-        .carousel-card img {
-            width: 100%;
-            border-radius: 8px 8px 0 0;
-            height: 320px;
-            object-fit: cover;
-        }
-        .carousel-card .title {
-            font-weight: bold;
-            margin: 8px 0 4px 0;
-            font-size: 1.1em;
-        }
-        .carousel-card .year {
-            color: #aaa;
-            font-size: 0.95em;
-        }
-        .carousel-card .stats {
-            margin-top: 8px;
-            display: flex;
-            justify-content: center;
-            gap: 18px;
-            font-size: 0.98em;
-            color: #7ed957;
-        }
-        .list-section {
-            max-width: 1100px;
-            margin: 0 auto 32px auto;
-        }
-        .list-title {
-            color: #e50914;
-            margin-bottom: 12px;
-            font-size: 1.2em;
-        }
-        .list-cards {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-        }
-        .list-card {
-            min-width: 110px;
-            background: #222;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px #0002;
-            text-align: center;
-            padding-bottom: 6px;
-        }
-        .list-card img {
-            width: 100%;
-            border-radius: 6px 6px 0 0;
-            height: 150px;
-            object-fit: cover;
-        }
-        .list-card .title {
-            font-size: 0.95em;
-            margin: 4px 0 2px 0;
-            color: #fff;
-        }
-        .list-card .year {
-            color: #aaa;
-            font-size: 0.85em;
-        }
-        @media (max-width: 900px) {
-            .carousel, .list-cards { flex-wrap: nowrap; }
-            .carousel-card, .list-card { min-width: 150px; }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <nav>
@@ -406,5 +268,200 @@ if (usuario) {
     `;
 }
 </script>
+<script>
+let paginaAtual = 1;
+let tipoAtual = 'movie';
+let generoAtual = '';
+let totalPaginas = 1;
+
+async function carregarConteudo(pagina = 1, resetar = true) {
+    if (resetar) {
+        document.getElementById('resultados').innerHTML = '<div class="loading">Carregando...</div>';
+    }
+    
+    try {
+        let url = `https://api.themoviedb.org/3/discover/${tipoAtual}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=${pagina}&sort_by=popularity.desc`;
+        
+        if (generoAtual) {
+            url += `&with_genres=${generoAtual}`;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        totalPaginas = data.total_pages;
+        paginaAtual = pagina;
+        
+        if (resetar) {
+            exibirResultados(data.results);
+        } else {
+            adicionarResultados(data.results);
+        }
+        
+        atualizarPaginacao();
+    } catch (error) {
+        console.error('Erro ao carregar conteúdo:', error);
+        document.getElementById('resultados').innerHTML = '<div class="erro">Erro ao carregar conteúdo</div>';
+    }
+}
+
+async function buscarConteudo() {
+    const termo = document.getElementById('busca').value.trim();
+    if (!termo) {
+        carregarConteudo(1, true);
+        return;
+    }
+    
+    document.getElementById('resultados').innerHTML = '<div class="loading">Buscando...</div>';
+    
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(termo)}&page=1`);
+        const data = await response.json();
+        
+        // Filtrar apenas filmes e séries
+        const resultados = data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
+        
+        exibirResultados(resultados);
+        document.getElementById('paginacao').style.display = 'none';
+    } catch (error) {
+        console.error('Erro na busca:', error);
+        document.getElementById('resultados').innerHTML = '<div class="erro">Erro ao buscar</div>';
+    }
+}
+
+async function carregarGeneros() {
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/genre/${tipoAtual}/list?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
+        const data = await response.json();
+        
+        const select = document.getElementById('genero');
+        select.innerHTML = '<option value="">Todos os gêneros</option>';
+        
+        data.genres.forEach(genero => {
+            select.innerHTML += `<option value="${genero.id}">${genero.name}</option>`;
+        });
+    } catch (error) {
+        console.error('Erro ao carregar gêneros:', error);
+    }
+}
+
+function exibirResultados(resultados) {
+    const container = document.getElementById('resultados');
+    
+    if (resultados.length === 0) {
+        container.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado</div>';
+        return;
+    }
+    
+    let html = '';
+    resultados.forEach(item => {
+        const tipo = item.media_type || tipoAtual;
+        const titulo = item.title || item.name;
+        const data = item.release_date || item.first_air_date;
+        const ano = data ? data.slice(0, 4) : '';
+        const poster = item.poster_path 
+            ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+            : 'https://via.placeholder.com/300x450?text=Sem+Poster';
+        
+        html += `
+            <div class="item-resultado" onclick="irParaDetalhes(${item.id}, '${tipo}')">
+                <img src="${poster}" alt="${titulo}">
+                <div class="info-item">
+                    <h3>${titulo}</h3>
+                    <p>${ano}</p>
+                    <p class="tipo">${tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function adicionarResultados(resultados) {
+    const container = document.getElementById('resultados');
+    let html = '';
+    
+    resultados.forEach(item => {
+        const tipo = item.media_type || tipoAtual;
+        const titulo = item.title || item.name;
+        const data = item.release_date || item.first_air_date;
+        const ano = data ? data.slice(0, 4) : '';
+        const poster = item.poster_path 
+            ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+            : 'https://via.placeholder.com/300x450?text=Sem+Poster';
+        
+        html += `
+            <div class="item-resultado" onclick="irParaDetalhes(${item.id}, '${tipo}')">
+                <img src="${poster}" alt="${titulo}">
+                <div class="info-item">
+                    <h3>${titulo}</h3>
+                    <p>${ano}</p>
+                    <p class="tipo">${tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML += html;
+}
+
+function alterarTipo(novoTipo) {
+    tipoAtual = novoTipo;
+    generoAtual = '';
+    document.getElementById('genero').value = '';
+    
+    // Atualizar botões
+    document.querySelectorAll('.filtro-tipo button').forEach(btn => {
+        btn.classList.remove('ativo');
+    });
+    document.querySelector(`[onclick="alterarTipo('${novoTipo}')"]`).classList.add('ativo');
+    
+    carregarGeneros();
+    carregarConteudo(1, true);
+}
+
+function filtrarPorGenero() {
+    generoAtual = document.getElementById('genero').value;
+    carregarConteudo(1, true);
+}
+
+function irParaDetalhes(id, tipo) {
+    window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
+}
+
+function atualizarPaginacao() {
+    const container = document.getElementById('paginacao');
+    container.style.display = 'flex';
+    
+    let html = '';
+    
+    // Botão anterior
+    if (paginaAtual > 1) {
+        html += `<button onclick="carregarConteudo(${paginaAtual - 1}, true)">Anterior</button>`;
+    }
+    
+    // Páginas
+    const inicio = Math.max(1, paginaAtual - 2);
+    const fim = Math.min(totalPaginas, paginaAtual + 2);
+    
+    for (let i = inicio; i <= fim; i++) {
+        html += `<button onclick="carregarConteudo(${i}, true)" ${i === paginaAtual ? 'class="ativo"' : ''}>${i}</button>`;
+    }
+    
+    // Botão próximo
+    if (paginaAtual < totalPaginas) {
+        html += `<button onclick="carregarConteudo(${paginaAtual + 1}, true)">Próximo</button>`;
+    }
+    
+    container.innerHTML = html;
+}
+
+// Inicializar página
+window.onload = function() {
+    carregarGeneros();
+    carregarConteudo();
+};
+    </script>
 </body>
 </html>
