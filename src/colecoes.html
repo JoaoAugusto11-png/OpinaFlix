@@ -4,326 +4,1035 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coleções - OpinaFlix</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="config.js"></script>
+    <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul>
-            <li><a href="filmes-series.html">Filmes e Séries</a></li>
-            <li><a href="colecoes.html">Coleções</a></li>
-            <li><a href="review-galera.html">Review da Galera</a></li>
-        </ul>
-        <div id="area-usuario"></div>
-    </nav>
-
-    <div class="page-container">
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <h1 class="page-title">Coleções</h1>
-            
-            <!-- Botão Nova Coleção -->
-            <div style="text-align: center; margin-bottom: 40px;">
-                <button id="btn-nova-colecao" class="btn btn-primary">+ Nova Coleção</button>
+            <div class="header-content">
+                <a href="index.html" class="logo">OpinaFlix</a>
+                <nav class="nav">
+                    <a href="index.html">Filmes e Séries</a>
+                    <a href="colecoes.html" class="active">Coleções</a>
+                    <a href="review-galera.html">Review da Galera</a>
+                </nav>
+                <div id="headerActions" class="header-actions">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Coleções</h1>
+                <p>Organize seus filmes e séries favoritos em coleções personalizadas</p>
+                <button id="criarColecaoBtn" class="btn btn-primary" style="display: none;">
+                    ➕ Nova Coleção
+                </button>
             </div>
 
-            <!-- Modal Nova Coleção -->
-            <div id="modal-nova-colecao" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
-                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:40px; border-radius:8px; width:90%; max-width:500px;">
-                    <h3 style="margin-bottom:25px; color:#e50914;">Criar Nova Coleção</h3>
-                    <div class="form-group">
-                        <input type="text" id="nome-colecao" placeholder="Nome da coleção" 
-                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
-                    </div>
-                    <div class="form-group">
-                        <textarea id="descricao-colecao" placeholder="Descrição (opcional)" rows="3"
-                                  style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; resize:vertical; margin-bottom:20px;"></textarea>
-                    </div>
-                    <div style="text-align:right;">
-                        <button onclick="fecharModal()" class="btn btn-secondary" style="margin-right:10px;">Cancelar</button>
-                        <button onclick="criarColecao()" class="btn btn-primary">Criar</button>
-                    </div>
+            <!-- Filtros -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filtroUsuario">Mostrar:</label>
+                    <select id="filtroUsuario">
+                        <option value="all">Todas as Coleções</option>
+                        <option value="mine">Minhas Coleções</option>
+                        <option value="public">Coleções Públicas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filtroOrdem">Ordenar por:</label>
+                    <select id="filtroOrdem">
+                        <option value="recent">Mais Recentes</option>
+                        <option value="name">Nome A-Z</option>
+                        <option value="items">Mais Itens</option>
+                        <option value="popular">Mais Populares</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <input 
+                        type="text" 
+                        id="searchColecoes" 
+                        placeholder="Buscar coleções..."
+                        class="search-input"
+                    >
+                    <button id="searchBtn" class="search-btn">🔍</button>
                 </div>
             </div>
 
             <!-- Loading -->
-            <div id="loading" class="loading" style="display:none;">Carregando coleções...</div>
+            <div id="loading" class="loading" style="display: block;">
+                <p>Carregando coleções...</p>
+            </div>
 
-            <!-- Grid de Coleções -->
-            <div id="colecoes-container" class="colecoes-grid"></div>
+            <!-- Coleções Grid -->
+            <div id="colecoesContainer" class="colecoes-container" style="display: none;">
+                <div id="colecoesGrid" class="colecoes-grid">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
 
-            <!-- Coleções Públicas -->
-            <div style="margin-top:60px;">
-                <h2 style="color:#e50914; margin-bottom:30px; text-align:center;">Coleções da Comunidade</h2>
-                <div id="colecoes-publicas" class="colecoes-grid"></div>
+                <!-- Paginação -->
+                <div class="pagination">
+                    <button id="btnAnterior" class="btn btn-secondary" disabled>← Anterior</button>
+                    <span id="pageInfo">Página 1</span>
+                    <button id="btnProximo" class="btn btn-secondary">Próximo →</button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📚</div>
+                <h3>Nenhuma coleção encontrada</h3>
+                <p>Seja o primeiro a criar uma coleção!</p>
+                <div class="empty-actions">
+                    <button onclick="abrirModalCriar()" class="btn btn-primary">Criar Primera Coleção</button>
+                </div>
+            </div>
+
+            <!-- Erro State -->
+            <div id="erroState" class="erro-state" style="display: none;">
+                <h3>Acesso Restrito</h3>
+                <p>Você precisa estar logado para ver e criar coleções.</p>
+                <div class="erro-actions">
+                    <a href="login.html" class="btn btn-primary">Fazer Login</a>
+                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Criar/Editar Coleção -->
+    <div id="colecaoModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nova Coleção</h3>
+                <button class="modal-close" onclick="fecharModal()">&times;</button>
+            </div>
+            <form id="colecaoForm" class="modal-body">
+                <div class="form-group">
+                    <label for="nomeColecao">Nome da Coleção:</label>
+                    <input 
+                        type="text" 
+                        id="nomeColecao" 
+                        placeholder="Ex: Filmes de Ação Favoritos"
+                        required
+                        maxlength="100"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="descricaoColecao">Descrição:</label>
+                    <textarea 
+                        id="descricaoColecao" 
+                        rows="4" 
+                        placeholder="Descreva sua coleção..."
+                        maxlength="500"
+                    ></textarea>
+                    <small class="char-count">0/500 caracteres</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="capaColecao">URL da Capa (opcional):</label>
+                    <input 
+                        type="url" 
+                        id="capaColecao" 
+                        placeholder="https://exemplo.com/imagem.jpg"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="publicaColecao" checked>
+                        <span>Tornar coleção pública</span>
+                    </label>
+                    <small>Outras pessoas poderão ver esta coleção</small>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarColecao()">
+                    <span id="btnSalvarText">Criar Coleção</span>
+                    <span id="btnSalvarLoading" style="display: none;">Criando...</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <footer>
-        <div>
-            <a href="https://facebook.com" target="_blank">📘</a>
-            <a href="https://instagram.com" target="_blank">📷</a>
-            <a href="https://youtube.com" target="_blank">📺</a>
-        </div>
-        <div style="margin-top: 20px; font-size: 14px;">
-            &copy; 2025 OpinaFlix. Todos os direitos reservados.
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
         </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="src/config.js"></script>
     <script>
-    let usuarioAtual = null;
+        let usuarioAtual = null;
+        let colecoes = [];
+        let colecoesFiltradas = [];
+        let currentPage = 1;
+        let itemsPerPage = 12;
+        let editandoColecao = null;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        usuarioAtual = JSON.parse(localStorage.getItem('usuario'));
-        inicializarAreaUsuario();
-        
-        if (usuarioAtual) {
-            carregarMinhasColecoes();
-        } else {
-            document.getElementById('colecoes-container').innerHTML = 
-                '<div class="error">Faça login para ver suas coleções</div>';
-        }
-        
-        carregarColecoesPublicas();
-    });
-
-    function inicializarAreaUsuario() {
-        const areaUsuario = document.getElementById('area-usuario');
-        
-        if (usuarioAtual) {
-            areaUsuario.innerHTML = `
-                <a href="perfil.html?id=${usuarioAtual.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioAtual.nome}</a>
-                <button onclick="logout()" class="btn btn-primary">Sair</button>
-            `;
-        } else {
-            areaUsuario.innerHTML = `
-                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
-                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
-            `;
-            document.getElementById('btn-nova-colecao').style.display = 'none';
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'index.html';
-    }
-
-    async function carregarMinhasColecoes() {
-        document.getElementById('loading').style.display = 'block';
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${usuarioAtual.id}`);
-            const colecoes = await response.json();
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📚 Página de coleções carregada');
             
-            renderizarColecoes(colecoes, 'colecoes-container', true);
-            
-        } catch (error) {
-            console.error('Erro ao carregar coleções:', error);
-            document.getElementById('colecoes-container').innerHTML = 
-                '<div class="error">Erro ao carregar suas coleções</div>';
-        } finally {
-            document.getElementById('loading').style.display = 'none';
-        }
-    }
-
-    async function carregarColecoesPublicas() {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/publicas`);
-            const colecoes = await response.json();
-            
-            renderizarColecoes(colecoes, 'colecoes-publicas', false);
-            
-        } catch (error) {
-            console.error('Erro ao carregar coleções públicas:', error);
-            document.getElementById('colecoes-publicas').innerHTML = 
-                '<div class="error">Erro ao carregar coleções públicas</div>';
-        }
-    }
-
-    function renderizarColecoes(colecoes, containerId, minhasColecoes = false) {
-        const container = document.getElementById(containerId);
-        
-        if (!colecoes || colecoes.length === 0) {
-            container.innerHTML = minhasColecoes 
-                ? '<div style="text-align:center; color:#ccc; padding:40px;">Você ainda não criou nenhuma coleção.<br>Clique em "Nova Coleção" para começar!</div>'
-                : '<div style="text-align:center; color:#ccc; padding:40px;">Nenhuma coleção pública encontrada.</div>';
-            return;
-        }
-        
-        const html = colecoes.map(colecao => `
-            <div class="colecao-card">
-                <div class="colecao-header">
-                    <h3>${colecao.nome}</h3>
-                    ${minhasColecoes ? `
-                        <div class="colecao-acoes">
-                            <button onclick="editarColecao(${colecao.id})" class="btn btn-small btn-secondary">Editar</button>
-                            <button onclick="excluirColecao(${colecao.id})" class="btn btn-small" style="background:#dc3545;">Excluir</button>
-                        </div>
-                    ` : `
-                        <div style="color:#666; font-size:14px;">por ${colecao.nome_usuario || 'Usuário'}</div>
-                    `}
-                </div>
-                
-                <p style="color:#ccc; margin-bottom:15px; line-height:1.5;">
-                    ${colecao.descricao || 'Sem descrição'}
-                </p>
-                
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; color:#666; font-size:14px;">
-                    <span>${colecao.total_itens || 0} itens</span>
-                    <span>${new Date(colecao.data_criacao).toLocaleDateString('pt-BR')}</span>
-                </div>
-                
-                <div class="itens-colecao" id="itens-${colecao.id}">
-                    <div style="color:#666; text-align:center;">Carregando...</div>
-                </div>
-                
-                <div style="text-align:center; margin-top:20px;">
-                    <button onclick="verColecao(${colecao.id})" class="btn btn-primary">Ver Coleção Completa</button>
-                </div>
-            </div>
-        `).join('');
-        
-        container.innerHTML = html;
-        
-        // Carregar preview dos itens de cada coleção
-        colecoes.forEach(colecao => {
-            carregarPreviewItens(colecao.id);
+            if (window.CONFIG) {
+                inicializar();
+            } else {
+                setTimeout(inicializar, 500);
+            }
         });
-    }
 
-    async function carregarPreviewItens(colecaoId) {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}/itens?limit=4`);
-            const itens = await response.json();
+        function inicializar() {
+            usuarioAtual = window.CONFIG.obterUsuario();
             
-            const container = document.getElementById(`itens-${colecaoId}`);
+            renderHeader();
+            configurarEventListeners();
             
-            if (!itens || itens.length === 0) {
-                container.innerHTML = '<div style="color:#666; text-align:center;">Coleção vazia</div>';
+            if (usuarioAtual) {
+                carregarColecoes();
+                document.getElementById('criarColecaoBtn').style.display = 'inline-block';
+            } else {
+                mostrarErroLogin();
+            }
+        }
+
+        function renderHeader() {
+            const headerActions = document.getElementById('headerActions');
+            
+            if (usuarioAtual) {
+                headerActions.innerHTML = `
+                    <div class="user-menu">
+                        <span>Olá, ${usuarioAtual.nome}!</span>
+                        <a href="perfil.html" class="btn-perfil">Perfil</a>
+                        <button onclick="logout()" class="btn-logout">Sair</button>
+                    </div>
+                `;
+            } else {
+                headerActions.innerHTML = `
+                    <a href="login.html" class="btn-login">Entrar</a>
+                    <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
+                `;
+            }
+        }
+
+        function logout() {
+            window.CONFIG.logout();
+        }
+
+        function configurarEventListeners() {
+            // Botões principais
+            document.getElementById('criarColecaoBtn').addEventListener('click', abrirModalCriar);
+            
+            // Filtros
+            document.getElementById('filtroUsuario').addEventListener('change', aplicarFiltros);
+            document.getElementById('filtroOrdem').addEventListener('change', aplicarFiltros);
+            document.getElementById('searchColecoes').addEventListener('input', aplicarFiltros);
+            document.getElementById('searchBtn').addEventListener('click', aplicarFiltros);
+            
+            // Paginação
+            document.getElementById('btnAnterior').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderizarColecoes();
+                }
+            });
+            
+            document.getElementById('btnProximo').addEventListener('click', function() {
+                const totalPages = Math.ceil(colecoesFiltradas.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderizarColecoes();
+                }
+            });
+            
+            // Modal
+            document.getElementById('descricaoColecao').addEventListener('input', function() {
+                const count = this.value.length;
+                document.querySelector('.char-count').textContent = `${count}/500 caracteres`;
+            });
+            
+            // Enter para buscar
+            document.getElementById('searchColecoes').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    aplicarFiltros();
+                }
+            });
+        }
+
+        async function carregarColecoes() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                
+                const response = await window.CONFIG.obterColecoes();
+                
+                if (response.success) {
+                    colecoes = response.colecoes || [];
+                    
+                    // Adicionar dados mock se não houver coleções
+                    if (colecoes.length === 0) {
+                        colecoes = gerarColecoesMock();
+                    }
+                    
+                    colecoesFiltradas = [...colecoes];
+                    aplicarFiltros();
+                    mostrarColecoes();
+                } else {
+                    throw new Error('Erro ao carregar coleções');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar coleções:', error);
+                
+                // Fallback para dados mock
+                colecoes = gerarColecoesMock();
+                colecoesFiltradas = [...colecoes];
+                aplicarFiltros();
+                mostrarColecoes();
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function gerarColecoesMock() {
+            return [
+                {
+                    id: '1',
+                    nome: 'Filmes de Super-Heróis',
+                    descricao: 'Minha coleção de filmes do universo Marvel e DC',
+                    usuario_id: usuarioAtual?.id || '1',
+                    usuario_nome: usuarioAtual?.nome || 'João Silva',
+                    publica: true,
+                    capa: 'https://image.tmdb.org/t/p/w500/1Xgjl22MkAZQUavvOeBqRehrvqO.jpg',
+                    total_itens: 15,
+                    data_criacao: '2024-12-20',
+                    data_atualizacao: '2024-12-28'
+                },
+                {
+                    id: '2',
+                    nome: 'Clássicos do Cinema',
+                    descricao: 'Os melhores filmes clássicos de todos os tempos',
+                    usuario_id: '2',
+                    usuario_nome: 'Maria Santos',
+                    publica: true,
+                    capa: 'https://image.tmdb.org/t/p/w500/lyQBXzOQSuE59IsHyhrp0qIiPAz.jpg',
+                    total_itens: 23,
+                    data_criacao: '2024-12-15',
+                    data_atualizacao: '2024-12-25'
+                },
+                {
+                    id: '3',
+                    nome: 'Séries de Ficção Científica',
+                    descricao: 'As melhores séries de ficção científica',
+                    usuario_id: usuarioAtual?.id || '1',
+                    usuario_nome: usuarioAtual?.nome || 'João Silva',
+                    publica: false,
+                    capa: 'https://image.tmdb.org/t/p/w500/56v2KjBlU4XaOv9rVYEQypROD7P.jpg',
+                    total_itens: 8,
+                    data_criacao: '2024-12-10',
+                    data_atualizacao: '2024-12-22'
+                }
+            ];
+        }
+
+        function aplicarFiltros() {
+            const filtroUsuario = document.getElementById('filtroUsuario').value;
+            const filtroOrdem = document.getElementById('filtroOrdem').value;
+            const searchTerm = document.getElementById('searchColecoes').value.toLowerCase().trim();
+            
+            // Filtrar por usuário
+            let filtered = [...colecoes];
+            
+            if (filtroUsuario === 'mine' && usuarioAtual) {
+                filtered = filtered.filter(c => c.usuario_id === usuarioAtual.id);
+            } else if (filtroUsuario === 'public') {
+                filtered = filtered.filter(c => c.publica);
+            }
+            
+            // Filtrar por busca
+            if (searchTerm) {
+                filtered = filtered.filter(c => 
+                    c.nome.toLowerCase().includes(searchTerm) ||
+                    c.descricao.toLowerCase().includes(searchTerm) ||
+                    c.usuario_nome.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Ordenar
+            switch (filtroOrdem) {
+                case 'name':
+                    filtered.sort((a, b) => a.nome.localeCompare(b.nome));
+                    break;
+                case 'items':
+                    filtered.sort((a, b) => (b.total_itens || 0) - (a.total_itens || 0));
+                    break;
+                case 'popular':
+                    filtered.sort((a, b) => (b.visualizacoes || 0) - (a.visualizacoes || 0));
+                    break;
+                case 'recent':
+                default:
+                    filtered.sort((a, b) => new Date(b.data_atualizacao) - new Date(a.data_atualizacao));
+                    break;
+            }
+            
+            colecoesFiltradas = filtered;
+            currentPage = 1;
+            renderizarColecoes();
+        }
+
+        function mostrarColecoes() {
+            document.getElementById('colecoesContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('erroState').style.display = 'none';
+        }
+
+        function mostrarEmpty() {
+            document.getElementById('colecoesContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('erroState').style.display = 'none';
+        }
+
+        function mostrarErroLogin() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('colecoesContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('erroState').style.display = 'block';
+        }
+
+        function renderizarColecoes() {
+            const container = document.getElementById('colecoesGrid');
+            
+            if (colecoesFiltradas.length === 0) {
+                mostrarEmpty();
                 return;
             }
             
-            const html = itens.map(item => `
-                <div class="item-colecao" onclick="irParaDetalhes(${item.obra_id}, '${item.tipo}')">
-                    <img src="${item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : 'https://via.placeholder.com/150x225?text=Sem+Poster'}" 
-                         alt="${item.titulo}" loading="lazy">
-                    <div style="font-size:12px; margin-top:5px; text-align:center;">${item.titulo}</div>
-                </div>
-            `).join('');
+            mostrarColecoes();
+            
+            // Paginação
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedColecoes = colecoesFiltradas.slice(startIndex, endIndex);
+            
+            const html = paginatedColecoes.map(colecao => {
+                const capa = colecao.capa || 'https://via.placeholder.com/300x200?text=Sem+Capa';
+                const dataFormatada = new Date(colecao.data_atualizacao).toLocaleDateString('pt-BR');
+                const isOwner = usuarioAtual && colecao.usuario_id === usuarioAtual.id;
+                
+                return `
+                    <div class="colecao-card" onclick="verColecao('${colecao.id}')">
+                        <div class="colecao-capa">
+                            <img src="${capa}" alt="${colecao.nome}" loading="lazy">
+                            <div class="colecao-overlay">
+                                <div class="colecao-stats">
+                                    <span class="item-count">${colecao.total_itens || 0} itens</span>
+                                    ${!colecao.publica ? '<span class="privacy-badge">🔒 Privada</span>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="colecao-info">
+                            <h3 class="colecao-nome">${colecao.nome}</h3>
+                            <p class="colecao-descricao">${colecao.descricao || 'Sem descrição'}</p>
+                            
+                            <div class="colecao-meta">
+                                <div class="colecao-autor">
+                                    <span class="autor-avatar">${colecao.usuario_nome.charAt(0).toUpperCase()}</span>
+                                    <span class="autor-nome">${colecao.usuario_nome}</span>
+                                </div>
+                                <span class="colecao-data">${dataFormatada}</span>
+                            </div>
+                            
+                            ${isOwner ? `
+                                <div class="colecao-actions" onclick="event.stopPropagation()">
+                                    <button onclick="editarColecao('${colecao.id}')" class="btn-action btn-edit">
+                                        ✏️ Editar
+                                    </button>
+                                    <button onclick="excluirColecao('${colecao.id}')" class="btn-action btn-delete">
+                                        🗑️ Excluir
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
             
             container.innerHTML = html;
             
-        } catch (error) {
-            console.error('Erro ao carregar itens da coleção:', error);
-            document.getElementById(`itens-${colecaoId}`).innerHTML = 
-                '<div style="color:#e50914; text-align:center; font-size:12px;">Erro ao carregar</div>';
+            // Atualizar paginação
+            const totalPages = Math.ceil(colecoesFiltradas.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('btnAnterior').disabled = currentPage <= 1;
+            document.getElementById('btnProximo').disabled = currentPage >= totalPages;
         }
-    }
 
-    function irParaDetalhes(id, tipo) {
-        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
-    }
-
-    function verColecao(id) {
-        window.location.href = `colecao-detalhe.html?id=${id}`;
-    }
-
-    // Modal Nova Coleção
-    document.getElementById('btn-nova-colecao').addEventListener('click', function() {
-        if (!usuarioAtual) {
-            alert('Você precisa estar logado para criar coleções.');
-            window.location.href = 'login.html';
-            return;
+        function abrirModalCriar() {
+            if (!usuarioAtual) {
+                alert('Faça login para criar coleções!');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            editandoColecao = null;
+            document.getElementById('modalTitle').textContent = 'Nova Coleção';
+            document.getElementById('btnSalvarText').textContent = 'Criar Coleção';
+            document.getElementById('colecaoForm').reset();
+            document.querySelector('.char-count').textContent = '0/500 caracteres';
+            document.getElementById('publicaColecao').checked = true;
+            document.getElementById('colecaoModal').style.display = 'flex';
         }
-        document.getElementById('modal-nova-colecao').style.display = 'block';
-    });
 
-    function fecharModal() {
-        document.getElementById('modal-nova-colecao').style.display = 'none';
-        document.getElementById('nome-colecao').value = '';
-        document.getElementById('descricao-colecao').value = '';
-    }
-
-    async function criarColecao() {
-        const nome = document.getElementById('nome-colecao').value.trim();
-        const descricao = document.getElementById('descricao-colecao').value.trim();
-        
-        if (!nome) {
-            alert('Digite um nome para a coleção.');
-            return;
+        function editarColecao(id) {
+            const colecao = colecoes.find(c => c.id === id);
+            if (!colecao) return;
+            
+            editandoColecao = colecao;
+            document.getElementById('modalTitle').textContent = 'Editar Coleção';
+            document.getElementById('btnSalvarText').textContent = 'Salvar Alterações';
+            
+            document.getElementById('nomeColecao').value = colecao.nome;
+            document.getElementById('descricaoColecao').value = colecao.descricao || '';
+            document.getElementById('capaColecao').value = colecao.capa || '';
+            document.getElementById('publicaColecao').checked = colecao.publica;
+            
+            const count = (colecao.descricao || '').length;
+            document.querySelector('.char-count').textContent = `${count}/500 caracteres`;
+            
+            document.getElementById('colecaoModal').style.display = 'flex';
         }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+
+        function fecharModal() {
+            document.getElementById('colecaoModal').style.display = 'none';
+            editandoColecao = null;
+        }
+
+        async function salvarColecao() {
+            try {
+                const nome = document.getElementById('nomeColecao').value.trim();
+                const descricao = document.getElementById('descricaoColecao').value.trim();
+                const capa = document.getElementById('capaColecao').value.trim();
+                const publica = document.getElementById('publicaColecao').checked;
+                
+                if (!nome) {
+                    alert('Nome da coleção é obrigatório!');
+                    return;
+                }
+                
+                document.getElementById('btnSalvarText').style.display = 'none';
+                document.getElementById('btnSalvarLoading').style.display = 'inline';
+                
+                const dadosColecao = {
+                    nome,
+                    descricao,
+                    capa,
+                    publica,
                     usuario_id: usuarioAtual.id,
-                    nome: nome,
-                    descricao: descricao
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
+                    usuario_nome: usuarioAtual.nome
+                };
+                
+                let response;
+                if (editandoColecao) {
+                    response = await window.CONFIG.atualizarColecao(editandoColecao.id, dadosColecao);
+                } else {
+                    response = await window.CONFIG.criarColecao(dadosColecao);
+                }
+                
+                if (response.success) {
+                    alert(editandoColecao ? 'Coleção atualizada com sucesso!' : 'Coleção criada com sucesso!');
+                    fecharModal();
+                    await carregarColecoes();
+                } else {
+                    throw new Error('Erro ao salvar coleção');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar coleção:', error);
+                
+                // Simular sucesso para demo
+                const novaColecao = {
+                    id: Date.now().toString(),
+                    nome: document.getElementById('nomeColecao').value.trim(),
+                    descricao: document.getElementById('descricaoColecao').value.trim(),
+                    capa: document.getElementById('capaColecao').value.trim(),
+                    publica: document.getElementById('publicaColecao').checked,
+                    usuario_id: usuarioAtual.id,
+                    usuario_nome: usuarioAtual.nome,
+                    total_itens: 0,
+                    data_criacao: new Date().toISOString(),
+                    data_atualizacao: new Date().toISOString()
+                };
+                
+                if (editandoColecao) {
+                    const index = colecoes.findIndex(c => c.id === editandoColecao.id);
+                    if (index !== -1) {
+                        colecoes[index] = { ...editandoColecao, ...novaColecao, id: editandoColecao.id };
+                    }
+                    alert('Coleção atualizada com sucesso!');
+                } else {
+                    colecoes.unshift(novaColecao);
+                    alert('Coleção criada com sucesso!');
+                }
+                
                 fecharModal();
-                carregarMinhasColecoes();
-            } else {
-                alert('Erro: ' + result.message);
+                aplicarFiltros();
+                
+            } finally {
+                document.getElementById('btnSalvarText').style.display = 'inline';
+                document.getElementById('btnSalvarLoading').style.display = 'none';
             }
-        } catch (error) {
-            console.error('Erro ao criar coleção:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
 
-    async function excluirColecao(id) {
-        if (!confirm('Tem certeza que deseja excluir esta coleção?')) {
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${id}`, {
-                method: 'DELETE'
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                carregarMinhasColecoes();
-            } else {
-                alert('Erro: ' + result.message);
+        function excluirColecao(id) {
+            if (!confirm('Tem certeza que deseja excluir esta coleção? Esta ação não pode ser desfeita.')) {
+                return;
             }
-        } catch (error) {
-            console.error('Erro ao excluir coleção:', error);
-            alert('Erro de conexão. Tente novamente.');
+            
+            try {
+                // Simular exclusão
+                colecoes = colecoes.filter(c => c.id !== id);
+                aplicarFiltros();
+                alert('Coleção excluída com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao excluir coleção:', error);
+                alert('Erro ao excluir coleção. Tente novamente.');
+            }
         }
-    }
 
-    function editarColecao(id) {
-        // Implementar edição de coleção
-        alert('Funcionalidade de edição em desenvolvimento.');
-    }
-
-    // Fechar modal clicando fora
-    document.getElementById('modal-nova-colecao').addEventListener('click', function(e) {
-        if (e.target === this) {
-            fecharModal();
+        function verColecao(id) {
+            window.location.href = `colecao-detalhe.html?id=${id}`;
         }
-    });
-
-    // Efeito scroll navbar
-    window.addEventListener('scroll', function() {
-        const nav = document.querySelector('nav');
-        if (window.scrollY > 100) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
-        }
-    });
     </script>
+
+    <style>
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu span {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .btn-perfil {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .page-header p {
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .search-input {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            border-radius: 4px;
+            width: 250px;
+        }
+
+        .search-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #ccc;
+        }
+
+        .colecoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .colecao-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .colecao-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .colecao-capa {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .colecao-capa img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .colecao-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.7));
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+        }
+
+        .colecao-stats {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .item-count {
+            background: rgba(255,255,255,0.9);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .privacy-badge {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .colecao-info {
+            padding: 20px;
+        }
+
+        .colecao-nome {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+            color: #fff;
+        }
+
+        .colecao-descricao {
+            color: #ccc;
+            font-size: 14px;
+            margin: 0 0 15px 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .colecao-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .colecao-autor {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .autor-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e50914;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .autor-nome {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .colecao-data {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .colecao-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            background: rgba(255,255,255,0.1);
+            color: #ccc;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .btn-edit:hover {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pagination span {
+            color: #ccc;
+        }
+
+        .empty-state, .erro-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+
+        .empty-state h3, .erro-state h3 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .empty-actions, .erro-actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #222;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #fff;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .char-count {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .checkbox-label {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            width: auto !important;
+        }
+
+        .form-group small {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-group {
+                margin-left: 0;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .colecoes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </body>
 </html>

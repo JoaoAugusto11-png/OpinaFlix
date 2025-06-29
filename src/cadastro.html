@@ -4,221 +4,779 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - OpinaFlix</title>
-    <link rel="stylesheet" href="src/styles/global.css">
-    <link rel="stylesheet" href="src/styles/cadastro.css">
+    <link rel="stylesheet" href="src/styles.css">
+    <link rel="stylesheet" href="src/styles/auth.css">
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
+<body class="auth-page">
+    <!-- Header Simples -->
+    <header class="auth-header">
         <div class="container">
-            <div class="header-content">
-                <a href="index.html" class="logo">OpinaFlix</a>
-                <nav class="nav">
-                    <a href="index.html">Filmes e Séries</a>
-                    <a href="colecoes.html">Coleções</a>
-                    <a href="galeria.html">Review da Galera</a>
-                </nav>
-                <div class="header-actions">
-                    <a href="login.html" class="btn-login">Entrar</a>
-                    <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
-                </div>
-            </div>
+            <a href="index.html" class="logo">OpinaFlix</a>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="main">
-        <div class="container">
-            <div class="cadastro-container">
-                <div class="cadastro-box">
-                    <h1>Criar conta</h1>
-                    
-                    <!-- Alert -->
-                    <div id="alert" class="alert" style="display: none;"></div>
-                    
-                    <!-- Form -->
-                    <form id="formCadastro" class="cadastro-form">
-                        <div class="form-group">
-                            <input 
-                                type="text" 
-                                id="nome" 
-                                placeholder="Nome completo" 
-                                required
-                                autocomplete="name"
-                            >
-                        </div>
-                        
-                        <div class="form-group">
-                            <input 
-                                type="email" 
-                                id="email" 
-                                placeholder="E-mail" 
-                                required
-                                autocomplete="email"
-                            >
-                        </div>
-                        
-                        <div class="form-group">
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header-content">
+                    <h1>Criar Conta</h1>
+                    <p>Junte-se à comunidade OpinaFlix e compartilhe suas opiniões</p>
+                </div>
+
+                <form id="cadastroForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="nome">Nome Completo:</label>
+                        <input 
+                            type="text" 
+                            id="nome" 
+                            name="nome"
+                            placeholder="Seu nome completo"
+                            required
+                            autocomplete="name"
+                            maxlength="100"
+                        >
+                        <span class="field-error" id="nomeError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-mail:</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            placeholder="seu@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                        <span class="field-error" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senha">Senha:</label>
+                        <div class="password-input">
                             <input 
                                 type="password" 
                                 id="senha" 
-                                placeholder="Senha (min. 6 caracteres)" 
+                                name="senha"
+                                placeholder="Mínimo 6 caracteres"
                                 required
                                 autocomplete="new-password"
                                 minlength="6"
                             >
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                👁️
+                            </button>
                         </div>
-                        
-                        <div class="form-group">
+                        <span class="field-error" id="senhaError"></span>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="strength-text" id="strengthText">Digite uma senha</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmarSenha">Confirmar Senha:</label>
+                        <div class="password-input">
                             <input 
                                 type="password" 
-                                id="confirmar-senha" 
-                                placeholder="Confirmar senha" 
+                                id="confirmarSenha" 
+                                name="confirmarSenha"
+                                placeholder="Confirme sua senha"
                                 required
                                 autocomplete="new-password"
-                                minlength="6"
                             >
+                            <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                                👁️
+                            </button>
                         </div>
+                        <span class="field-error" id="confirmarSenhaError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataNascimento">Data de Nascimento (opcional):</label>
+                        <input 
+                            type="date" 
+                            id="dataNascimento" 
+                            name="dataNascimento"
+                            max="2010-12-31"
+                        >
+                        <span class="field-error" id="dataNascimentoError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="generosFavoritos">Gêneros Favoritos (opcional):</label>
+                        <div class="checkbox-grid" id="generosFavoritos">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="acao">
+                                <span>Ação</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="aventura">
+                                <span>Aventura</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="animacao">
+                                <span>Animação</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="comedia">
+                                <span>Comédia</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="drama">
+                                <span>Drama</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="fantasia">
+                                <span>Fantasia</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="ficcao">
+                                <span>Ficção Científica</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="horror">
+                                <span>Terror</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="romance">
+                                <span>Romance</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="generos" value="suspense">
+                                <span>Suspense</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="aceitarTermos" name="aceitarTermos" required>
+                            <span>
+                                Aceito os 
+                                <a href="#" onclick="mostrarTermos()" class="auth-link">Termos de Uso</a> 
+                                e 
+                                <a href="#" onclick="mostrarPrivacidade()" class="auth-link">Política de Privacidade</a>
+                            </span>
+                        </label>
                         
-                        <button type="submit" class="btn-cadastro-submit">
-                            <span id="btnText">Criar conta</span>
-                            <span id="btnLoading" style="display: none;">Criando...</span>
-                        </button>
-                    </form>
-                    
-                    <p class="login-link">
-                        Já tem uma conta? <a href="login.html">Entrar</a>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="receberEmails" name="receberEmails" checked>
+                            <span>Quero receber novidades por e-mail</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary auth-btn" id="cadastroBtn">
+                        <span id="cadastroBtnText">Criar Conta</span>
+                        <span id="cadastroBtnLoading" class="loading-spinner" style="display: none;">
+                            ⏳ Criando conta...
+                        </span>
+                    </button>
+
+                    <div class="form-error" id="formError" style="display: none;">
+                        <p></p>
+                    </div>
+                </form>
+
+                <div class="auth-divider">
+                    <span>ou</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="btn btn-social google-btn" onclick="cadastroComGoogle()">
+                        <span class="social-icon">🔍</span>
+                        Cadastrar com Google
+                    </button>
+                    <button type="button" class="btn btn-social facebook-btn" onclick="cadastroComFacebook()">
+                        <span class="social-icon">📘</span>
+                        Cadastrar com Facebook
+                    </button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>
+                        Já tem uma conta? 
+                        <a href="login.html" class="auth-link">Faça login aqui</a>
                     </p>
                 </div>
+            </div>
+
+            <!-- Benefícios -->
+            <div class="benefits-card">
+                <h4>🎬 Por que se cadastrar?</h4>
+                <ul class="benefits-list">
+                    <li>✅ Avalie filmes e séries</li>
+                    <li>✅ Crie coleções personalizadas</li>
+                    <li>✅ Veja reviews da comunidade</li>
+                    <li>✅ Receba recomendações personalizadas</li>
+                    <li>✅ Participe de discussões</li>
+                </ul>
             </div>
         </div>
     </main>
 
-    <!-- Config -->
+    <!-- Modal Termos de Uso -->
+    <div id="termosModal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Termos de Uso</h3>
+                <button class="modal-close" onclick="fecharModalTermos()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="terms-content">
+                    <h4>1. Aceitação dos Termos</h4>
+                    <p>Ao usar o OpinaFlix, você concorda com estes termos de uso.</p>
+                    
+                    <h4>2. Uso do Serviço</h4>
+                    <p>Você pode usar o OpinaFlix para avaliar filmes e séries, criar coleções e interagir com outros usuários.</p>
+                    
+                    <h4>3. Conta de Usuário</h4>
+                    <p>Você é responsável por manter a segurança de sua conta e senha.</p>
+                    
+                    <h4>4. Conteúdo do Usuário</h4>
+                    <p>Você é responsável pelo conteúdo que publica, incluindo avaliações e comentários.</p>
+                    
+                    <h4>5. Privacidade</h4>
+                    <p>Respeitamos sua privacidade conforme nossa Política de Privacidade.</p>
+                    
+                    <h4>6. Modificações</h4>
+                    <p>Podemos modificar estes termos a qualquer momento.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="fecharModalTermos()">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Política de Privacidade -->
+    <div id="privacidadeModal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Política de Privacidade</h3>
+                <button class="modal-close" onclick="fecharModalPrivacidade()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="terms-content">
+                    <h4>1. Informações Coletadas</h4>
+                    <p>Coletamos informações que você nos fornece diretamente, como nome, e-mail e preferências.</p>
+                    
+                    <h4>2. Uso das Informações</h4>
+                    <p>Usamos suas informações para fornecer e melhorar nossos serviços.</p>
+                    
+                    <h4>3. Compartilhamento</h4>
+                    <p>Não vendemos ou alugamos suas informações pessoais para terceiros.</p>
+                    
+                    <h4>4. Segurança</h4>
+                    <p>Implementamos medidas de segurança para proteger suas informações.</p>
+                    
+                    <h4>5. Cookies</h4>
+                    <p>Usamos cookies para melhorar sua experiência no site.</p>
+                    
+                    <h4>6. Seus Direitos</h4>
+                    <p>Você pode acessar, corrigir ou excluir suas informações pessoais.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="fecharModalPrivacidade()">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="src/config.js"></script>
-    
     <script>
-        // ========== ELEMENTOS ==========
-        const formCadastro = document.getElementById('formCadastro');
-        const alertDiv = document.getElementById('alert');
-        const btnText = document.getElementById('btnText');
-        const btnLoading = document.getElementById('btnLoading');
-        
-        // ========== FUNÇÕES ==========
-        function mostrarAlert(message, type = 'error') {
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            alertDiv.style.display = 'block';
-            
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-            }, 5000);
-        }
-        
-        function toggleLoading(loading) {
-            const submitBtn = formCadastro.querySelector('button[type="submit"]');
-            submitBtn.disabled = loading;
-            
-            if (loading) {
-                btnText.style.display = 'none';
-                btnLoading.style.display = 'inline';
-            } else {
-                btnText.style.display = 'inline';
-                btnLoading.style.display = 'none';
-            }
-        }
-        
-        // ========== FUNÇÃO DE CADASTRO ==========
-        async function fazerCadastro(event) {
-            event.preventDefault();
-            
-            try {
-                toggleLoading(true);
-                
-                // Obter dados do formulário
-                const nome = document.getElementById('nome').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const senha = document.getElementById('senha').value;
-                const confirmarSenha = document.getElementById('confirmar-senha').value;
-                
-                console.log('📝 Tentativa de cadastro:', { nome, email });
-                
-                // Validações
-                if (!nome || !email || !senha || !confirmarSenha) {
-                    throw new Error('Todos os campos são obrigatórios');
-                }
-                
-                if (nome.length < 2) {
-                    throw new Error('Nome deve ter pelo menos 2 caracteres');
-                }
-                
-                if (senha.length < 6) {
-                    throw new Error('Senha deve ter pelo menos 6 caracteres');
-                }
-                
-                if (senha !== confirmarSenha) {
-                    throw new Error('As senhas não coincidem');
-                }
-                
-                // Validar email
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    throw new Error('Email inválido');
-                }
-                
-                // Fazer cadastro usando a função local
-                const response = await window.CONFIG.cadastro(nome, email, senha);
-                
-                console.log('✅ Cadastro realizado:', response);
-                
-                // Mostrar sucesso
-                mostrarAlert('Cadastro realizado com sucesso! Redirecionando...', 'success');
-                
-                // Salvar usuário logado
-                window.CONFIG.salvarUsuario(response.usuario);
-                
-                // Redirecionar após 2 segundos
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
-                
-            } catch (error) {
-                console.error('❌ Erro no cadastro:', error);
-                mostrarAlert(error.message || 'Erro ao fazer cadastro');
-            } finally {
-                toggleLoading(false);
-            }
-        }
-        
-        // ========== EVENT LISTENERS ==========
-        formCadastro.addEventListener('submit', fazerCadastro);
-        
-        // Validação em tempo real das senhas
-        document.getElementById('confirmar-senha').addEventListener('input', function() {
-            const senha = document.getElementById('senha').value;
-            const confirmarSenha = this.value;
-            
-            if (confirmarSenha && senha !== confirmarSenha) {
-                this.style.borderColor = '#e74c3c';
-            } else {
-                this.style.borderColor = '';
-            }
-        });
-        
         // ========== INICIALIZAÇÃO ==========
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('📝 Página de cadastro carregada');
             
             // Verificar se já está logado
-            if (window.CONFIG && window.CONFIG.estaLogado()) {
-                console.log('👤 Usuário já logado, redirecionando...');
+            if (window.CONFIG) {
+                verificarUsuarioLogado();
+                configurarEventListeners();
+            } else {
+                setTimeout(() => {
+                    verificarUsuarioLogado();
+                    configurarEventListeners();
+                }, 500);
+            }
+        });
+
+        function verificarUsuarioLogado() {
+            const usuario = window.CONFIG?.obterUsuario();
+            if (usuario) {
+                // Já está logado, redirecionar
                 window.location.href = 'index.html';
             }
+        }
+
+        function configurarEventListeners() {
+            // Form de cadastro
+            document.getElementById('cadastroForm').addEventListener('submit', handleCadastro);
             
-            // Focus no primeiro campo
-            document.getElementById('nome').focus();
-        });
+            // Toggle senhas
+            document.getElementById('togglePassword').addEventListener('click', () => togglePasswordVisibility('senha'));
+            document.getElementById('toggleConfirmPassword').addEventListener('click', () => togglePasswordVisibility('confirmarSenha'));
+            
+            // Validação em tempo real
+            document.getElementById('nome').addEventListener('blur', validarNome);
+            document.getElementById('email').addEventListener('blur', validarEmail);
+            document.getElementById('senha').addEventListener('input', validarSenha);
+            document.getElementById('confirmarSenha').addEventListener('input', validarConfirmarSenha);
+            document.getElementById('dataNascimento').addEventListener('change', validarDataNascimento);
+            
+            // Limpar erros ao digitar
+            document.getElementById('nome').addEventListener('input', limparErroNome);
+            document.getElementById('email').addEventListener('input', limparErroEmail);
+            document.getElementById('senha').addEventListener('input', limparErroSenha);
+            document.getElementById('confirmarSenha').addEventListener('input', limparErroConfirmarSenha);
+            
+            // Verificador de força da senha
+            document.getElementById('senha').addEventListener('input', verificarForcaSenha);
+        }
+
+        async function handleCadastro(event) {
+            event.preventDefault();
+            
+            const formData = {
+                nome: document.getElementById('nome').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                senha: document.getElementById('senha').value,
+                confirmarSenha: document.getElementById('confirmarSenha').value,
+                dataNascimento: document.getElementById('dataNascimento').value,
+                aceitarTermos: document.getElementById('aceitarTermos').checked,
+                receberEmails: document.getElementById('receberEmails').checked,
+                generosFavoritos: Array.from(document.querySelectorAll('input[name="generos"]:checked')).map(el => el.value)
+            };
+            
+            // Validações
+            if (!validarFormulario(formData)) {
+                return;
+            }
+            
+            try {
+                mostrarCarregando(true);
+                limparErros();
+                
+                // Simular delay da rede
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const response = await window.CONFIG.cadastrar(formData);
+                
+                if (response.success) {
+                    mostrarSucesso('Conta criada com sucesso! Redirecionando...');
+                    
+                    // Redirecionar após breve delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(response.message || 'Erro ao criar conta');
+                }
+                
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                mostrarErro(error.message || 'Erro ao criar conta. Tente novamente.');
+                
+            } finally {
+                mostrarCarregando(false);
+            }
+        }
+
+        function validarFormulario(data) {
+            let valido = true;
+            
+            // Validar nome
+            if (!data.nome) {
+                mostrarErroNome('Nome é obrigatório');
+                valido = false;
+            } else if (data.nome.length < 2) {
+                mostrarErroNome('Nome deve ter pelo menos 2 caracteres');
+                valido = false;
+            } else if (data.nome.length > 100) {
+                mostrarErroNome('Nome muito longo');
+                valido = false;
+            }
+            
+            // Validar email
+            if (!data.email) {
+                mostrarErroEmail('E-mail é obrigatório');
+                valido = false;
+            } else if (!validarFormatoEmail(data.email)) {
+                mostrarErroEmail('E-mail inválido');
+                valido = false;
+            }
+            
+            // Validar senha
+            if (!data.senha) {
+                mostrarErroSenha('Senha é obrigatória');
+                valido = false;
+            } else if (data.senha.length < 6) {
+                mostrarErroSenha('Senha deve ter pelo menos 6 caracteres');
+                valido = false;
+            } else if (calcularForcaSenha(data.senha) < 2) {
+                mostrarErroSenha('Senha muito fraca');
+                valido = false;
+            }
+            
+            // Validar confirmação de senha
+            if (!data.confirmarSenha) {
+                mostrarErroConfirmarSenha('Confirme sua senha');
+                valido = false;
+            } else if (data.senha !== data.confirmarSenha) {
+                mostrarErroConfirmarSenha('Senhas não conferem');
+                valido = false;
+            }
+            
+            // Validar termos
+            if (!data.aceitarTermos) {
+                mostrarErro('Você deve aceitar os Termos de Uso');
+                valido = false;
+            }
+            
+            return valido;
+        }
+
+        function validarNome() {
+            const nome = document.getElementById('nome').value.trim();
+            
+            if (nome && nome.length < 2) {
+                mostrarErroNome('Nome muito curto');
+                return false;
+            }
+            
+            if (nome && nome.length > 100) {
+                mostrarErroNome('Nome muito longo');
+                return false;
+            }
+            
+            limparErroNome();
+            return true;
+        }
+
+        function validarEmail() {
+            const email = document.getElementById('email').value.trim();
+            
+            if (email && !validarFormatoEmail(email)) {
+                mostrarErroEmail('E-mail inválido');
+                return false;
+            }
+            
+            limparErroEmail();
+            return true;
+        }
+
+        function validarSenha() {
+            const senha = document.getElementById('senha').value;
+            
+            if (senha && senha.length < 6) {
+                mostrarErroSenha('Senha muito curta');
+                return false;
+            }
+            
+            limparErroSenha();
+            return true;
+        }
+
+        function validarConfirmarSenha() {
+            const senha = document.getElementById('senha').value;
+            const confirmar = document.getElementById('confirmarSenha').value;
+            
+            if (confirmar && senha !== confirmar) {
+                mostrarErroConfirmarSenha('Senhas não conferem');
+                return false;
+            }
+            
+            limparErroConfirmarSenha();
+            return true;
+        }
+
+        function validarDataNascimento() {
+            const data = document.getElementById('dataNascimento').value;
+            
+            if (data) {
+                const nascimento = new Date(data);
+                const hoje = new Date();
+                const idade = hoje.getFullYear() - nascimento.getFullYear();
+                
+                if (idade < 13) {
+                    mostrarErroDataNascimento('Você deve ter pelo menos 13 anos');
+                    return false;
+                }
+            }
+            
+            limparErroDataNascimento();
+            return true;
+        }
+
+        function validarFormatoEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        function verificarForcaSenha() {
+            const senha = document.getElementById('senha').value;
+            const forca = calcularForcaSenha(senha);
+            const fillElement = document.getElementById('strengthFill');
+            const textElement = document.getElementById('strengthText');
+            
+            const forcas = [
+                { nivel: 0, cor: '#e74c3c', texto: 'Muito fraca', largura: 0 },
+                { nivel: 1, cor: '#e67e22', texto: 'Fraca', largura: 25 },
+                { nivel: 2, cor: '#f39c12', texto: 'Média', largura: 50 },
+                { nivel: 3, cor: '#27ae60', texto: 'Forte', largura: 75 },
+                { nivel: 4, cor: '#2ecc71', texto: 'Muito forte', largura: 100 }
+            ];
+            
+            const forcaAtual = forcas[forca];
+            
+            if (senha) {
+                fillElement.style.width = `${forcaAtual.largura}%`;
+                fillElement.style.backgroundColor = forcaAtual.cor;
+                textElement.textContent = forcaAtual.texto;
+                textElement.style.color = forcaAtual.cor;
+            } else {
+                fillElement.style.width = '0%';
+                textElement.textContent = 'Digite uma senha';
+                textElement.style.color = '#666';
+            }
+        }
+
+        function calcularForcaSenha(senha) {
+            let pontos = 0;
+            
+            if (senha.length >= 6) pontos++;
+            if (senha.length >= 10) pontos++;
+            if (/[a-z]/.test(senha)) pontos++;
+            if (/[A-Z]/.test(senha)) pontos++;
+            if (/[0-9]/.test(senha)) pontos++;
+            if (/[^A-Za-z0-9]/.test(senha)) pontos++;
+            
+            return Math.min(4, Math.floor(pontos / 1.5));
+        }
+
+        function togglePasswordVisibility(fieldId) {
+            const input = document.getElementById(fieldId);
+            const toggleBtn = fieldId === 'senha' 
+                ? document.getElementById('togglePassword')
+                : document.getElementById('toggleConfirmPassword');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function mostrarCarregando(mostrar) {
+            const btnText = document.getElementById('cadastroBtnText');
+            const btnLoading = document.getElementById('cadastroBtnLoading');
+            const btn = document.getElementById('cadastroBtn');
+            
+            if (mostrar) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline';
+                btn.disabled = true;
+            } else {
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        function mostrarErro(mensagem) {
+            const errorDiv = document.getElementById('formError');
+            errorDiv.querySelector('p').textContent = mensagem;
+            errorDiv.style.display = 'block';
+            
+            // Auto-ocultar após 5 segundos
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function mostrarSucesso(mensagem) {
+            const errorDiv = document.getElementById('formError');
+            errorDiv.querySelector('p').textContent = mensagem;
+            errorDiv.className = 'form-success';
+            errorDiv.style.display = 'block';
+        }
+
+        function limparErros() {
+            document.getElementById('formError').style.display = 'none';
+            document.getElementById('formError').className = 'form-error';
+        }
+
+        // Funções para mostrar/limpar erros específicos
+        function mostrarErroNome(msg) { document.getElementById('nomeError').textContent = msg; }
+        function limparErroNome() { document.getElementById('nomeError').textContent = ''; }
+        
+        function mostrarErroEmail(msg) { document.getElementById('emailError').textContent = msg; }
+        function limparErroEmail() { document.getElementById('emailError').textContent = ''; }
+        
+        function mostrarErroSenha(msg) { document.getElementById('senhaError').textContent = msg; }
+        function limparErroSenha() { document.getElementById('senhaError').textContent = ''; }
+        
+        function mostrarErroConfirmarSenha(msg) { document.getElementById('confirmarSenhaError').textContent = msg; }
+        function limparErroConfirmarSenha() { document.getElementById('confirmarSenhaError').textContent = ''; }
+        
+        function mostrarErroDataNascimento(msg) { document.getElementById('dataNascimentoError').textContent = msg; }
+        function limparErroDataNascimento() { document.getElementById('dataNascimentoError').textContent = ''; }
+
+        function cadastroComGoogle() {
+            alert('🚀 Cadastro com Google será implementado em breve!');
+        }
+
+        function cadastroComFacebook() {
+            alert('🚀 Cadastro com Facebook será implementado em breve!');
+        }
+
+        function mostrarTermos() {
+            document.getElementById('termosModal').style.display = 'flex';
+        }
+
+        function fecharModalTermos() {
+            document.getElementById('termosModal').style.display = 'none';
+        }
+
+        function mostrarPrivacidade() {
+            document.getElementById('privacidadeModal').style.display = 'flex';
+        }
+
+        function fecharModalPrivacidade() {
+            document.getElementById('privacidadeModal').style.display = 'none';
+        }
     </script>
+
+    <style>
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 14px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checkbox-item input {
+            width: auto !important;
+            margin: 0;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .benefits-card {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid #2ecc71;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .benefits-card h4 {
+            color: #2ecc71;
+            margin: 0 0 15px 0;
+            text-align: center;
+        }
+
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .benefits-list li {
+            color: #ccc;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .modal-large {
+            max-width: 600px;
+        }
+
+        .terms-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .terms-content h4 {
+            color: #e50914;
+            margin: 20px 0 10px 0;
+        }
+
+        .terms-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .terms-content p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefits-card {
+                padding: 15px;
+            }
+            
+            .modal-large {
+                max-width: 95%;
+            }
+        }
+    </style>
 </body>
 </html>

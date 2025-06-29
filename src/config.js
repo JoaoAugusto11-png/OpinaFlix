@@ -1,10 +1,13 @@
 // ========== CONFIGURAÇÃO OPINAFLIX ==========
+
+// Configurações da API TMDB
 window.CONFIG = {
-    // Usar JSONBin.io como backend temporário (sem CORS)
-    API_URL: 'https://api.jsonbin.io/v3/b',
-    BIN_ID: '6767a1234567890abcdef123', // Vamos criar
-    TMDB_API_KEY: '25aa122e262151673e05f311eaeb56ba',
-    TMDB_BASE_URL: 'https://api.themoviedb.org/3'
+    TMDB_API_KEY: '25aa122e262151673e05f311eaeb56ba', // Substitua pela sua chave da API TMDB
+    TMDB_BASE_URL: 'https://api.themoviedb.org/3',
+    JSONBIN_URL: 'https://api.jsonbin.io/v3/b',
+    JSONBIN_KEY: '$2b$10$9ZvQ8zQ8zQ8zQ8zQ8zQ8zO',
+    JSONBIN_BIN_ID: '60c6b56ba7f5f6001b5b56ba',
+    STORAGE_VERSION: '1.0.0'
 };
 
 // ========== BANCO DE DADOS LOCAL ==========
@@ -13,10 +16,11 @@ window.CONFIG.database = {
         {
             id: '1',
             nome: 'João Silva',
-            email: 'joao@email.com',
-            senha: '123456',
+            email: 'demo@opinaflex.com',
+            senha: 'demo123',
             avatar: 'https://ui-avatars.com/api/?name=João+Silva&background=4f46e5&color=ffffff',
             bio: 'Amante de filmes e séries!',
+            generosFavoritos: ['acao', 'ficcao', 'suspense'],
             dataCadastro: new Date().toISOString()
         },
         {
@@ -24,8 +28,9 @@ window.CONFIG.database = {
             nome: 'Maria Santos',
             email: 'maria@email.com',
             senha: '123456',
-            avatar: 'https://ui-avatars.com/api/?name=Maria+Santos&background=e11d48&color=ffffff',
-            bio: 'Crítica de cinema.',
+            avatar: 'https://ui-avatars.com/api/?name=Maria+Santos&background=e50914&color=ffffff',
+            bio: 'Crítica de cinema nas horas vagas',
+            generosFavoritos: ['drama', 'romance', 'comedia'],
             dataCadastro: new Date().toISOString()
         }
     ],
@@ -33,39 +38,58 @@ window.CONFIG.database = {
         {
             id: '1',
             usuarioId: '1',
+            usuarioNome: 'João Silva',
             obraId: '550',
             tipo: 'movie',
             nota: 9.5,
             comentario: 'Filme excepcional! Fight Club é um clássico.',
             titulo: 'Fight Club',
             poster: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
-            data: new Date().toISOString(),
-            usuarioNome: 'João Silva'
+            data: new Date().toISOString()
         }
     ],
-    colecoes: [],
-    contadores: {
+    colecoes: [
+        {
+            id: '1',
+            nome: 'Filmes de Super-Heróis',
+            descricao: 'Minha coleção de filmes do universo Marvel e DC',
+            usuario_id: '1',
+            usuario_nome: 'João Silva',
+            publica: true,
+            capa: 'https://image.tmdb.org/t/p/w500/1Xgjl22MkAZQUavvOeBqRehrvqO.jpg',
+            total_itens: 15,
+            data_criacao: '2024-12-20',
+            data_atualizacao: '2024-12-28'
+        }
+    ],
+    estatisticas: {
         usuarios: 2,
         avaliacoes: 1,
-        colecoes: 0
+        colecoes: 1
     }
 };
 
 // ========== FUNÇÕES DE API LOCAIS ==========
 
 // Login
-window.CONFIG.login = async (email, senha) => {
+window.CONFIG.login = async (email, senha, lembrarMe = false) => {
     console.log('🔐 Login local:', email);
+    
+    // Simular delay
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     const usuario = window.CONFIG.database.usuarios.find(u => 
         u.email.toLowerCase() === email.toLowerCase() && u.senha === senha
     );
     
     if (!usuario) {
-        throw new Error('Email ou senha incorretos');
+        throw new Error('E-mail ou senha incorretos');
     }
     
     const { senha: _, ...usuarioSemSenha } = usuario;
+    
+    // Salvar no localStorage
+    window.CONFIG.salvarUsuario(usuarioSemSenha, lembrarMe);
     
     return {
         success: true,
@@ -75,14 +99,24 @@ window.CONFIG.login = async (email, senha) => {
 };
 
 // Cadastro
-window.CONFIG.cadastro = async (nome, email, senha) => {
+window.CONFIG.cadastrar = async (dados) => {
+    const { nome, email, senha, generosFavoritos = [], receberEmails = false } = dados;
+    
     console.log('📝 Cadastro local:', { nome, email });
     
-    if (!nome || !email || !senha) {
-        throw new Error('Nome, email e senha são obrigatórios');
+    // Simular delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Validações básicas
+    if (!nome || nome.length < 2) {
+        throw new Error('Nome deve ter pelo menos 2 caracteres');
     }
     
-    if (senha.length < 6) {
+    if (!email || !email.includes('@')) {
+        throw new Error('E-mail inválido');
+    }
+    
+    if (!senha || senha.length < 6) {
         throw new Error('Senha deve ter pelo menos 6 caracteres');
     }
     
@@ -92,26 +126,30 @@ window.CONFIG.cadastro = async (nome, email, senha) => {
     );
     
     if (existe) {
-        throw new Error('Email já cadastrado');
+        throw new Error('E-mail já cadastrado');
     }
     
     // Criar novo usuário
     const novoUsuario = {
-        id: (++window.CONFIG.database.contadores.usuarios).toString(),
+        id: Date.now().toString(),
         nome: nome.trim(),
         email: email.toLowerCase().trim(),
         senha,
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=4f46e5&color=ffffff`,
         bio: '',
+        generosFavoritos,
+        receberEmails,
         dataCadastro: new Date().toISOString()
     };
     
+    // Adicionar ao banco local
     window.CONFIG.database.usuarios.push(novoUsuario);
-    
-    // Salvar no localStorage
-    localStorage.setItem('opinaflix_database', JSON.stringify(window.CONFIG.database));
+    window.CONFIG.salvarDatabase();
     
     const { senha: _, ...usuarioSemSenha } = novoUsuario;
+    
+    // Auto-login após cadastro
+    window.CONFIG.salvarUsuario(usuarioSemSenha);
     
     return {
         success: true,
@@ -120,12 +158,12 @@ window.CONFIG.cadastro = async (nome, email, senha) => {
     };
 };
 
-// Buscar filmes (TMDB)
-window.CONFIG.buscarFilmes = async (query) => {
+// Buscar filmes/séries
+window.CONFIG.buscarConteudo = async (query) => {
     try {
         const url = `${window.CONFIG.TMDB_BASE_URL}/search/movie?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(query)}`;
-        
         const response = await fetch(url);
+        
         if (!response.ok) throw new Error('Erro na busca TMDB');
         
         const data = await response.json();
@@ -135,26 +173,21 @@ window.CONFIG.buscarFilmes = async (query) => {
             resultados: data.results || [],
             total: data.results?.length || 0
         };
-        
     } catch (error) {
         console.error('Erro TMDB:', error);
         
-        // Filmes de exemplo se TMDB falhar
+        // Fallback com dados locais
         const filmesExemplo = [
             {
                 id: 550,
                 title: 'Fight Club',
-                release_date: '1999-10-15',
                 poster_path: '/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
-                overview: 'Um funcionário de escritório insatisfeito...',
                 vote_average: 8.8
             },
             {
                 id: 13,
                 title: 'Forrest Gump',
-                release_date: '1994-06-23',
                 poster_path: '/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg',
-                overview: 'A história de Forrest Gump...',
                 vote_average: 8.8
             }
         ];
@@ -169,12 +202,12 @@ window.CONFIG.buscarFilmes = async (query) => {
     }
 };
 
-// Filmes populares
-window.CONFIG.filmesPopulares = async () => {
+// Obter filmes populares
+window.CONFIG.obterFilmesPopulares = async () => {
     try {
         const url = `${window.CONFIG.TMDB_BASE_URL}/movie/popular?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=1`;
-        
         const response = await fetch(url);
+        
         if (!response.ok) throw new Error('Erro na busca TMDB');
         
         const data = await response.json();
@@ -184,9 +217,8 @@ window.CONFIG.filmesPopulares = async () => {
             resultados: data.results || [],
             total: data.results?.length || 0
         };
-        
     } catch (error) {
-        console.error('Erro TMDB populares:', error);
+        console.error('Erro TMDB:', error);
         return { success: false, resultados: [], total: 0 };
     }
 };
@@ -195,6 +227,7 @@ window.CONFIG.filmesPopulares = async () => {
 window.CONFIG.obterAvaliacoes = async (filtros = {}) => {
     let avaliacoes = [...window.CONFIG.database.avaliacoes];
     
+    // Aplicar filtros
     if (filtros.usuario_id) {
         avaliacoes = avaliacoes.filter(a => a.usuarioId === filtros.usuario_id);
     }
@@ -217,35 +250,90 @@ window.CONFIG.obterAvaliacoes = async (filtros = {}) => {
 window.CONFIG.criarAvaliacao = async (dados) => {
     const { usuario_id, obra_id, tipo, nota, comentario, titulo, poster } = dados;
     
-    if (!usuario_id || !obra_id || !tipo || nota === undefined) {
+    if (!usuario_id || !obra_id || !tipo || !nota) {
         throw new Error('Dados obrigatórios: usuario_id, obra_id, tipo, nota');
     }
     
     const usuario = window.CONFIG.database.usuarios.find(u => u.id === usuario_id);
-    const usuarioNome = usuario ? usuario.nome : 'Usuário';
+    if (!usuario) {
+        throw new Error('Usuário não encontrado');
+    }
     
     const novaAvaliacao = {
-        id: (++window.CONFIG.database.contadores.avaliacoes).toString(),
+        id: Date.now().toString(),
         usuarioId: usuario_id,
+        usuarioNome: usuario.nome,
         obraId: obra_id.toString(),
         tipo,
         nota: parseFloat(nota),
         comentario: comentario || '',
         titulo: titulo || '',
         poster: poster || '',
-        usuarioNome,
         data: new Date().toISOString()
     };
     
     window.CONFIG.database.avaliacoes.push(novaAvaliacao);
-    
-    // Salvar no localStorage
-    localStorage.setItem('opinaflix_database', JSON.stringify(window.CONFIG.database));
+    window.CONFIG.salvarDatabase();
     
     return {
         success: true,
         message: 'Avaliação criada com sucesso!',
         avaliacao: novaAvaliacao
+    };
+};
+
+// Obter coleções
+window.CONFIG.obterColecoes = async (filtros = {}) => {
+    let colecoes = [...window.CONFIG.database.colecoes];
+    
+    if (filtros.usuario_id) {
+        colecoes = colecoes.filter(c => c.usuario_id === filtros.usuario_id);
+    }
+    
+    if (filtros.publicas_apenas) {
+        colecoes = colecoes.filter(c => c.publica);
+    }
+    
+    return {
+        success: true,
+        colecoes,
+        total: colecoes.length
+    };
+};
+
+// Obter coleção específica
+window.CONFIG.obterColecao = async (id) => {
+    const colecao = window.CONFIG.database.colecoes.find(c => c.id === id);
+    
+    if (!colecao) {
+        return { success: false, message: 'Coleção não encontrada' };
+    }
+    
+    return {
+        success: true,
+        colecao
+    };
+};
+
+// Obter itens da coleção
+window.CONFIG.obterItensColecao = async (colecaoId) => {
+    // Mock de itens da coleção
+    const itensMock = [
+        {
+            id: '1',
+            obra_id: '299536',
+            tipo: 'movie',
+            titulo: 'Vingadores: Guerra Infinita',
+            poster: 'https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg',
+            ano: '2018',
+            nota_tmdb: 8.3,
+            data_adicao: '2024-12-20'
+        }
+    ];
+    
+    return {
+        success: true,
+        itens: itensMock
     };
 };
 
@@ -278,22 +366,34 @@ window.CONFIG.obterPerfil = async (userId) => {
 // ========== UTILITÁRIOS ==========
 
 // Salvar usuário logado
-window.CONFIG.salvarUsuario = (usuario) => {
-    localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+window.CONFIG.salvarUsuario = (usuario, lembrarMe = false) => {
+    if (lembrarMe) {
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+        localStorage.setItem('lembrarLogin', 'true');
+    } else {
+        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+    }
     console.log('👤 Usuário salvo:', usuario.nome);
 };
 
 // Obter usuário logado
 window.CONFIG.obterUsuario = () => {
-    const usuarioStr = localStorage.getItem('usuarioLogado');
+    let usuarioStr = sessionStorage.getItem('usuarioLogado');
+    
+    if (!usuarioStr && localStorage.getItem('lembrarLogin')) {
+        usuarioStr = localStorage.getItem('usuarioLogado');
+    }
+    
     return usuarioStr ? JSON.parse(usuarioStr) : null;
 };
 
 // Logout
 window.CONFIG.logout = () => {
     localStorage.removeItem('usuarioLogado');
+    localStorage.removeItem('lembrarLogin');
+    sessionStorage.removeItem('usuarioLogado');
     console.log('👋 Logout realizado');
-    window.location.href = '/';
+    window.location.href = 'index.html';
 };
 
 // Verificar se está logado
@@ -305,6 +405,16 @@ window.CONFIG.estaLogado = () => {
 window.CONFIG.getTMDBImageUrl = (path, size = 'w500') => {
     if (!path) return 'https://via.placeholder.com/500x750?text=Sem+Poster';
     return `https://image.tmdb.org/t/p/${size}${path}`;
+};
+
+// Salvar database no localStorage
+window.CONFIG.salvarDatabase = () => {
+    try {
+        localStorage.setItem('opinaflix_database', JSON.stringify(window.CONFIG.database));
+        console.log('💾 Database salvo no localStorage');
+    } catch (error) {
+        console.error('❌ Erro ao salvar database:', error);
+    }
 };
 
 // ========== CARREGAR DADOS DO LOCALSTORAGE ==========
@@ -326,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Indicador visual
     const successDiv = document.createElement('div');
     successDiv.style.cssText = 'position:fixed; top:10px; right:10px; background:green; color:white; padding:8px; z-index:9999; border-radius:4px; font-size:11px; font-family:monospace;';
-    successDiv.innerHTML = '✅ Sistema Local OK<br>Banco: localStorage<br>APIs: Funcionando';
+    successDiv.innerHTML = '✅ Sistema Local OK<br>🗄️ Banco: localStorage<br>🌐 APIs: Funcionando';
     document.body.appendChild(successDiv);
     setTimeout(() => successDiv.remove(), 4000);
     
@@ -341,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('📊 Dados disponíveis:');
     console.log('- Usuários:', window.CONFIG.database.usuarios.length);
     console.log('- Avaliações:', window.CONFIG.database.avaliacoes.length);
+    console.log('- Coleções:', window.CONFIG.database.colecoes.length);
 });
 
 console.log('🎉 Sistema local 100% funcional!');

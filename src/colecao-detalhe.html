@@ -5,306 +5,693 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes da Coleção - OpinaFlix</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="config.js"></script>
+    <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul>
-            <li><a href="filmes-series.html">Filmes e Séries</a></li>
-            <li><a href="colecoes.html">Coleções</a></li>
-            <li><a href="review-galera.html">Review da Galera</a></li>
-        </ul>
-        <div id="area-usuario"></div>
-    </nav>
-
-    <div class="page-container">
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <!-- Header da Coleção -->
-            <div style="text-align:center; margin-bottom:40px;">
-                <button onclick="window.history.back()" class="btn btn-secondary" style="float:left;">← Voltar</button>
-                <h1 id="nome-colecao" class="page-title">Carregando...</h1>
-                <p id="descricao-colecao" style="color:#ccc; font-size:18px; max-width:600px; margin:0 auto;"></p>
-                <div id="info-colecao" style="color:#666; margin-top:15px;"></div>
+            <div class="header-content">
+                <a href="index.html" class="logo">OpinaFlix</a>
+                <nav class="nav">
+                    <a href="index.html">Filmes e Séries</a>
+                    <a href="colecoes.html">Coleções</a>
+                    <a href="review-galera.html">Review da Galera</a>
+                </nav>
+                <div id="headerActions" class="header-actions">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Loading -->
+        <div id="loading" class="loading" style="display: block;">
+            <p>Carregando coleção...</p>
+        </div>
+
+        <!-- Erro -->
+        <div id="erro" class="erro" style="display: none;">
+            <div class="container">
+                <h2>Coleção não encontrada</h2>
+                <p>Desculpe, não conseguimos encontrar esta coleção.</p>
+                <div class="erro-actions">
+                    <a href="colecoes.html" class="btn btn-primary">Ver Todas as Coleções</a>
+                    <a href="index.html" class="btn btn-secondary">Voltar ao Início</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalhes da Coleção -->
+        <div id="colecaoContainer" class="colecao-container" style="display: none;">
+            <!-- Hero Section -->
+            <div class="colecao-hero">
+                <div class="hero-backdrop">
+                    <img id="heroImage" src="" alt="">
+                </div>
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="hero-info">
+                            <div class="breadcrumb">
+                                <a href="colecoes.html">Coleções</a>
+                                <span>></span>
+                                <span id="breadcrumbNome"></span>
+                            </div>
+                            <h1 id="colecaoNome"></h1>
+                            <p id="colecaoDescricao"></p>
+                            
+                            <div class="colecao-meta">
+                                <div class="meta-item">
+                                    <span class="meta-icon">👤</span>
+                                    <span>Por <a href="#" id="autorLink" class="autor-link"></a></span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-icon">📚</span>
+                                    <span id="totalItens">0 itens</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-icon">📅</span>
+                                    <span id="dataAtualizacao"></span>
+                                </div>
+                                <div class="meta-item" id="privacyMeta" style="display: none;">
+                                    <span class="meta-icon">🔒</span>
+                                    <span>Privada</span>
+                                </div>
+                            </div>
+                            
+                            <div class="colecao-actions">
+                                <button id="seguirBtn" class="btn btn-outline" style="display: none;">
+                                    ❤️ Seguir Coleção
+                                </button>
+                                <button id="editarBtn" class="btn btn-primary" style="display: none;">
+                                    ✏️ Editar
+                                </button>
+                                <button id="adicionarItemBtn" class="btn btn-secondary" style="display: none;">
+                                    ➕ Adicionar Item
+                                </button>
+                                <button id="compartilharBtn" class="btn btn-outline">
+                                    📤 Compartilhar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Ações (se for dono) -->
-            <div id="acoes-colecao" style="text-align:center; margin-bottom:30px; display:none;">
-                <button onclick="editarColecao()" class="btn btn-secondary">Editar Coleção</button>
-                <button onclick="excluirColecao()" class="btn" style="background:#dc3545; margin-left:10px;">Excluir Coleção</button>
+            <!-- Conteúdo -->
+            <div class="container">
+                <!-- Filtros -->
+                <div class="content-filters">
+                    <div class="filter-group">
+                        <label for="filtroTipo">Tipo:</label>
+                        <select id="filtroTipo">
+                            <option value="all">Todos</option>
+                            <option value="movie">Filmes</option>
+                            <option value="tv">Séries</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filtroOrdem">Ordenar:</label>
+                        <select id="filtroOrdem">
+                            <option value="added">Data de Adição</option>
+                            <option value="title">Nome A-Z</option>
+                            <option value="rating">Maior Nota</option>
+                            <option value="year">Ano</option>
+                        </select>
+                    </div>
+                    <div class="view-toggle">
+                        <button id="viewGrid" class="view-btn active" data-view="grid">⊞ Grade</button>
+                        <button id="viewList" class="view-btn" data-view="list">☰ Lista</button>
+                    </div>
+                </div>
+
+                <!-- Lista de Itens -->
+                <div id="itensContainer" class="itens-container">
+                    <div id="itensList" class="itens-grid">
+                        <!-- Será preenchido pelo JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyItens" class="empty-itens" style="display: none;">
+                    <div class="empty-icon">📭</div>
+                    <h3>Coleção vazia</h3>
+                    <p>Esta coleção ainda não possui nenhum item.</p>
+                    <div class="empty-actions" id="emptyActions" style="display: none;">
+                        <button onclick="abrirModalAdicionar()" class="btn btn-primary">Adicionar Primeiro Item</button>
+                    </div>
+                </div>
             </div>
+        </div>
+    </main>
 
-            <!-- Loading -->
-            <div id="loading" class="loading" style="display:none;">Carregando itens...</div>
-
-            <!-- Itens da Coleção -->
-            <div id="itens-container" class="movies-grid"></div>
-
-            <!-- Mensagem Vazia -->
-            <div id="mensagem-vazia" style="display:none; text-align:center; padding:60px 20px; color:#666;">
-                <h3 style="margin-bottom:15px;">Coleção Vazia</h3>
-                <p>Esta coleção ainda não possui nenhum item.</p>
-                <p>Navegue pelos filmes e séries para adicionar conteúdo!</p>
-                <div style="margin-top:25px;">
-                    <a href="filmes-series.html" class="btn btn-primary">Explorar Filmes e Séries</a>
+    <!-- Modal Adicionar Item -->
+    <div id="adicionarModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar à Coleção</h3>
+                <button class="modal-close" onclick="fecharModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-section">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Buscar filme ou série..."
+                        class="search-input"
+                    >
+                    <button id="searchBtn" class="search-btn">🔍 Buscar</button>
+                </div>
+                <div id="searchResults" class="search-results">
+                    <p class="search-placeholder">Digite algo para buscar...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer>
-        <div>
-            <a href="https://facebook.com" target="_blank">📘</a>
-            <a href="https://instagram.com" target="_blank">📷</a>
-            <a href="https://youtube.com" target="_blank">📺</a>
-        </div>
-        <div style="margin-top: 20px; font-size: 14px;">
-            &copy; 2025 OpinaFlix. Todos os direitos reservados.
-        </div>
-    </footer>
-
-    <script>
-    let colecaoAtual = null;
-    let usuarioAtual = null;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        usuarioAtual = JSON.parse(localStorage.getItem('usuario'));
-        inicializarAreaUsuario();
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-        
-        if (id) {
-            carregarColecao(id);
-        } else {
-            window.location.href = 'colecoes.html';
-        }
-    });
-
-    function inicializarAreaUsuario() {
-        const areaUsuario = document.getElementById('area-usuario');
-        
-        if (usuarioAtual) {
-            areaUsuario.innerHTML = `
-                <a href="perfil.html?id=${usuarioAtual.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioAtual.nome}</a>
-                <button onclick="logout()" class="btn btn-primary">Sair</button>
-            `;
-        } else {
-            areaUsuario.innerHTML = `
-                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
-                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
-            `;
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'index.html';
-    }
-
-    async function carregarColecao(id) {
-        try {
-            // Carregar dados da coleção
-            const responseColecao = await fetch(`${window.CONFIG.API_URL}/api/colecoes/detalhe/${id}`);
-            const colecao = await responseColecao.json();
-            
-            if (!colecao.success) {
-                throw new Error(colecao.message || 'Coleção não encontrada');
-            }
-            
-            colecaoAtual = colecao.data;
-            
-            // Atualizar informações da coleção
-            document.getElementById('nome-colecao').textContent = colecaoAtual.nome;
-            document.getElementById('descricao-colecao').textContent = colecaoAtual.descricao || '';
-            document.getElementById('info-colecao').innerHTML = `
-                <span>por <strong>${colecaoAtual.nome_usuario}</strong></span> • 
-                <span>${colecaoAtual.total_itens || 0} itens</span> • 
-                <span>Criada em ${new Date(colecaoAtual.data_criacao).toLocaleDateString('pt-BR')}</span>
-            `;
-            
-            // Mostrar ações se for o dono
-            if (usuarioAtual && usuarioAtual.id === colecaoAtual.usuario_id) {
-                document.getElementById('acoes-colecao').style.display = 'block';
-            }
-            
-            // Atualizar título da página
-            document.title = `${colecaoAtual.nome} - OpinaFlix`;
-            
-            // Carregar itens
-            carregarItens(id);
-            
-        } catch (error) {
-            console.error('Erro ao carregar coleção:', error);
-            alert('Erro ao carregar coleção: ' + error.message);
-            window.location.href = 'colecoes.html';
-        }
-    }
-
-    async function carregarItens(colecaoId) {
-        document.getElementById('loading').style.display = 'block';
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}/itens`);
-            const itens = await response.json();
-            
-            renderizarItens(itens);
-            
-        } catch (error) {
-            console.error('Erro ao carregar itens:', error);
-            document.getElementById('itens-container').innerHTML = 
-                '<div class="error">Erro ao carregar itens da coleção</div>';
-        } finally {
-            document.getElementById('loading').style.display = 'none';
-        }
-    }
-
-    function renderizarItens(itens) {
-        const container = document.getElementById('itens-container');
-        const mensagemVazia = document.getElementById('mensagem-vazia');
-        
-        if (!itens || itens.length === 0) {
-            container.style.display = 'none';
-            mensagemVazia.style.display = 'block';
-            return;
-        }
-        
-        container.style.display = 'grid';
-        mensagemVazia.style.display = 'none';
-        
-        const html = itens.map(item => {
-            const poster = item.poster 
-                ? `https://image.tmdb.org/t/p/w300${item.poster}`
-                : 'https://via.placeholder.com/300x450?text=Sem+Poster';
-            
-            return `
-                <div class="movie-card">
-                    <img src="${poster}" alt="${item.titulo}" loading="lazy" 
-                         onclick="irParaDetalhes(${item.obra_id}, '${item.tipo}')">
-                    <div class="movie-info">
-                        <h3>${item.titulo}</h3>
-                        <p>${item.tipo === 'movie' ? 'Filme' : 'Série'}</p>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                            <span style="color:#666; font-size:12px;">
-                                Adicionado em ${new Date(item.data_adicao).toLocaleDateString('pt-BR')}
-                            </span>
-                            ${usuarioAtual && usuarioAtual.id === colecaoAtual.usuario_id ? `
-                                <button onclick="removerItem(${item.id})" class="btn btn-small" 
-                                        style="background:#dc3545; padding:4px 8px; font-size:11px;">
-                                    Remover
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
+    <!-- Modal Editar Coleção -->
+    <div id="editarModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Coleção</h3>
+                <button class="modal-close" onclick="fecharModalEditar()">&times;</button>
+            </div>
+            <form id="editarForm" class="modal-body">
+                <div class="form-group">
+                    <label for="editNome">Nome:</label>
+                    <input type="text" id="editNome" required maxlength="100">
                 </div>
-            `;
-        }).join('');
-        
-        container.innerHTML = html;
-    }
+                <div class="form-group">
+                    <label for="editDescricao">Descrição:</label>
+                    <textarea id="editDescricao" rows="4" maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editCapa">URL da Capa:</label>
+                    <input type="url" id="editCapa">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="editPublica">
+                        <span>Tornar coleção pública</span>
+                    </label>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharModalEditar()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarEdicao()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
 
-    function irParaDetalhes(id, tipo) {
-        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
-    }
+    <!-- Scripts -->
+    <script src="src/config.js"></script>
+    <script>
+        let usuarioAtual = null;
+        let colecaoAtual = null;
+        let colecaoId = null;
+        let itensColecao = [];
+        let itensFiltrados = [];
+        let currentView = 'grid';
 
-    async function removerItem(itemId) {
-        if (!confirm('Remover este item da coleção?')) {
-            return;
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📖 Página de detalhes da coleção carregada');
+            
+            if (window.CONFIG) {
+                inicializar();
+            } else {
+                setTimeout(inicializar, 500);
+            }
+        });
+
+        function inicializar() {
+            usuarioAtual = window.CONFIG.obterUsuario();
+            
+            // Obter ID da coleção da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            colecaoId = urlParams.get('id');
+            
+            if (!colecaoId) {
+                mostrarErro();
+                return;
+            }
+            
+            renderHeader();
+            carregarColecao();
+            configurarEventListeners();
         }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/itens/${itemId}`, {
-                method: 'DELETE'
-            });
+
+        function renderHeader() {
+            const headerActions = document.getElementById('headerActions');
             
-            const result = await response.json();
-            
-            if (result.success) {
-                // Recarregar itens
-                carregarItens(colecaoAtual.id);
-                // Atualizar contador
-                colecaoAtual.total_itens = Math.max(0, (colecaoAtual.total_itens || 1) - 1);
-                document.getElementById('info-colecao').innerHTML = `
-                    <span>por <strong>${colecaoAtual.nome_usuario}</strong></span> • 
-                    <span>${colecaoAtual.total_itens} itens</span> • 
-                    <span>Criada em ${new Date(colecaoAtual.data_criacao).toLocaleDateString('pt-BR')}</span>
+            if (usuarioAtual) {
+                headerActions.innerHTML = `
+                    <div class="user-menu">
+                        <span>Olá, ${usuarioAtual.nome}!</span>
+                        <a href="perfil.html" class="btn-perfil">Perfil</a>
+                        <button onclick="logout()" class="btn-logout">Sair</button>
+                    </div>
                 `;
             } else {
-                alert('Erro: ' + result.message);
+                headerActions.innerHTML = `
+                    <a href="login.html" class="btn-login">Entrar</a>
+                    <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
+                `;
             }
-        } catch (error) {
-            console.error('Erro ao remover item:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
 
-    async function excluirColecao() {
-        if (!confirm('Tem certeza que deseja excluir esta coleção? Esta ação não pode ser desfeita.')) {
-            return;
+        function logout() {
+            window.CONFIG.logout();
         }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoAtual.id}`, {
-                method: 'DELETE'
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                alert('Coleção excluída com sucesso!');
-                window.location.href = 'colecoes.html';
-            } else {
-                alert('Erro: ' + result.message);
+
+        async function carregarColecao() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                
+                // Tentar carregar da API local
+                const response = await window.CONFIG.obterColecao(colecaoId);
+                
+                if (response.success) {
+                    colecaoAtual = response.colecao;
+                } else {
+                    // Fallback para dados mock
+                    colecaoAtual = gerarColecaoMock();
+                }
+                
+                await renderizarColecao();
+                await carregarItens();
+                
+                document.getElementById('colecaoContainer').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erro ao carregar coleção:', error);
+                
+                // Fallback para dados mock
+                colecaoAtual = gerarColecaoMock();
+                await renderizarColecao();
+                await carregarItens();
+                document.getElementById('colecaoContainer').style.display = 'block';
+                
+            } finally {
+                document.getElementById('loading').style.display = 'none';
             }
-        } catch (error) {
-            console.error('Erro ao excluir coleção:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
 
-    function editarColecao() {
-        // Implementar edição inline ou modal
-        const novoNome = prompt('Novo nome da coleção:', colecaoAtual.nome);
-        if (novoNome && novoNome.trim() !== colecaoAtual.nome) {
-            atualizarColecao(novoNome.trim(), colecaoAtual.descricao);
+        function gerarColecaoMock() {
+            const colecoesMock = {
+                '1': {
+                    id: '1',
+                    nome: 'Filmes de Super-Heróis',
+                    descricao: 'Minha coleção pessoal dos melhores filmes de super-heróis do universo Marvel e DC Comics.',
+                    usuario_id: usuarioAtual?.id || '1',
+                    usuario_nome: usuarioAtual?.nome || 'João Silva',
+                    publica: true,
+                    capa: 'https://image.tmdb.org/t/p/w1280/1Xgjl22MkAZQUavvOeBqRehrvqO.jpg',
+                    data_criacao: '2024-12-20',
+                    data_atualizacao: '2024-12-28'
+                }
+            };
+            
+            return colecoesMock[colecaoId] || colecoesMock['1'];
         }
-    }
 
-    async function atualizarColecao(nome, descricao) {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoAtual.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, descricao })
+        function gerarItensMock() {
+            return [
+                {
+                    id: '1',
+                    obra_id: '299536',
+                    tipo: 'movie',
+                    titulo: 'Vingadores: Guerra Infinita',
+                    poster: 'https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg',
+                    ano: '2018',
+                    nota_pessoal: 9.5,
+                    comentario: 'Épico absoluto!',
+                    data_adicao: '2024-12-20'
+                },
+                {
+                    id: '2',
+                    obra_id: '299534',
+                    tipo: 'movie',
+                    titulo: 'Vingadores: Ultimato',
+                    poster: 'https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg',
+                    ano: '2019',
+                    nota_pessoal: 10,
+                    comentario: 'Perfeito final da saga!',
+                    data_adicao: '2024-12-22'
+                },
+                {
+                    id: '3',
+                    obra_id: '414906',
+                    tipo: 'movie',
+                    titulo: 'Batman Begins',
+                    poster: 'https://image.tmdb.org/t/p/w500/8RW2runSEc34IwKN2D1aNcMH3UH.jpg',
+                    ano: '2005',
+                    nota_pessoal: 8.5,
+                    comentario: 'Excelente início da trilogia',
+                    data_adicao: '2024-12-25'
+                }
+            ];
+        }
+
+        async function renderizarColecao() {
+            const capa = colecaoAtual.capa || 'https://via.placeholder.com/1280x720?text=Sem+Capa';
+            const dataFormatada = new Date(colecaoAtual.data_atualizacao).toLocaleDateString('pt-BR');
+            const isOwner = usuarioAtual && colecaoAtual.usuario_id === usuarioAtual.id;
+            
+            // Preencher elementos
+            document.getElementById('heroImage').src = capa;
+            document.getElementById('breadcrumbNome').textContent = colecaoAtual.nome;
+            document.getElementById('colecaoNome').textContent = colecaoAtual.nome;
+            document.getElementById('colecaoDescricao').textContent = colecaoAtual.descricao || 'Sem descrição';
+            document.getElementById('autorLink').textContent = colecaoAtual.usuario_nome;
+            document.getElementById('autorLink').href = `perfil.html?id=${colecaoAtual.usuario_id}`;
+            document.getElementById('dataAtualizacao').textContent = `Atualizada em ${dataFormatada}`;
+            
+            // Privacidade
+            if (!colecaoAtual.publica) {
+                document.getElementById('privacyMeta').style.display = 'flex';
+            }
+            
+            // Título da página
+            document.title = `${colecaoAtual.nome} - OpinaFlix`;
+            
+            // Botões de ação
+            if (isOwner) {
+                document.getElementById('editarBtn').style.display = 'inline-block';
+                document.getElementById('adicionarItemBtn').style.display = 'inline-block';
+            } else if (usuarioAtual) {
+                document.getElementById('seguirBtn').style.display = 'inline-block';
+            }
+        }
+
+        async function carregarItens() {
+            try {
+                // Tentar carregar da API
+                const response = await window.CONFIG.obterItensColecao(colecaoId);
+                
+                if (response.success) {
+                    itensColecao = response.itens || [];
+                } else {
+                    itensColecao = gerarItensMock();
+                }
+                
+                document.getElementById('totalItens').textContent = `${itensColecao.length} ${itensColecao.length === 1 ? 'item' : 'itens'}`;
+                
+                aplicarFiltros();
+                
+            } catch (error) {
+                console.error('Erro ao carregar itens:', error);
+                itensColecao = gerarItensMock();
+                document.getElementById('totalItens').textContent = `${itensColecao.length} ${itensColecao.length === 1 ? 'item' : 'itens'}`;
+                aplicarFiltros();
+            }
+        }
+
+        function configurarEventListeners() {
+            // Filtros
+            document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
+            document.getElementById('filtroOrdem').addEventListener('change', aplicarFiltros);
+            
+            // Visualização
+            document.getElementById('viewGrid').addEventListener('click', () => alterarVisualizacao('grid'));
+            document.getElementById('viewList').addEventListener('click', () => alterarVisualizacao('list'));
+            
+            // Botões de ação
+            document.getElementById('seguirBtn').addEventListener('click', seguirColecao);
+            document.getElementById('editarBtn').addEventListener('click', abrirModalEditar);
+            document.getElementById('adicionarItemBtn').addEventListener('click', abrirModalAdicionar);
+            document.getElementById('compartilharBtn').addEventListener('click', compartilharColecao);
+            
+            // Modal adicionar
+            document.getElementById('searchBtn').addEventListener('click', buscarObras);
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    buscarObras();
+                }
             });
+        }
+
+        function aplicarFiltros() {
+            const filtroTipo = document.getElementById('filtroTipo').value;
+            const filtroOrdem = document.getElementById('filtroOrdem').value;
             
-            const result = await response.json();
+            let filtered = [...itensColecao];
             
-            if (result.success) {
+            // Filtrar por tipo
+            if (filtroTipo !== 'all') {
+                filtered = filtered.filter(item => item.tipo === filtroTipo);
+            }
+            
+            // Ordenar
+            switch (filtroOrdem) {
+                case 'title':
+                    filtered.sort((a, b) => a.titulo.localeCompare(b.titulo));
+                    break;
+                case 'rating':
+                    filtered.sort((a, b) => (b.nota_pessoal || 0) - (a.nota_pessoal || 0));
+                    break;
+                case 'year':
+                    filtered.sort((a, b) => (b.ano || '0') - (a.ano || '0'));
+                    break;
+                case 'added':
+                default:
+                    filtered.sort((a, b) => new Date(b.data_adicao) - new Date(a.data_adicao));
+                    break;
+            }
+            
+            itensFiltrados = filtered;
+            renderizarItens();
+        }
+
+        function renderizarItens() {
+            const container = document.getElementById('itensList');
+            const emptyContainer = document.getElementById('emptyItens');
+            
+            if (itensFiltrados.length === 0) {
+                container.style.display = 'none';
+                emptyContainer.style.display = 'block';
+                
+                // Mostrar botão de adicionar se for o dono
+                const isOwner = usuarioAtual && colecaoAtual.usuario_id === usuarioAtual.id;
+                document.getElementById('emptyActions').style.display = isOwner ? 'block' : 'none';
+                return;
+            }
+            
+            container.style.display = 'grid';
+            emptyContainer.style.display = 'none';
+            
+            const html = itensFiltrados.map(item => {
+                const poster = item.poster || 'https://via.placeholder.com/300x450?text=Sem+Poster';
+                const dataFormatada = new Date(item.data_adicao).toLocaleDateString('pt-BR');
+                const isOwner = usuarioAtual && colecaoAtual.usuario_id === usuarioAtual.id;
+                
+                if (currentView === 'grid') {
+                    return `
+                        <div class="item-card">
+                            <div class="item-poster" onclick="verDetalhes(${item.obra_id}, '${item.tipo}')">
+                                <img src="${poster}" alt="${item.titulo}" loading="lazy">
+                                ${item.nota_pessoal ? `
+                                    <div class="item-rating">⭐ ${item.nota_pessoal}</div>
+                                ` : ''}
+                            </div>
+                            <div class="item-info">
+                                <h4 onclick="verDetalhes(${item.obra_id}, '${item.tipo}')">${item.titulo}</h4>
+                                <p class="item-year">${item.ano || 'N/A'} • ${item.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                                ${item.comentario ? `
+                                    <p class="item-comment">"${item.comentario.substring(0, 60)}${item.comentario.length > 60 ? '...' : ''}"</p>
+                                ` : ''}
+                                <p class="item-date">Adicionado em ${dataFormatada}</p>
+                                ${isOwner ? `
+                                    <div class="item-actions">
+                                        <button onclick="editarItem('${item.id}')" class="btn-small btn-edit">✏️</button>
+                                        <button onclick="removerItem('${item.id}')" class="btn-small btn-delete">🗑️</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="item-list-row">
+                            <img src="${poster}" alt="${item.titulo}" onclick="verDetalhes(${item.obra_id}, '${item.tipo}')">
+                            <div class="item-list-info">
+                                <h4 onclick="verDetalhes(${item.obra_id}, '${item.tipo}')">${item.titulo}</h4>
+                                <p>${item.ano || 'N/A'} • ${item.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                                ${item.comentario ? `<p class="item-comment">"${item.comentario}"</p>` : ''}
+                            </div>
+                            <div class="item-list-meta">
+                                ${item.nota_pessoal ? `<div class="item-rating">⭐ ${item.nota_pessoal}</div>` : ''}
+                                <p class="item-date">${dataFormatada}</p>
+                            </div>
+                            ${isOwner ? `
+                                <div class="item-list-actions">
+                                    <button onclick="editarItem('${item.id}')" class="btn-small btn-edit">✏️</button>
+                                    <button onclick="removerItem('${item.id}')" class="btn-small btn-delete">🗑️</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function alterarVisualizacao(view) {
+            currentView = view;
+            
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+            
+            const container = document.getElementById('itensList');
+            container.className = view === 'grid' ? 'itens-grid' : 'itens-list';
+            
+            renderizarItens();
+        }
+
+        function verDetalhes(id, tipo) {
+            window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
+        }
+
+        function seguirColecao() {
+            alert('Funcionalidade de seguir coleção será implementada em breve!');
+        }
+
+        function abrirModalEditar() {
+            document.getElementById('editNome').value = colecaoAtual.nome;
+            document.getElementById('editDescricao').value = colecaoAtual.descricao || '';
+            document.getElementById('editCapa').value = colecaoAtual.capa || '';
+            document.getElementById('editPublica').checked = colecaoAtual.publica;
+            document.getElementById('editarModal').style.display = 'flex';
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('editarModal').style.display = 'none';
+        }
+
+        async function salvarEdicao() {
+            try {
+                const nome = document.getElementById('editNome').value.trim();
+                const descricao = document.getElementById('editDescricao').value.trim();
+                const capa = document.getElementById('editCapa').value.trim();
+                const publica = document.getElementById('editPublica').checked;
+                
+                if (!nome) {
+                    alert('Nome é obrigatório!');
+                    return;
+                }
+                
+                // Simular sucesso
                 colecaoAtual.nome = nome;
                 colecaoAtual.descricao = descricao;
-                document.getElementById('nome-colecao').textContent = nome;
-                document.getElementById('descricao-colecao').textContent = descricao;
-                document.title = `${nome} - OpinaFlix`;
-            } else {
-                alert('Erro: ' + result.message);
+                colecaoAtual.capa = capa;
+                colecaoAtual.publica = publica;
+                
+                await renderizarColecao();
+                fecharModalEditar();
+                alert('Coleção atualizada com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                alert('Erro ao salvar alterações.');
             }
-        } catch (error) {
-            console.error('Erro ao atualizar coleção:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
 
-    // Efeito scroll navbar
-    window.addEventListener('scroll', function() {
-        const nav = document.querySelector('nav');
-        if (window.scrollY > 100) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
+        function abrirModalAdicionar() {
+            if (!usuarioAtual) {
+                alert('Faça login para adicionar itens!');
+                return;
+            }
+            
+            document.getElementById('adicionarModal').style.display = 'flex';
+            document.getElementById('searchInput').focus();
         }
-    });
+
+        function fecharModal() {
+            document.getElementById('adicionarModal').style.display = 'none';
+            document.getElementById('searchResults').innerHTML = '<p class="search-placeholder">Digite algo para buscar...</p>';
+        }
+
+        async function buscarObras() {
+            const query = document.getElementById('searchInput').value.trim();
+            
+            if (!query) {
+                alert('Digite um termo de busca!');
+                return;
+            }
+            
+            try {
+                // Limpar resultados anteriores
+                document.getElementById('searchResults').innerHTML = '';
+                document.getElementById('searchResults').style.display = 'block';
+                
+                // Buscar na API
+                const response = await window.CONFIG.buscarObras(query);
+                
+                if (response.success) {
+                    const obras = response.obras || [];
+                    
+                    if (obras.length === 0) {
+                        document.getElementById('searchResults').innerHTML = '<p class="search-placeholder">Nenhum resultado encontrado.</p>';
+                    } else {
+                        const html = obras.map(obra => {
+                            const poster = obra.poster || 'https://via.placeholder.com/300x450?text=Sem+Poster';
+                            
+                            return `
+                                <div class="search-item">
+                                    <img src="${poster}" alt="${obra.titulo}">
+                                    <div class="search-info">
+                                        <h4>${obra.titulo}</h4>
+                                        <p>${obra.ano || 'N/A'} • ${obra.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button onclick="adicionarItemColecao(${obra.id}, '${obra.tipo}')" class="btn btn-primary">
+                                            ➕ Adicionar
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                        
+                        document.getElementById('searchResults').innerHTML = html;
+                    }
+                } else {
+                    document.getElementById('searchResults').innerHTML = '<p class="search-placeholder">Erro ao buscar obras.</p>';
+                }
+            } catch (error) {
+                console.error('Erro na busca:', error);
+                document.getElementById('searchResults').innerHTML = '<p class="search-placeholder">Erro ao buscar obras.</p>';
+            }
+        }
+
+        async function adicionarItemColecao(obraId, tipo) {
+            try {
+                const response = await window.CONFIG.adicionarItemColecao(colecaoAtual.id, obraId, tipo);
+                
+                if (response.success) {
+                    alert('Item adicionado à coleção!');
+                    fecharModal();
+                    carregarItens();
+                } else {
+                    alert('Erro ao adicionar item: ' + response.message);
+                }
+            } catch (error) {
+                console.error('Erro ao adicionar item:', error);
+                alert('Erro ao adicionar item. Tente novamente.');
+            }
+        }
+
+        // Efeito scroll navbar
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
 </html>

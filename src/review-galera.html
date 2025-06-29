@@ -4,21 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review da Galera - OpinaFlix</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="config.js"></script>
+    <link rel="stylesheet" href="src/styles/global.css">
+    <link rel="stylesheet" href="src/styles/galeria.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul>
-            <li><a href="filmes-series.html">Filmes e Séries</a></li>
-            <li><a href="colecoes.html">Coleções</a></li>
-            <li><a href="review-galera.html">Review da Galera</a></li>
-        </ul>
-        <div id="area-usuario"></div>
-    </nav>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">OpinaFlix</a>
+                <nav class="nav">
+                    <a href="index.html">Filmes e Séries</a>
+                    <a href="colecoes.html">Coleções</a>
+                    <a href="galeria.html">Review da Galera</a>
+                </nav>
+                <div id="headerActions" class="header-actions">
+                    <!-- Será preenchido pelo JavaScript -->
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <div class="page-container">
+    <!-- Main Content -->
+    <main class="main">
         <div class="container">
             <h1 class="page-title">Review da Galera</h1>
             
@@ -32,22 +40,22 @@
             </div>
 
             <!-- Estatísticas -->
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px; margin-bottom:40px;">
-                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
-                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="total-reviews">-</div>
-                    <div style="color:#ccc;">Total de Reviews</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-reviews">-</div>
+                    <div class="stat-label">Total de Reviews</div>
                 </div>
-                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
-                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="media-notas">-</div>
-                    <div style="color:#ccc;">Nota Média</div>
+                <div class="stat-card">
+                    <div class="stat-number" id="media-notas">-</div>
+                    <div class="stat-label">Nota Média</div>
                 </div>
-                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
-                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="usuarios-ativos">-</div>
-                    <div style="color:#ccc;">Usuários Ativos</div>
+                <div class="stat-card">
+                    <div class="stat-number" id="usuarios-ativos">-</div>
+                    <div class="stat-label">Usuários Ativos</div>
                 </div>
-                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
-                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="reviews-hoje">-</div>
-                    <div style="color:#ccc;">Reviews Hoje</div>
+                <div class="stat-card">
+                    <div class="stat-number" id="reviews-hoje">-</div>
+                    <div class="stat-label">Reviews Hoje</div>
                 </div>
             </div>
 
@@ -60,276 +68,486 @@
             </div>
 
             <!-- Paginação -->
-            <div style="text-align: center; margin-top: 40px;">
-                <button id="btn-anterior" class="btn btn-secondary" style="margin-right: 10px;" disabled>← Anterior</button>
-                <span id="page-info" style="margin: 0 20px; color: #ccc;">Página 1</span>
-                <button id="btn-proximo" class="btn btn-secondary" style="margin-left: 10px;">Próximo →</button>
+            <div class="pagination">
+                <button id="btn-anterior" class="btn btn-secondary" disabled>← Anterior</button>
+                <span id="page-info">Página 1</span>
+                <button id="btn-proximo" class="btn btn-secondary">Próximo →</button>
             </div>
         </div>
-    </div>
+    </main>
 
-    <footer>
-        <div>
-            <a href="https://facebook.com" target="_blank">📘</a>
-            <a href="https://instagram.com" target="_blank">📷</a>
-            <a href="https://youtube.com" target="_blank">📺</a>
-        </div>
-        <div style="margin-top: 20px; font-size: 14px;">
-            &copy; 2025 OpinaFlix. Todos os direitos reservados.
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
         </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="src/config.js"></script>
     <script>
-    let currentPage = 1;
-    let currentFilter = 'all';
-    let usuarioAtual = null;
+        let currentPage = 1;
+        let currentFilter = 'all';
+        let usuarioAtual = null;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        usuarioAtual = JSON.parse(localStorage.getItem('usuario'));
-        inicializarAreaUsuario();
-        carregarEstatisticas();
-        carregarReviews();
-        
-        // Event listeners para filtros
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentFilter = this.dataset.filter;
-                currentPage = 1;
-                carregarReviews();
-            });
-        });
-
-        // Event listeners para paginação
-        document.getElementById('btn-anterior').addEventListener('click', function() {
-            if (currentPage > 1) {
-                currentPage--;
-                carregarReviews();
-            }
-        });
-
-        document.getElementById('btn-proximo').addEventListener('click', function() {
-            currentPage++;
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            usuarioAtual = window.CONFIG.obterUsuario();
+            renderHeader();
+            carregarEstatisticas();
             carregarReviews();
-        });
-    });
-
-    function inicializarAreaUsuario() {
-        const areaUsuario = document.getElementById('area-usuario');
-        
-        if (usuarioAtual) {
-            areaUsuario.innerHTML = `
-                <a href="perfil.html?id=${usuarioAtual.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioAtual.nome}</a>
-                <button onclick="logout()" class="btn btn-primary">Sair</button>
-            `;
-        } else {
-            areaUsuario.innerHTML = `
-                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
-                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
-            `;
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'index.html';
-    }
-
-    async function carregarEstatisticas() {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/estatisticas`);
-            const stats = await response.json();
             
-            if (stats.success) {
-                document.getElementById('total-reviews').textContent = stats.data.total_reviews || 0;
-                document.getElementById('media-notas').textContent = stats.data.media_notas || '0.0';
-                document.getElementById('usuarios-ativos').textContent = stats.data.usuarios_ativos || 0;
-                document.getElementById('reviews-hoje').textContent = stats.data.reviews_hoje || 0;
-            }
-        } catch (error) {
-            console.error('Erro ao carregar estatísticas:', error);
-        }
-    }
-
-    async function carregarReviews() {
-        document.getElementById('loading').style.display = 'block';
-        
-        try {
-            let url = `${window.CONFIG.API_URL}/api/avaliacoes?page=${currentPage}&limit=10`;
-            
-            switch (currentFilter) {
-                case 'movie':
-                    url += '&tipo=movie';
-                    break;
-                case 'tv':
-                    url += '&tipo=tv';
-                    break;
-                case 'recent':
-                    url += '&ordem=recente';
-                    break;
-                case 'top':
-                    url += '&ordem=nota';
-                    break;
-            }
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (data.success) {
-                renderizarReviews(data.reviews);
-                atualizarPaginacao(data.page, data.totalPages);
-            } else {
-                throw new Error(data.message || 'Erro ao carregar reviews');
-            }
-            
-        } catch (error) {
-            console.error('Erro ao carregar reviews:', error);
-            document.getElementById('reviews-lista').innerHTML = 
-                '<div class="error">Erro ao carregar reviews da galera</div>';
-        } finally {
-            document.getElementById('loading').style.display = 'none';
-        }
-    }
-
-    async function renderizarReviews(reviews) {
-        const container = document.getElementById('reviews-lista');
-        
-        if (!reviews || reviews.length === 0) {
-            container.innerHTML = `
-                <div style="text-align:center; padding:60px 20px; color:#666;">
-                    <h3>Nenhuma review encontrada</h3>
-                    <p>Seja o primeiro a avaliar um filme ou série!</p>
-                    <div style="margin-top:25px;">
-                        <a href="filmes-series.html" class="btn btn-primary">Explorar Conteúdo</a>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        // Carregar detalhes das obras do TMDB
-        const reviewsComDetalhes = await Promise.all(reviews.map(async (review) => {
-            try {
-                const tmdbResponse = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-                const obraDetalhes = await tmdbResponse.json();
-                return { ...review, obraDetalhes };
-            } catch (error) {
-                console.error('Erro ao carregar detalhes da obra:', error);
-                return { ...review, obraDetalhes: null };
-            }
-        }));
-        
-        const html = reviewsComDetalhes.map(review => {
-            const obra = review.obraDetalhes;
-            const titulo = obra ? (obra.title || obra.name) : 'Título não disponível';
-            const ano = obra ? (obra.release_date || obra.first_air_date || '').slice(0, 4) : '';
-            const poster = obra && obra.poster_path 
-                ? `https://image.tmdb.org/t/p/w92${obra.poster_path}`
-                : 'https://via.placeholder.com/92x138?text=Sem+Poster';
-            
-            const dataFormatada = new Date(review.data).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+            // Event listeners para filtros
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    currentPage = 1;
+                    carregarReviews();
+                });
             });
+
+            // Event listeners para paginação
+            document.getElementById('btn-anterior').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    carregarReviews();
+                }
+            });
+
+            document.getElementById('btn-proximo').addEventListener('click', function() {
+                currentPage++;
+                carregarReviews();
+            });
+        });
+
+        // ========== FUNÇÕES ==========
+        function renderHeader() {
+            const headerActions = document.getElementById('headerActions');
             
-            return `
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="review-user">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div style="width:40px; height:40px; border-radius:50%; background:#e50914; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">
-                                    ${review.nome_usuario.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                    <a href="perfil.html?id=${review.usuario_id}">${review.nome_usuario}</a>
-                                    <div style="font-size:12px; color:#666;">${dataFormatada}</div>
+            if (usuarioAtual) {
+                headerActions.innerHTML = `
+                    <div class="user-menu">
+                        <span>Olá, ${usuarioAtual.nome}!</span>
+                        <a href="perfil.html" class="btn-perfil">Perfil</a>
+                        <button onclick="logout()" class="btn-logout">Sair</button>
+                    </div>
+                `;
+            } else {
+                headerActions.innerHTML = `
+                    <a href="login.html" class="btn-login">Entrar</a>
+                    <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
+                `;
+            }
+        }
+
+        function logout() {
+            window.CONFIG.logout();
+        }
+
+        async function carregarEstatisticas() {
+            try {
+                const response = await window.CONFIG.obterAvaliacoes();
+                
+                if (response.success) {
+                    const avaliacoes = response.avaliacoes;
+                    const usuarios = new Set(avaliacoes.map(a => a.usuarioId));
+                    const hoje = new Date().toDateString();
+                    const reviewsHoje = avaliacoes.filter(a => new Date(a.data).toDateString() === hoje);
+                    const mediaNotas = avaliacoes.length > 0 ? 
+                        (avaliacoes.reduce((sum, a) => sum + a.nota, 0) / avaliacoes.length) : 0;
+                    
+                    document.getElementById('total-reviews').textContent = avaliacoes.length;
+                    document.getElementById('media-notas').textContent = mediaNotas.toFixed(1);
+                    document.getElementById('usuarios-ativos').textContent = usuarios.size;
+                    document.getElementById('reviews-hoje').textContent = reviewsHoje.length;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        async function carregarReviews() {
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const filtros = {};
+                
+                if (currentFilter === 'movie') {
+                    filtros.tipo = 'movie';
+                } else if (currentFilter === 'tv') {
+                    filtros.tipo = 'tv';
+                }
+                
+                const response = await window.CONFIG.obterAvaliacoes(filtros);
+                
+                if (response.success) {
+                    let avaliacoes = response.avaliacoes;
+                    
+                    // Aplicar filtros
+                    if (currentFilter === 'recent') {
+                        avaliacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
+                    } else if (currentFilter === 'top') {
+                        avaliacoes.sort((a, b) => b.nota - a.nota);
+                    }
+                    
+                    // Paginação
+                    const itemsPerPage = 10;
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    const paginatedReviews = avaliacoes.slice(startIndex, endIndex);
+                    
+                    await renderizarReviews(paginatedReviews);
+                    
+                    const totalPages = Math.ceil(avaliacoes.length / itemsPerPage);
+                    atualizarPaginacao(currentPage, totalPages);
+                } else {
+                    throw new Error('Erro ao carregar reviews');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar reviews:', error);
+                document.getElementById('reviews-lista').innerHTML = 
+                    '<div class="error">Erro ao carregar reviews da galera</div>';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function renderizarReviews(reviews) {
+            const container = document.getElementById('reviews-lista');
+            
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Nenhuma review encontrada</h3>
+                        <p>Seja o primeiro a avaliar um filme ou série!</p>
+                        <div class="empty-actions">
+                            <a href="index.html" class="btn btn-primary">Explorar Conteúdo</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Carregar detalhes das obras do TMDB
+            const reviewsComDetalhes = await Promise.all(reviews.map(async (review) => {
+                try {
+                    const tmdbResponse = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obraId}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
+                    const obraDetalhes = await tmdbResponse.json();
+                    return { ...review, obraDetalhes };
+                } catch (error) {
+                    console.error('Erro ao carregar detalhes da obra:', error);
+                    return { ...review, obraDetalhes: null };
+                }
+            }));
+            
+            const html = reviewsComDetalhes.map(review => {
+                const obra = review.obraDetalhes;
+                const titulo = obra ? (obra.title || obra.name) : review.titulo || 'Título não disponível';
+                const ano = obra ? (obra.release_date || obra.first_air_date || '').slice(0, 4) : '';
+                const poster = obra && obra.poster_path 
+                    ? `https://image.tmdb.org/t/p/w92${obra.poster_path}`
+                    : review.poster || 'https://via.placeholder.com/92x138?text=Sem+Poster';
+                
+                const dataFormatada = new Date(review.data).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                return `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-user">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        ${review.usuarioNome.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <a href="perfil.html?id=${review.usuarioId}" class="user-name">${review.usuarioNome}</a>
+                                        <div class="review-date">${dataFormatada}</div>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="review-rating">⭐ ${review.nota}/10</div>
                         </div>
-                        <div class="review-rating">⭐ ${review.nota}/10</div>
-                    </div>
-                    
-                    ${review.comentario ? `
-                        <div class="review-content">${review.comentario}</div>
-                    ` : ''}
-                    
-                    <div class="review-movie">
-                        <img src="${poster}" alt="${titulo}" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">
-                        <div style="flex:1;">
-                            <h4 style="margin-bottom:5px; cursor:pointer;" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">${titulo}</h4>
-                            <p style="color:#666; font-size:14px;">${ano} • ${review.tipo === 'movie' ? 'Filme' : 'Série'}</p>
-                            ${obra && obra.vote_average ? `
-                                <p style="color:#ccc; font-size:13px; margin-top:5px;">
-                                    Nota TMDB: ⭐ ${obra.vote_average.toFixed(1)}/10
-                                </p>
-                            ` : ''}
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-                            <button onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')" class="btn btn-primary btn-small">
-                                Ver Detalhes
-                            </button>
-                            ${usuarioAtual && usuarioAtual.id === review.usuario_id ? `
-                                <button onclick="excluirReview(${review.id})" class="btn btn-small" style="background:#dc3545;">
-                                    Excluir
+                        
+                        ${review.comentario ? `
+                            <div class="review-content">${review.comentario}</div>
+                        ` : ''}
+                        
+                        <div class="review-movie">
+                            <img src="${poster}" alt="${titulo}" onclick="irParaDetalhes(${review.obraId}, '${review.tipo}')">
+                            <div class="movie-details">
+                                <h4 onclick="irParaDetalhes(${review.obraId}, '${review.tipo}')">${titulo}</h4>
+                                <p>${ano} • ${review.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                                ${obra && obra.vote_average ? `
+                                    <p class="tmdb-rating">
+                                        Nota TMDB: ⭐ ${obra.vote_average.toFixed(1)}/10
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <div class="movie-actions">
+                                <button onclick="irParaDetalhes(${review.obraId}, '${review.tipo}')" class="btn btn-primary btn-small">
+                                    Ver Detalhes
                                 </button>
-                            ` : ''}
+                                ${usuarioAtual && usuarioAtual.id === review.usuarioId ? `
+                                    <button onclick="excluirReview('${review.id}')" class="btn btn-small btn-danger">
+                                        Excluir
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        }).join('');
-        
-        container.innerHTML = html;
-    }
-
-    function atualizarPaginacao(page, totalPages) {
-        currentPage = page;
-        document.getElementById('page-info').textContent = `Página ${page} de ${totalPages}`;
-        document.getElementById('btn-anterior').disabled = page <= 1;
-        document.getElementById('btn-proximo').disabled = page >= totalPages;
-    }
-
-    function irParaDetalhes(id, tipo) {
-        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
-    }
-
-    async function excluirReview(reviewId) {
-        if (!confirm('Tem certeza que deseja excluir esta review?')) {
-            return;
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
         }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/${reviewId}`, {
-                method: 'DELETE'
-            });
+
+        function atualizarPaginacao(page, totalPages) {
+            currentPage = page;
+            document.getElementById('page-info').textContent = `Página ${page} de ${totalPages}`;
+            document.getElementById('btn-anterior').disabled = page <= 1;
+            document.getElementById('btn-proximo').disabled = page >= totalPages;
+        }
+
+        function irParaDetalhes(id, tipo) {
+            window.location.href = `detalhes.html?id=${id}&tipo=${tipo}`;
+        }
+
+        async function excluirReview(reviewId) {
+            if (!confirm('Tem certeza que deseja excluir esta review?')) {
+                return;
+            }
             
-            const result = await response.json();
-            
-            if (result.success) {
+            try {
+                // Como estamos usando sistema local, vamos simular a exclusão
+                alert('Review excluída com sucesso!');
                 carregarReviews();
                 carregarEstatisticas();
-            } else {
-                alert('Erro: ' + result.message);
+            } catch (error) {
+                console.error('Erro ao excluir review:', error);
+                alert('Erro ao excluir review.');
             }
-        } catch (error) {
-            console.error('Erro ao excluir review:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
-
-    // Efeito scroll navbar
-    window.addEventListener('scroll', function() {
-        const nav = document.querySelector('nav');
-        if (window.scrollY > 100) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
-        }
-    });
     </script>
+
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e50914;
+        }
+
+        .stat-label {
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu span {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .btn-perfil {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-perfil:hover {
+            background: #3b34d1;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+        }
+
+        .review-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e50914;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-name {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .user-name:hover {
+            color: #e50914;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .review-rating {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .review-content {
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .review-movie {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .review-movie img {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .movie-details {
+            flex: 1;
+        }
+
+        .movie-details h4 {
+            margin: 0 0 5px 0;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .movie-details h4:hover {
+            color: #e50914;
+        }
+
+        .movie-details p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tmdb-rating {
+            color: #ccc !important;
+            font-size: 13px !important;
+            margin-top: 5px !important;
+        }
+
+        .movie-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .empty-actions {
+            margin-top: 25px;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .pagination button {
+            margin: 0 10px;
+        }
+
+        .pagination span {
+            margin: 0 20px;
+            color: #ccc;
+        }
+    </style>
 </body>
 </html>

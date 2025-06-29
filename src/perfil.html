@@ -4,360 +4,352 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil - OpinaFlix</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="config.js"></script>
+    <link rel="stylesheet" href="src/styles/global.css">
+    <link rel="stylesheet" href="src/styles/perfil.css">
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul>
-            <li><a href="filmes-series.html">Filmes e Séries</a></li>
-            <li><a href="colecoes.html">Coleções</a></li>
-            <li><a href="review-galera.html">Review da Galera</a></li>
-        </ul>
-        <div id="area-usuario"></div>
-    </nav>
-
-    <div class="page-container">
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <!-- Header do Perfil -->
-            <div class="profile-header">
-                <div class="profile-avatar" id="avatar-usuario">
-                    ?
+            <div class="header-content">
+                <a href="index.html" class="logo">OpinaFlix</a>
+                <nav class="nav">
+                    <a href="index.html">Filmes e Séries</a>
+                    <a href="colecoes.html">Coleções</a>
+                    <a href="review-galera.html">Review da Galera</a>
+                </nav>
+                <div id="headerActions" class="header-actions">
+                    <!-- Será preenchido pelo JavaScript -->
                 </div>
-                <div class="profile-info">
-                    <h1 id="nome-usuario">Carregando...</h1>
-                    <p id="email-usuario" style="color:#666; margin-bottom:15px;"></p>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <div class="stat-number" id="total-reviews">0</div>
-                            <div>Reviews</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display: block;">
+                <p>Carregando perfil...</p>
+            </div>
+
+            <!-- Perfil Container -->
+            <div id="perfilContainer" class="perfil-container" style="display: none;">
+                <!-- Header do Perfil -->
+                <div class="perfil-header">
+                    <div class="perfil-avatar">
+                        <img id="userAvatar" src="" alt="Avatar">
+                        <button id="editAvatarBtn" class="edit-avatar-btn" style="display: none;">📷</button>
+                    </div>
+                    <div class="perfil-info">
+                        <h1 id="userName"></h1>
+                        <p id="userBio" class="user-bio"></p>
+                        <div class="perfil-stats">
+                            <div class="stat">
+                                <span id="totalAvaliacoes" class="stat-number">0</span>
+                                <span class="stat-label">Avaliações</span>
+                            </div>
+                            <div class="stat">
+                                <span id="mediaNotas" class="stat-number">0</span>
+                                <span class="stat-label">Nota Média</span>
+                            </div>
+                            <div class="stat">
+                                <span id="totalColecoes" class="stat-number">0</span>
+                                <span class="stat-label">Coleções</span>
+                            </div>
                         </div>
-                        <div class="stat">
-                            <div class="stat-number" id="total-colecoes">0</div>
-                            <div>Coleções</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number" id="media-notas">0.0</div>
-                            <div>Nota Média</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number" id="membro-desde">-</div>
-                            <div>Membro desde</div>
+                        <div class="perfil-actions">
+                            <button id="editPerfilBtn" class="btn btn-primary" style="display: none;">Editar Perfil</button>
+                            <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Sair</button>
                         </div>
                     </div>
-                    <div id="acoes-perfil" style="margin-top:20px; display:none;">
-                        <button onclick="editarPerfil()" class="btn btn-primary">Editar Perfil</button>
-                        <button onclick="alterarSenha()" class="btn btn-secondary">Alterar Senha</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="avaliacoes">Minhas Avaliações</button>
+                    <button class="tab-btn" data-tab="colecoes">Minhas Coleções</button>
+                    <button class="tab-btn" data-tab="favoritos">Favoritos</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Avaliações Tab -->
+                    <div id="tab-avaliacoes" class="tab-panel active">
+                        <div class="section-header">
+                            <h3>Minhas Avaliações</h3>
+                            <div class="filters">
+                                <select id="filtroTipo">
+                                    <option value="all">Todos</option>
+                                    <option value="movie">Filmes</option>
+                                    <option value="tv">Séries</option>
+                                </select>
+                                <select id="filtroOrdem">
+                                    <option value="recent">Mais Recentes</option>
+                                    <option value="rating">Maior Nota</option>
+                                    <option value="title">A-Z</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="avaliacoesList" class="avaliacoes-grid">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Coleções Tab -->
+                    <div id="tab-colecoes" class="tab-panel">
+                        <div class="section-header">
+                            <h3>Minhas Coleções</h3>
+                            <button id="criarColecaoBtn" class="btn btn-primary" style="display: none;">+ Nova Coleção</button>
+                        </div>
+                        <div id="colecoesList" class="colecoes-grid">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Favoritos Tab -->
+                    <div id="tab-favoritos" class="tab-panel">
+                        <div class="section-header">
+                            <h3>Filmes e Séries Favoritos</h3>
+                            <p class="section-subtitle">Suas avaliações com nota 9 ou superior</p>
+                        </div>
+                        <div id="favoritosList" class="favoritos-grid">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tabs de Navegação -->
-            <div class="profile-tabs">
-                <div class="tab active" data-tab="reviews">Reviews</div>
-                <div class="tab" data-tab="colecoes">Coleções</div>
-                <div class="tab" data-tab="estatisticas">Estatísticas</div>
-            </div>
-
-            <!-- Conteúdo das Tabs -->
-            <div id="tab-content">
-                <!-- Tab Reviews -->
-                <div id="content-reviews" class="tab-content active">
-                    <div id="reviews-container"></div>
-                </div>
-
-                <!-- Tab Coleções -->
-                <div id="content-colecoes" class="tab-content" style="display:none;">
-                    <div id="colecoes-container" class="colecoes-grid"></div>
-                </div>
-
-                <!-- Tab Estatísticas -->
-                <div id="content-estatisticas" class="tab-content" style="display:none;">
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
-                        <!-- Gráfico de Notas -->
-                        <div style="background:#222; padding:25px; border-radius:8px;">
-                            <h3 style="color:#e50914; margin-bottom:20px;">Distribuição de Notas</h3>
-                            <div id="grafico-notas"></div>
-                        </div>
-
-                        <!-- Filmes vs Séries -->
-                        <div style="background:#222; padding:25px; border-radius:8px;">
-                            <h3 style="color:#e50914; margin-bottom:20px;">Filmes vs Séries</h3>
-                            <div id="filmes-vs-series"></div>
-                        </div>
-
-                        <!-- Atividade Recente -->
-                        <div style="background:#222; padding:25px; border-radius:8px;">
-                            <h3 style="color:#e50914; margin-bottom:20px;">Atividade nos Últimos 30 Dias</h3>
-                            <div id="atividade-recente"></div>
-                        </div>
-
-                        <!-- Top Gêneros -->
-                        <div style="background:#222; padding:25px; border-radius:8px;">
-                            <h3 style="color:#e50914; margin-bottom:20px;">Gêneros Favoritos</h3>
-                            <div id="top-generos"></div>
-                        </div>
-                    </div>
+            <!-- Erro Container -->
+            <div id="erroContainer" class="erro-container" style="display: none;">
+                <h2>Acesso Negado</h2>
+                <p>Você precisa estar logado para ver o perfil.</p>
+                <div class="erro-actions">
+                    <a href="login.html" class="btn btn-primary">Fazer Login</a>
+                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
                 </div>
             </div>
+        </div>
+    </main>
 
-            <!-- Modal Editar Perfil -->
-            <div id="modal-editar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
-                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:40px; border-radius:8px; width:90%; max-width:500px;">
-                    <h3 style="margin-bottom:25px; color:#e50914;">Editar Perfil</h3>
-                    <div class="form-group">
-                        <input type="text" id="edit-nome" placeholder="Nome completo" 
-                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="edit-email" placeholder="E-mail" 
-                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:20px;">
-                    </div>
-                    <div style="text-align:right;">
-                        <button onclick="fecharModalEditar()" class="btn btn-secondary" style="margin-right:10px;">Cancelar</button>
-                        <button onclick="salvarPerfilEditado()" class="btn btn-primary">Salvar</button>
-                    </div>
-                </div>
+    <!-- Modal Editar Perfil -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Perfil</h3>
+                <button class="modal-close" onclick="fecharModal()">&times;</button>
             </div>
-
-            <!-- Modal Alterar Senha -->
-            <div id="modal-senha" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
-                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:40px; border-radius:8px; width:90%; max-width:500px;">
-                    <h3 style="margin-bottom:25px; color:#e50914;">Alterar Senha</h3>
-                    <div class="form-group">
-                        <input type="password" id="senha-atual" placeholder="Senha atual" 
-                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="nova-senha" placeholder="Nova senha" 
-                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="confirmar-nova-senha" placeholder="Confirmar nova senha" 
-                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:20px;">
-                    </div>
-                    <div style="text-align:right;">
-                        <button onclick="fecharModalSenha()" class="btn btn-secondary" style="margin-right:10px;">Cancelar</button>
-                        <button onclick="alterarSenhaUsuario()" class="btn btn-primary">Alterar</button>
-                    </div>
+            <form id="editForm" class="modal-body">
+                <div class="form-group">
+                    <label for="editNome">Nome:</label>
+                    <input type="text" id="editNome" required>
                 </div>
+                <div class="form-group">
+                    <label for="editBio">Bio:</label>
+                    <textarea id="editBio" rows="4" placeholder="Conte um pouco sobre você..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editAvatar">URL do Avatar:</label>
+                    <input type="url" id="editAvatar" placeholder="https://...">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarPerfil()">Salvar</button>
             </div>
         </div>
     </div>
 
-    <footer>
-        <div>
-            <a href="https://facebook.com" target="_blank">📘</a>
-            <a href="https://instagram.com" target="_blank">📷</a>
-            <a href="https://youtube.com" target="_blank">📺</a>
-        </div>
-        <div style="margin-top: 20px; font-size: 14px;">
-            &copy; 2025 OpinaFlix. Todos os direitos reservados.
-        </div>
-    </footer>
-
+    <!-- Scripts -->
+    <script src="src/config.js"></script>
     <script>
-    let perfilAtual = null;
-    let usuarioLogado = null;
-    let isOwnProfile = false;
+        let usuarioAtual = null;
+        let perfilUsuario = null;
+        let isProprietario = false;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
-        inicializarAreaUsuario();
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
-        
-        if (userId) {
-            carregarPerfil(userId);
-        } else if (usuarioLogado) {
-            carregarPerfil(usuarioLogado.id);
-        } else {
-            window.location.href = 'login.html';
-        }
-
-        // Event listeners para tabs
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                switchTab(this.dataset.tab);
-            });
-        });
-    });
-
-    function inicializarAreaUsuario() {
-        const areaUsuario = document.getElementById('area-usuario');
-        
-        if (usuarioLogado) {
-            areaUsuario.innerHTML = `
-                <a href="perfil.html?id=${usuarioLogado.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioLogado.nome}</a>
-                <button onclick="logout()" class="btn btn-primary">Sair</button>
-            `;
-        } else {
-            areaUsuario.innerHTML = `
-                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
-                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
-            `;
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'index.html';
-    }
-
-    async function carregarPerfil(userId) {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${userId}`);
-            const result = await response.json();
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('👤 Página de perfil carregada');
             
-            if (!result.success) {
-                throw new Error(result.message || 'Usuário não encontrado');
+            if (window.CONFIG) {
+                inicializar();
+            } else {
+                setTimeout(inicializar, 500);
             }
+        });
+
+        function inicializar() {
+            usuarioAtual = window.CONFIG.obterUsuario();
             
-            perfilAtual = result.data;
-            isOwnProfile = usuarioLogado && usuarioLogado.id == userId;
+            if (!usuarioAtual) {
+                mostrarErro();
+                return;
+            }
+
+            // Verificar se é perfil próprio ou de outro usuário
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id') || usuarioAtual.id;
             
-            // Atualizar informações do perfil
-            document.getElementById('nome-usuario').textContent = perfilAtual.nome;
-            document.getElementById('email-usuario').textContent = perfilAtual.email;
-            document.getElementById('avatar-usuario').textContent = perfilAtual.nome.charAt(0).toUpperCase();
+            isProprietario = userId === usuarioAtual.id;
+            
+            carregarPerfil(userId);
+            configurarEventListeners();
+            renderHeader();
+        }
+
+        function renderHeader() {
+            const headerActions = document.getElementById('headerActions');
+            
+            if (usuarioAtual) {
+                headerActions.innerHTML = `
+                    <div class="user-menu">
+                        <span>Olá, ${usuarioAtual.nome}!</span>
+                        <a href="perfil.html" class="btn-perfil">Perfil</a>
+                        <button onclick="logout()" class="btn-logout">Sair</button>
+                    </div>
+                `;
+            }
+        }
+
+        function logout() {
+            window.CONFIG.logout();
+        }
+
+        async function carregarPerfil(userId) {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                
+                const response = await window.CONFIG.obterPerfil(userId);
+                
+                if (response.success) {
+                    perfilUsuario = response.usuario;
+                    renderizarPerfil();
+                    await carregarAvaliacoes();
+                    await carregarColecoes();
+                    await carregarFavoritos();
+                } else {
+                    throw new Error('Usuário não encontrado');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+                mostrarErro('Erro ao carregar perfil do usuário');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function renderizarPerfil() {
+            // Avatar
+            const avatar = perfilUsuario.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(perfilUsuario.nome)}&background=4f46e5&color=ffffff`;
+            document.getElementById('userAvatar').src = avatar;
+            
+            // Informações básicas
+            document.getElementById('userName').textContent = perfilUsuario.nome;
+            document.getElementById('userBio').textContent = perfilUsuario.bio || 'Nenhuma biografia adicionada.';
             
             // Estatísticas
-            document.getElementById('total-reviews').textContent = perfilAtual.total_reviews || 0;
-            document.getElementById('total-colecoes').textContent = perfilAtual.total_colecoes || 0;
-            document.getElementById('media-notas').textContent = perfilAtual.media_notas ? perfilAtual.media_notas.toFixed(1) : '0.0';
-            document.getElementById('membro-desde').textContent = new Date(perfilAtual.data_cadastro).getFullYear();
+            const stats = perfilUsuario.estatisticas || {};
+            document.getElementById('totalAvaliacoes').textContent = stats.total_avaliacoes || 0;
+            document.getElementById('mediaNotas').textContent = stats.media_notas || '0.0';
+            document.getElementById('totalColecoes').textContent = stats.total_colecoes || 0;
             
-            // Mostrar ações se for próprio perfil
-            if (isOwnProfile) {
-                document.getElementById('acoes-perfil').style.display = 'block';
+            // Mostrar botões se for proprietário
+            if (isProprietario) {
+                document.getElementById('editPerfilBtn').style.display = 'inline-block';
+                document.getElementById('editAvatarBtn').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                document.getElementById('criarColecaoBtn').style.display = 'inline-block';
             }
             
-            // Atualizar título
-            document.title = `${perfilAtual.nome} - OpinaFlix`;
-            
-            // Carregar conteúdo da tab ativa
-            carregarReviews();
-            
-        } catch (error) {
-            console.error('Erro ao carregar perfil:', error);
-            alert('Erro ao carregar perfil: ' + error.message);
-            window.location.href = 'index.html';
+            // Mostrar container
+            document.getElementById('perfilContainer').style.display = 'block';
         }
-    }
 
-    function switchTab(tabName) {
-        // Atualizar tabs
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        // Mostrar/ocultar conteúdo
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.style.display = 'none';
-            content.classList.remove('active');
-        });
-        
-        const activeContent = document.getElementById(`content-${tabName}`);
-        activeContent.style.display = 'block';
-        activeContent.classList.add('active');
-        
-        // Carregar conteúdo específico da tab
-        switch (tabName) {
-            case 'reviews':
-                carregarReviews();
-                break;
-            case 'colecoes':
-                carregarColecoes();
-                break;
-            case 'estatisticas':
-                carregarEstatisticas();
-                break;
+        async function carregarAvaliacoes() {
+            try {
+                const response = await window.CONFIG.obterAvaliacoes({ usuario_id: perfilUsuario.id });
+                
+                if (response.success) {
+                    renderizarAvaliacoes(response.avaliacoes);
+                } else {
+                    document.getElementById('avaliacoesList').innerHTML = '<p class="empty-message">Nenhuma avaliação encontrada.</p>';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar avaliações:', error);
+                document.getElementById('avaliacoesList').innerHTML = '<p class="error-message">Erro ao carregar avaliações.</p>';
+            }
         }
-    }
 
-    async function carregarReviews() {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/usuario/${perfilAtual.id}`);
-            const reviews = await response.json();
+        function renderizarAvaliacoes(avaliacoes) {
+            const container = document.getElementById('avaliacoesList');
             
-            const container = document.getElementById('reviews-container');
-            
-            if (!reviews || reviews.length === 0) {
+            if (!avaliacoes || avaliacoes.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center; padding:40px; color:#666;">
-                        <h3>${isOwnProfile ? 'Você ainda não fez nenhuma review' : 'Este usuário ainda não fez reviews'}</h3>
-                        ${isOwnProfile ? '<p>Comece explorando filmes e séries!</p><div style="margin-top:20px;"><a href="filmes-series.html" class="btn btn-primary">Explorar Conteúdo</a></div>' : ''}
+                    <div class="empty-state">
+                        <h4>Nenhuma avaliação ainda</h4>
+                        <p>Comece avaliando filmes e séries!</p>
+                        <a href="index.html" class="btn btn-primary">Explorar Conteúdo</a>
                     </div>
                 `;
                 return;
             }
             
-            // Carregar detalhes das obras
-            const reviewsComDetalhes = await Promise.all(reviews.map(async (review) => {
-                try {
-                    const tmdbResponse = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-                    const obraDetalhes = await tmdbResponse.json();
-                    return { ...review, obraDetalhes };
-                } catch (error) {
-                    return { ...review, obraDetalhes: null };
-                }
-            }));
-            
-            const html = reviewsComDetalhes.map(review => {
-                const obra = review.obraDetalhes;
-                const titulo = obra ? (obra.title || obra.name) : 'Título não disponível';
-                const poster = obra && obra.poster_path 
-                    ? `https://image.tmdb.org/t/p/w92${obra.poster_path}`
-                    : 'https://via.placeholder.com/92x138?text=Sem+Poster';
+            const html = avaliacoes.map(avaliacao => {
+                const poster = avaliacao.poster || 'https://via.placeholder.com/150x225?text=Sem+Poster';
+                const dataFormatada = new Date(avaliacao.data).toLocaleDateString('pt-BR');
                 
                 return `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <div class="review-user">
-                                <strong>${perfilAtual.nome}</strong>
-                                <span style="color:#666; margin-left:10px;">${new Date(review.data).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                            <div class="review-rating">⭐ ${review.nota}/10</div>
-                        </div>
-                        
-                        ${review.comentario ? `<div class="review-content">${review.comentario}</div>` : ''}
-                        
-                        <div class="review-movie">
-                            <img src="${poster}" alt="${titulo}" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">
-                            <div style="flex:1;">
-                                <h4 style="cursor:pointer;" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">${titulo}</h4>
-                                <p style="color:#666;">${review.tipo === 'movie' ? 'Filme' : 'Série'}</p>
-                            </div>
-                            <div>
-                                <button onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')" class="btn btn-primary btn-small">Ver Detalhes</button>
-                                ${isOwnProfile ? `<button onclick="excluirReview(${review.id})" class="btn btn-small" style="background:#dc3545; margin-left:8px;">Excluir</button>` : ''}
-                            </div>
+                    <div class="avaliacao-card">
+                        <img src="${poster}" alt="${avaliacao.titulo}" onclick="verDetalhes(${avaliacao.obraId}, '${avaliacao.tipo}')">
+                        <div class="avaliacao-info">
+                            <h4 onclick="verDetalhes(${avaliacao.obraId}, '${avaliacao.tipo}')">${avaliacao.titulo}</h4>
+                            <p class="avaliacao-tipo">${avaliacao.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                            <div class="avaliacao-rating">⭐ ${avaliacao.nota}/10</div>
+                            <p class="avaliacao-data">${dataFormatada}</p>
+                            ${avaliacao.comentario ? `
+                                <p class="avaliacao-comentario">${avaliacao.comentario.substring(0, 100)}${avaliacao.comentario.length > 100 ? '...' : ''}</p>
+                            ` : ''}
+                            ${isProprietario ? `
+                                <div class="avaliacao-actions">
+                                    <button onclick="editarAvaliacao('${avaliacao.id}')" class="btn-small btn-secondary">Editar</button>
+                                    <button onclick="excluirAvaliacao('${avaliacao.id}')" class="btn-small btn-danger">Excluir</button>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
             
             container.innerHTML = html;
-            
-        } catch (error) {
-            console.error('Erro ao carregar reviews:', error);
-            document.getElementById('reviews-container').innerHTML = '<div class="error">Erro ao carregar reviews</div>';
         }
-    }
 
-    async function carregarColecoes() {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${perfilAtual.id}`);
-            const colecoes = await response.json();
-            
-            const container = document.getElementById('colecoes-container');
+        async function carregarColecoes() {
+            try {
+                const response = await window.CONFIG.obterColecoes(perfilUsuario.id);
+                
+                if (response.success) {
+                    renderizarColecoes(response.colecoes || []);
+                } else {
+                    document.getElementById('colecoesList').innerHTML = '<p class="empty-message">Nenhuma coleção encontrada.</p>';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar coleções:', error);
+                document.getElementById('colecoesList').innerHTML = '<p class="error-message">Erro ao carregar coleções.</p>';
+            }
+        }
+
+        function renderizarColecoes(colecoes) {
+            const container = document.getElementById('colecoesList');
             
             if (!colecoes || colecoes.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center; padding:40px; color:#666;">
-                        <h3>${isOwnProfile ? 'Você ainda não criou coleções' : 'Este usuário ainda não criou coleções'}</h3>
-                        ${isOwnProfile ? '<div style="margin-top:20px;"><a href="colecoes.html" class="btn btn-primary">Criar Coleção</a></div>' : ''}
+                    <div class="empty-state">
+                        <h4>Nenhuma coleção criada</h4>
+                        <p>Organize seus filmes em coleções!</p>
+                        ${isProprietario ? '<button onclick="criarColecao()" class="btn btn-primary">Criar Primeira Coleção</button>' : ''}
                     </div>
                 `;
                 return;
@@ -365,302 +357,643 @@
             
             const html = colecoes.map(colecao => `
                 <div class="colecao-card">
-                    <div class="colecao-header">
-                        <h3>${colecao.nome}</h3>
-                        <div style="color:#666; font-size:14px;">${colecao.total_itens || 0} itens</div>
+                    <h4>${colecao.nome}</h4>
+                    <p>${colecao.descricao || 'Sem descrição'}</p>
+                    <div class="colecao-stats">
+                        <span>${colecao.total_itens || 0} itens</span>
                     </div>
-                    <p style="color:#ccc; margin-bottom:15px;">${colecao.descricao || 'Sem descrição'}</p>
-                    <div style="text-align:center;">
-                        <button onclick="verColecao(${colecao.id})" class="btn btn-primary">Ver Coleção</button>
+                    <div class="colecao-actions">
+                        <button onclick="verColecao('${colecao.id}')" class="btn btn-primary btn-small">Ver Coleção</button>
+                        ${isProprietario ? `
+                            <button onclick="editarColecao('${colecao.id}')" class="btn btn-secondary btn-small">Editar</button>
+                        ` : ''}
                     </div>
                 </div>
             `).join('');
             
             container.innerHTML = html;
-            
-        } catch (error) {
-            console.error('Erro ao carregar coleções:', error);
-            document.getElementById('colecoes-container').innerHTML = '<div class="error">Erro ao carregar coleções</div>';
         }
-    }
 
-    async function carregarEstatisticas() {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${perfilAtual.id}/estatisticas`);
-            const stats = await response.json();
-            
-            if (stats.success) {
-                // Distribuição de notas
-                renderizarGraficoNotas(stats.data.distribuicao_notas || {});
+        async function carregarFavoritos() {
+            try {
+                const response = await window.CONFIG.obterAvaliacoes({ usuario_id: perfilUsuario.id });
                 
-                // Filmes vs Séries
-                renderizarFilmesVsSeries(stats.data.filmes_vs_series || {});
-                
-                // Atividade recente
-                renderizarAtividadeRecente(stats.data.atividade_recente || []);
-                
-                // Top gêneros
-                renderizarTopGeneros(stats.data.top_generos || []);
-            }
-        } catch (error) {
-            console.error('Erro ao carregar estatísticas:', error);
-        }
-    }
-
-    function renderizarGraficoNotas(distribuicao) {
-        const container = document.getElementById('grafico-notas');
-        let html = '';
-        
-        for (let nota = 1; nota <= 10; nota++) {
-            const count = distribuicao[nota] || 0;
-            const maxCount = Math.max(...Object.values(distribuicao), 1);
-            const width = (count / maxCount) * 100;
-            
-            html += `
-                <div style="display:flex; align-items:center; margin-bottom:8px;">
-                    <span style="width:20px; color:#ccc;">${nota}</span>
-                    <div style="flex:1; background:#333; height:20px; margin:0 10px; border-radius:4px; overflow:hidden;">
-                        <div style="width:${width}%; height:100%; background:#e50914; transition:width 0.3s;"></div>
-                    </div>
-                    <span style="width:30px; color:#ccc; font-size:12px;">${count}</span>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = html || '<p style="color:#666;">Sem dados disponíveis</p>';
-    }
-
-    function renderizarFilmesVsSeries(data) {
-        const container = document.getElementById('filmes-vs-series');
-        const filmes = data.filmes || 0;
-        const series = data.series || 0;
-        const total = filmes + series;
-        
-        if (total === 0) {
-            container.innerHTML = '<p style="color:#666;">Sem dados disponíveis</p>';
-            return;
-        }
-        
-        const percentFilmes = (filmes / total) * 100;
-        const percentSeries = (series / total) * 100;
-        
-        container.innerHTML = `
-            <div style="margin-bottom:15px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>Filmes</span>
-                    <span>${filmes} (${percentFilmes.toFixed(1)}%)</span>
-                </div>
-                <div style="background:#333; height:10px; border-radius:5px; overflow:hidden;">
-                    <div style="width:${percentFilmes}%; height:100%; background:#e50914;"></div>
-                </div>
-            </div>
-            <div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>Séries</span>
-                    <span>${series} (${percentSeries.toFixed(1)}%)</span>
-                </div>
-                <div style="background:#333; height:10px; border-radius:5px; overflow:hidden;">
-                    <div style="width:${percentSeries}%; height:100%; background:#ff6b35;"></div>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderizarAtividadeRecente(atividade) {
-        const container = document.getElementById('atividade-recente');
-        
-        if (atividade.length === 0) {
-            container.innerHTML = '<p style="color:#666;">Nenhuma atividade recente</p>';
-            return;
-        }
-        
-        const html = atividade.map(item => `
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:#333; border-radius:4px;">
-                <span>${item.acao}</span>
-                <span style="color:#ccc; font-size:12px;">${new Date(item.data).toLocaleDateString('pt-BR')}</span>
-            </div>
-        `).join('');
-        
-        container.innerHTML = html;
-    }
-
-    function renderizarTopGeneros(generos) {
-        const container = document.getElementById('top-generos');
-        
-        if (generos.length === 0) {
-            container.innerHTML = '<p style="color:#666;">Sem dados de gêneros</p>';
-            return;
-        }
-        
-        const html = generos.slice(0, 5).map((genero, index) => `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span>${index + 1}. ${genero.nome}</span>
-                <span style="color:#e50914; font-weight:bold;">${genero.count}</span>
-            </div>
-        `).join('');
-        
-        container.innerHTML = html;
-    }
-
-    // Funções de modal e edição
-    function editarPerfil() {
-        document.getElementById('edit-nome').value = perfilAtual.nome;
-        document.getElementById('edit-email').value = perfilAtual.email;
-        document.getElementById('modal-editar').style.display = 'block';
-    }
-
-    function fecharModalEditar() {
-        document.getElementById('modal-editar').style.display = 'none';
-    }
-
-    function alterarSenha() {
-        document.getElementById('modal-senha').style.display = 'block';
-    }
-
-    function fecharModalSenha() {
-        document.getElementById('modal-senha').style.display = 'none';
-        document.getElementById('senha-atual').value = '';
-        document.getElementById('nova-senha').value = '';
-        document.getElementById('confirmar-nova-senha').value = '';
-    }
-
-    async function salvarPerfilEditado() {
-        const nome = document.getElementById('edit-nome').value.trim();
-        const email = document.getElementById('edit-email').value.trim();
-        
-        if (!nome || !email) {
-            alert('Preencha todos os campos.');
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${perfilAtual.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                perfilAtual.nome = nome;
-                perfilAtual.email = email;
-                
-                // Atualizar localStorage se for próprio perfil
-                if (isOwnProfile) {
-                    const usuario = JSON.parse(localStorage.getItem('usuario'));
-                    usuario.nome = nome;
-                    usuario.email = email;
-                    localStorage.setItem('usuario', JSON.stringify(usuario));
+                if (response.success) {
+                    const favoritos = response.avaliacoes.filter(a => a.nota >= 9);
+                    renderizarFavoritos(favoritos);
+                } else {
+                    document.getElementById('favoritosList').innerHTML = '<p class="empty-message">Nenhum favorito encontrado.</p>';
                 }
                 
-                // Atualizar interface
-                document.getElementById('nome-usuario').textContent = nome;
-                document.getElementById('email-usuario').textContent = email;
-                document.getElementById('avatar-usuario').textContent = nome.charAt(0).toUpperCase();
+            } catch (error) {
+                console.error('Erro ao carregar favoritos:', error);
+                document.getElementById('favoritosList').innerHTML = '<p class="error-message">Erro ao carregar favoritos.</p>';
+            }
+        }
+
+        function renderizarFavoritos(favoritos) {
+            const container = document.getElementById('favoritosList');
+            
+            if (!favoritos || favoritos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h4>Nenhum favorito ainda</h4>
+                        <p>Avalie filmes com nota 9 ou 10 para aparecerem aqui!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = favoritos.map(favorito => {
+                const poster = favorito.poster || 'https://via.placeholder.com/150x225?text=Sem+Poster';
                 
-                fecharModalEditar();
-                alert('Perfil atualizado com sucesso!');
-            } else {
-                alert('Erro: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Erro ao atualizar perfil:', error);
-            alert('Erro de conexão. Tente novamente.');
+                return `
+                    <div class="favorito-card" onclick="verDetalhes(${favorito.obraId}, '${favorito.tipo}')">
+                        <img src="${poster}" alt="${favorito.titulo}">
+                        <div class="favorito-info">
+                            <h4>${favorito.titulo}</h4>
+                            <div class="favorito-rating">⭐ ${favorito.nota}/10</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
         }
-    }
 
-    async function alterarSenhaUsuario() {
-        const senhaAtual = document.getElementById('senha-atual').value;
-        const novaSenha = document.getElementById('nova-senha').value;
-        const confirmarSenha = document.getElementById('confirmar-nova-senha').value;
-        
-        if (!senhaAtual || !novaSenha || !confirmarSenha) {
-            alert('Preencha todos os campos.');
-            return;
-        }
-        
-        if (novaSenha !== confirmarSenha) {
-            alert('As senhas não coincidem.');
-            return;
-        }
-        
-        if (novaSenha.length < 6) {
-            alert('A nova senha deve ter pelo menos 6 caracteres.');
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${perfilAtual.id}/senha`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ senhaAtual, novaSenha })
+        function configurarEventListeners() {
+            // Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    ativarTab(tabId);
+                });
             });
+
+            // Filtros
+            document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
+            document.getElementById('filtroOrdem').addEventListener('change', aplicarFiltros);
+
+            // Botões
+            document.getElementById('editPerfilBtn').addEventListener('click', abrirModalEdicao);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('criarColecaoBtn').addEventListener('click', criarColecao);
+        }
+
+        function ativarTab(tabId) {
+            // Remover active de todos
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
             
-            const result = await response.json();
-            
-            if (result.success) {
-                fecharModalSenha();
-                alert('Senha alterada com sucesso!');
-            } else {
-                alert('Erro: ' + result.message);
+            // Ativar selecionado
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        function aplicarFiltros() {
+            // Implementar filtros das avaliações
+            carregarAvaliacoes();
+        }
+
+        function verDetalhes(id, tipo) {
+            window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
+        }
+
+        function abrirModalEdicao() {
+            document.getElementById('editNome').value = perfilUsuario.nome;
+            document.getElementById('editBio').value = perfilUsuario.bio || '';
+            document.getElementById('editAvatar').value = perfilUsuario.avatar || '';
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function salvarPerfil() {
+            try {
+                const nome = document.getElementById('editNome').value.trim();
+                const bio = document.getElementById('editBio').value.trim();
+                const avatar = document.getElementById('editAvatar').value.trim();
+                
+                if (!nome) {
+                    alert('Nome é obrigatório');
+                    return;
+                }
+                
+                const response = await window.CONFIG.atualizarPerfil(perfilUsuario.id, {
+                    nome,
+                    bio,
+                    avatar
+                });
+                
+                if (response.success) {
+                    alert('Perfil atualizado com sucesso!');
+                    fecharModal();
+                    carregarPerfil(perfilUsuario.id);
+                    
+                    // Atualizar usuário logado se for o próprio perfil
+                    if (isProprietario) {
+                        const usuarioAtualizado = { ...usuarioAtual, nome, bio, avatar };
+                        window.CONFIG.salvarUsuario(usuarioAtualizado);
+                    }
+                } else {
+                    throw new Error('Erro ao atualizar perfil');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar perfil:', error);
+                alert('Erro ao atualizar perfil. Tente novamente.');
             }
-        } catch (error) {
-            console.error('Erro ao alterar senha:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
 
-    function irParaDetalhes(id, tipo) {
-        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
-    }
+        function mostrarErro(mensagem = 'Você precisa estar logado para ver o perfil.') {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('erroContainer').style.display = 'block';
+            document.querySelector('#erroContainer p').textContent = mensagem;
+        }
 
-    function verColecao(id) {
-        window.location.href = `colecao-detalhe.html?id=${id}`;
-    }
+        function criarColecao() {
+            alert('Funcionalidade de criar coleção será implementada em breve!');
+        }
 
-    async function excluirReview(reviewId) {
-        if (!confirm('Excluir esta review?')) return;
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/${reviewId}`, {
-                method: 'DELETE'
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                carregarReviews();
-                // Atualizar contador
-                const totalAtual = parseInt(document.getElementById('total-reviews').textContent);
-                document.getElementById('total-reviews').textContent = Math.max(0, totalAtual - 1);
-            } else {
-                alert('Erro: ' + result.message);
+        function editarAvaliacao(id) {
+            alert('Funcionalidade de editar avaliação será implementada em breve!');
+        }
+
+        function excluirAvaliacao(id) {
+            if (confirm('Tem certeza que deseja excluir esta avaliação?')) {
+                alert('Funcionalidade de excluir avaliação será implementada em breve!');
             }
-        } catch (error) {
-            console.error('Erro ao excluir review:', error);
-            alert('Erro de conexão. Tente novamente.');
         }
-    }
 
-    // Fechar modais clicando fora
-    document.getElementById('modal-editar').addEventListener('click', function(e) {
-        if (e.target === this) fecharModalEditar();
-    });
-
-    document.getElementById('modal-senha').addEventListener('click', function(e) {
-        if (e.target === this) fecharModalSenha();
-    });
-
-    // Efeito scroll navbar
-    window.addEventListener('scroll', function() {
-        const nav = document.querySelector('nav');
-        if (window.scrollY > 100) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
+        function verColecao(id) {
+            window.location.href = `colecao-detalhe.html?id=${id}`;
         }
-    });
+
+        function editarColecao(id) {
+            alert('Funcionalidade de editar coleção será implementada em breve!');
+        }
     </script>
+
+    <style>
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu span {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .btn-perfil {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #ccc;
+        }
+
+        .perfil-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            align-items: center;
+        }
+
+        .perfil-avatar {
+            position: relative;
+        }
+
+        .perfil-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #4f46e5;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .perfil-info h1 {
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .user-bio {
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .perfil-stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            color: #e50914;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .perfil-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            padding: 15px 0;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #e50914;
+            border-bottom-color: #e50914;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filters select {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .avaliacoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .avaliacao-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .avaliacao-card img {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .avaliacao-info {
+            flex: 1;
+        }
+
+        .avaliacao-info h4 {
+            margin: 0 0 8px 0;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .avaliacao-info h4:hover {
+            color: #e50914;
+        }
+
+        .avaliacao-tipo {
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .avaliacao-rating {
+            color: #f39c12;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .avaliacao-data {
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .avaliacao-comentario {
+            color: #ccc;
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .avaliacao-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .colecoes-grid, .favoritos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .colecao-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .colecao-card h4 {
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .colecao-card p {
+            color: #ccc;
+            margin: 0 0 15px 0;
+        }
+
+        .colecao-stats {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .colecao-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .favorito-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .favorito-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .favorito-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .favorito-info {
+            padding: 15px;
+        }
+
+        .favorito-info h4 {
+            margin: 0 0 8px 0;
+            color: #fff;
+        }
+
+        .favorito-rating {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h4 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .erro-container {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .erro-container h2 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+
+        .erro-container p {
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-secondary {
+            background: #555;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #222;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            color: #fff;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .perfil-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .perfil-avatar {
+                margin-bottom: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tab-btn {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .tab-panel {
+                padding: 0 10px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filters {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .avaliacoes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .colecoes-grid, .favoritos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-width: 100%;
+            }
+        }
+    </style>
 </body>
 </html>
