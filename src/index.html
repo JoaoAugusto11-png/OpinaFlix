@@ -23,50 +23,39 @@
         <p>
             Registre, avalie e compartilhe suas opiniões sobre seus filmes e séries favoritos. Descubra novas obras e veja o que a galera está assistindo!
         </p>
-        <button class="cta-btn" onclick="window.location.href='login.html'">Cadastre-se Grátis</button>
+        <button class="cta-btn" onclick="window.location.href='cadastro.html'">Cadastre-se Grátis</button>
     </div>
 
     <div style="background:#fff; color:#111; margin-top:48px; padding:32px 0;">
         <h2 style="text-align:center; margin-bottom:32px;">Com o OpinaFlix você pode:</h2>
         <div class="features">
             <div class="feature-card">
-                <i class="fas fa-film"></i>
                 <h3>Registrar e Avaliar</h3>
                 <p>Registre suas opiniões sobre filmes e séries.</p>
             </div>
             <div class="feature-card">
-                <i class="fas fa-comments"></i>
                 <h3>Interagir com amigos</h3>
                 <p>Veja o que seus amigos estão assistindo e comentando.</p>
             </div>
             <div class="feature-card">
-                <i class="fas fa-list"></i>
                 <h3>Fazer Coleções</h3>
                 <p>Monte listas personalizadas de obras favoritas.</p>
             </div>
         </div>
     </div>
 
-    <div id="search-results" style="margin: 40px auto; max-width: 900px;"></div>
-
     <!-- Populares Nessa semana -->
     <div style="max-width: 1100px; margin: 48px auto 0 auto;">
         <h2 style="color:#e50914; margin-bottom:24px;">Populares Nessa semana</h2>
-        <div id="populares" style="display:flex; flex-wrap:wrap; gap:16px;"></div>
+        <div id="populares" style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center;"></div>
     </div>
 
     <!-- Rodapé -->
     <footer style="background:#181818; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
         <div style="margin-bottom: 12px;">
-            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-facebook"></i>
-            </a>
-            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-youtube"></i>
-            </a>
+            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">📘</a>
+            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">📷</a>
+            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">📺</a>
         </div>
         <div style="font-size:1em; color:#aaa;">
             &copy; 2025 OpinaFlix. Todos os direitos reservados.
@@ -74,160 +63,67 @@
     </footer>
 
     <script>
-// Variáveis globais
-let filmesFavoritos = [];
-let seriesFavoritas = [];
-
-// Carrega filmes e séries em alta
-async function carregarConteudo() {
-    try {
-        // Filmes em alta
-        const filmesResp = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-        const filmesData = await filmesResp.json();
-        filmesFavoritos = filmesData.results.slice(0, 12);
-        
-        // Séries em alta
-        const seriesResp = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-        const seriesData = await seriesResp.json();
-        seriesFavoritas = seriesData.results.slice(0, 12);
-        
-        // Renderizar conteúdo
-        renderizarFilmes();
-        renderizarSeries();
-        
-        // Carregar filme principal (primeiro filme em alta)
-        if (filmesFavoritos.length > 0) {
-            carregarFilmePrincipal(filmesFavoritos[0]);
+        // Populares Nessa semana (TMDB Trending)
+        async function carregarPopulares() {
+            const url = `https://api.themoviedb.org/3/trending/all/week?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`;
+            try {
+                const resposta = await fetch(url);
+                const dados = await resposta.json();
+                let html = '';
+                if (dados.results && dados.results.length > 0) {
+                    dados.results.slice(0, 12).forEach(item => {
+                        const titulo = item.title || item.name;
+                        const ano = (item.release_date || item.first_air_date || '').slice(0,4);
+                        const poster = item.poster_path 
+                            ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
+                            : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
+                        const tipo = item.title ? 'movie' : 'tv';
+                        html += `
+                            <div style="width:200px; text-align:center; cursor:pointer; margin-bottom:20px;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
+                                <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <div style="margin-top:8px; font-weight:bold; color:#fff;">${titulo}</div>
+                                <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<div style="color:#fff; text-align:center;">Nenhum resultado encontrado.</div>';
+                }
+                document.getElementById('populares').innerHTML = html;
+            } catch (e) {
+                console.error('Erro ao carregar populares:', e);
+                document.getElementById('populares').innerHTML = '<div style="color:#e50914; text-align:center;">Erro ao carregar populares.</div>';
+            }
         }
-    } catch (error) {
-        console.error('Erro ao carregar conteúdo:', error);
-    }
-}
 
-async function carregarFilmePrincipal(filme) {
-    try {
-        // Buscar detalhes do filme
-        const detalhesResp = await fetch(`https://api.themoviedb.org/3/movie/${filme.id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&append_to_response=videos`);
-        const detalhes = await detalhesResp.json();
-        
-        const backdrop = detalhes.backdrop_path 
-            ? `https://image.tmdb.org/t/p/original${detalhes.backdrop_path}`
-            : 'https://via.placeholder.com/1920x1080?text=Sem+Imagem';
+        // Script para área do usuário
+        function inicializarAreaUsuario() {
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+            const areaUsuario = document.getElementById('area-usuario');
             
-        document.getElementById('filme-principal').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${backdrop})`;
-        document.getElementById('titulo-principal').textContent = detalhes.title;
-        document.getElementById('sinopse-principal').textContent = detalhes.overview || 'Sinopse não disponível.';
-        document.getElementById('btn-assistir').onclick = () => window.open(`detalhes-obra.html?id=${filme.id}&tipo=movie`, '_self');
-    } catch (error) {
-        console.error('Erro ao carregar filme principal:', error);
-    }
-}
-
-function renderizarFilmes() {
-    const container = document.getElementById('filmes-container');
-    let html = '';
-    
-    filmesFavoritos.forEach(filme => {
-        const poster = filme.poster_path 
-            ? `https://image.tmdb.org/t/p/w300${filme.poster_path}`
-            : 'https://via.placeholder.com/300x450?text=Sem+Poster';
-            
-        html += `
-            <div class="item-carrossel" onclick="irParaDetalhes(${filme.id}, 'movie')">
-                <img src="${poster}" alt="${filme.title}">
-                <div class="overlay">
-                    <h4>${filme.title}</h4>
-                    <p>${filme.release_date ? filme.release_date.slice(0,4) : ''}</p>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-}
-
-function renderizarSeries() {
-    const container = document.getElementById('series-container');
-    let html = '';
-    
-    seriesFavoritas.forEach(serie => {
-        const poster = serie.poster_path 
-            ? `https://image.tmdb.org/t/p/w300${serie.poster_path}`
-            : 'https://via.placeholder.com/300x450?text=Sem+Poster';
-            
-        html += `
-            <div class="item-carrossel" onclick="irParaDetalhes(${serie.id}, 'tv')">
-                <img src="${serie.poster_path ? `https://image.tmdb.org/t/p/w300${serie.poster_path}` : 'https://via.placeholder.com/300x450?text=Sem+Poster'}" alt="${serie.name}">
-                <div class="overlay">
-                    <h4>${serie.name}</h4>
-                    <p>${serie.first_air_date ? serie.first_air_date.slice(0,4) : ''}</p>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-}
-
-function irParaDetalhes(id, tipo) {
-    window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
-}
-
-// Carrega conteúdo quando a página carrega
-window.onload = carregarConteudo;
-
-// Populares Nessa semana (TMDB Trending)
-async function carregarPopulares() {
-    const url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
-    try {
-        const resposta = await fetch(url);
-        const dados = await resposta.json();
-        let html = '';
-        if (dados.results && dados.results.length > 0) {
-            dados.results.slice(0, 8).forEach(item => {
-                const titulo = item.title || item.name;
-                const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-                const poster = item.poster_path 
-                    ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
-                    : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
-                const tipo = item.title ? 'movie' : 'tv';
-                html += `
-                    <div style="width:200px; text-align:center; cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipo}'">
-                        <img src="${poster}" alt="${titulo}" style="width:100%; border-radius:8px;">
-                        <div style="margin-top:8px; font-weight:bold;">${titulo}</div>
-                        <div style="color:#666;">${ano ? '('+ano+')' : ''}</div>
-                    </div>
+            if (usuario) {
+                areaUsuario.innerHTML = `
+                    <a href="perfil.html?id=${usuario.id}" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
+                    <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
                 `;
-            });
-        } else {
-            html = 'Nenhum resultado encontrado.';
+                document.getElementById('btn-logout').onclick = function() {
+                    localStorage.removeItem('usuario');
+                    window.location.href = 'index.html';
+                };
+            } else {
+                areaUsuario.innerHTML = `
+                    <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer; margin-right:8px;">Entrar</button>
+                    <button onclick="window.location.href='cadastro.html'" style="background:transparent;color:#fff;border:1px solid #e50914;border-radius:4px;padding:8px 16px;cursor:pointer;">Cadastrar</button>
+                `;
+            }
         }
-        document.getElementById('populares').innerHTML = html;
-    } catch (e) {
-        document.getElementById('populares').innerHTML = 'Erro ao carregar populares.';
-    }
-}
 
-// Sempre carregue os filmes, independente do login
-carregarPopulares();
+        // Inicializar quando a página carrega
+        window.onload = function() {
+            inicializarAreaUsuario();
+            carregarPopulares();
+        };
+    </script>
 
-// Script padrão para área do usuário
-const usuario = JSON.parse(localStorage.getItem('usuario'));
-const areaUsuario = document.getElementById('area-usuario');
-if (usuario) {
-    areaUsuario.innerHTML = `
-        <a href="perfil.html" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
-        <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
-    `;
-    document.getElementById('btn-logout').onclick = function() {
-        localStorage.removeItem('usuario');
-        window.location.href = 'login.html';
-    };
-} else {
-    areaUsuario.innerHTML = `
-        <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
-    `;
-}
-</script>
 </body>
 </html>
