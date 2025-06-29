@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const perfilController = require('../controllers/perfilController');
-const upload = require('../middleware/upload');
+const { uploadPerfil } = require('../middleware/upload');
 
 // Adicione este log temporário
 console.log('perfilRoutes carregado!');
@@ -34,5 +34,11 @@ router.delete('/perfil/:usuarioId/seguir', perfilController.deixarDeSeguir);
 
 // Verificar se está seguindo
 router.get('/perfil/:usuarioId/seguindo/:seguidorId', perfilController.verificarSeguindo);
+
+// Atualizar perfil com avatar
+router.put('/perfil/:id', 
+  uploadPerfil, // Validar URL do avatar
+  perfilController.atualizarPerfil
+);
 
 module.exports = router;

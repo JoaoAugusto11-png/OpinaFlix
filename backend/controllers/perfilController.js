@@ -1,4 +1,5 @@
 const { db } = require('../config/firebase');
+const { getDefaultAvatar } = require('../middleware/upload');
 
 // Obter dados do perfil
 exports.obterPerfil = async (req, res) => {
@@ -99,7 +100,7 @@ exports.obterPerfil = async (req, res) => {
 exports.atualizarPerfil = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, bio, avatar } = req.body;
+    const { nome, bio, avatar_url } = req.body;
     
     if (!id) {
       return res.status(400).json({ 
@@ -119,6 +120,8 @@ exports.atualizarPerfil = async (req, res) => {
       });
     }
 
+    const userData = doc.data();
+
     // Preparar dados para atualização
     const dadosAtualizacao = {
       dataAtualizacao: new Date().toISOString()
@@ -132,8 +135,11 @@ exports.atualizarPerfil = async (req, res) => {
       dadosAtualizacao.bio = bio.trim();
     }
     
-    if (avatar !== undefined) {
-      dadosAtualizacao.avatar = avatar;
+    if (avatar_url !== undefined) {
+      dadosAtualizacao.avatar = avatar_url;
+    } else if (!userData.avatar) {
+      // Se não tem avatar, gerar um padrão
+      dadosAtualizacao.avatar = getDefaultAvatar(id, userData.nome);
     }
 
     // Atualizar no Firebase
@@ -141,17 +147,17 @@ exports.atualizarPerfil = async (req, res) => {
     
     // Buscar usuário atualizado
     const usuarioAtualizado = await usuarioRef.get();
-    const userData = usuarioAtualizado.data();
+    const userDataAtualizado = usuarioAtualizado.data();
 
     res.json({ 
       success: true,
       message: 'Perfil atualizado com sucesso!',
       usuario: {
         id: usuarioAtualizado.id,
-        nome: userData.nome,
-        email: userData.email,
-        bio: userData.bio,
-        avatar: userData.avatar
+        nome: userDataAtualizado.nome,
+        email: userDataAtualizado.email,
+        bio: userDataAtualizado.bio,
+        avatar: userDataAtualizado.avatar
       }
     });
 
