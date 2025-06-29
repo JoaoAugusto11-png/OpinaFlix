@@ -3,124 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviews da Galera - OpinaFlix</title>
+    <title>Review da Galera - OpinaFlix</title>
     <link rel="stylesheet" href="styles.css">
     <script src="config.js"></script>
 </head>
 <body>
-    <nav style="background:#181818;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;">
-        <a href="index.html" class="logo" style="color:#e50914;font-size:2em;font-weight:bold;text-decoration:none;">OpinaFlix</a>
-        <ul style="list-style:none;display:flex;gap:24px;margin:0;padding:0;">
-            <li><a href="filmes-series.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Filmes e Séries</a></li>
-            <li><a href="colecoes.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Coleções</a></li>
-            <li><a href="review-galera.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Review da Galera</a></li>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
         <div id="area-usuario"></div>
     </nav>
-    <div class="review-list" id="review-list"></div>
-    <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
-        <div style="margin-bottom: 12px;">
-            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-facebook"></i>
-            </a>
-            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-youtube"></i>
-            </a>
+
+    <div class="page-container">
+        <div class="container">
+            <h1 class="page-title">Review da Galera</h1>
+            
+            <!-- Filtros -->
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todas</button>
+                <button class="filter-btn" data-filter="movie">Filmes</button>
+                <button class="filter-btn" data-filter="tv">Séries</button>
+                <button class="filter-btn" data-filter="recent">Mais Recentes</button>
+                <button class="filter-btn" data-filter="top">Melhor Avaliadas</button>
+            </div>
+
+            <!-- Estatísticas -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px; margin-bottom:40px;">
+                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="total-reviews">-</div>
+                    <div style="color:#ccc;">Total de Reviews</div>
+                </div>
+                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="media-notas">-</div>
+                    <div style="color:#ccc;">Nota Média</div>
+                </div>
+                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="usuarios-ativos">-</div>
+                    <div style="color:#ccc;">Usuários Ativos</div>
+                </div>
+                <div style="background:#222; padding:20px; border-radius:8px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:bold; color:#e50914;" id="reviews-hoje">-</div>
+                    <div style="color:#ccc;">Reviews Hoje</div>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display:none;">Carregando reviews...</div>
+
+            <!-- Container de Reviews -->
+            <div class="reviews-container">
+                <div id="reviews-lista"></div>
+            </div>
+
+            <!-- Paginação -->
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="btn-anterior" class="btn btn-secondary" style="margin-right: 10px;" disabled>← Anterior</button>
+                <span id="page-info" style="margin: 0 20px; color: #ccc;">Página 1</span>
+                <button id="btn-proximo" class="btn btn-secondary" style="margin-left: 10px;">Próximo →</button>
+            </div>
         </div>
-        <div style="font-size:1em; color:#aaa;">
+    </div>
+
+    <footer>
+        <div>
+            <a href="https://facebook.com" target="_blank">📘</a>
+            <a href="https://instagram.com" target="_blank">📷</a>
+            <a href="https://youtube.com" target="_blank">📺</a>
+        </div>
+        <div style="margin-top: 20px; font-size: 14px;">
             &copy; 2025 OpinaFlix. Todos os direitos reservados.
         </div>
     </footer>
-    <script>
-    // Cabeçalho do usuário
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    const areaUsuario = document.getElementById('area-usuario');
-    if (usuario) {
-        areaUsuario.innerHTML = `
-            <a href="perfil.html" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
-            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
-        `;
-        document.getElementById('btn-logout').onclick = function() {
-            localStorage.removeItem('usuario');
-            window.location.href = 'login.html';
-        };
-    } else {
-        areaUsuario.innerHTML = `
-            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
-        `;
-    }
 
-    window.addEventListener('DOMContentLoaded', function() {
-        const params = new URLSearchParams(window.location.search);
-        const obraId = params.get('obra_id');
-        const tipo = params.get('tipo');
+    <script>
+    let currentPage = 1;
+    let currentFilter = 'all';
+    let usuarioAtual = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        usuarioAtual = JSON.parse(localStorage.getItem('usuario'));
+        inicializarAreaUsuario();
+        carregarEstatisticas();
+        carregarReviews();
         
-        if (obraId && tipo) {
-            // Se vier da página de perfil, busca a obra específica
-            buscarObraEspecifica(obraId, tipo);
-        }
+        // Event listeners para filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                currentPage = 1;
+                carregarReviews();
+            });
+        });
+
+        // Event listeners para paginação
+        document.getElementById('btn-anterior').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                carregarReviews();
+            }
+        });
+
+        document.getElementById('btn-proximo').addEventListener('click', function() {
+            currentPage++;
+            carregarReviews();
+        });
     });
 
-    async function buscarObraEspecifica(obraId, tipo) {
-        try {
-            // Busca dados da obra na TMDB
-            const resp = await fetch(`https://api.themoviedb.org/3/${tipo}/${obraId}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-            const obra = await resp.json();
-            
-            // Busca reviews dessa obra específica
-            const reviewsResp = await fetch(`${window.CONFIG.API_URL}/api/reviews?obra_id=${obraId}&tipo=${tipo}`);
-            const reviews = await reviewsResp.json();
-            
-            // Exibe a obra e seus reviews
-            exibirObraEReviews(obra, reviews, tipo);
-        } catch (error) {
-            console.error('Erro ao buscar obra específica:', error);
+    function inicializarAreaUsuario() {
+        const areaUsuario = document.getElementById('area-usuario');
+        
+        if (usuarioAtual) {
+            areaUsuario.innerHTML = `
+                <a href="perfil.html?id=${usuarioAtual.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioAtual.nome}</a>
+                <button onclick="logout()" class="btn btn-primary">Sair</button>
+            `;
+        } else {
+            areaUsuario.innerHTML = `
+                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
+                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
+            `;
         }
     }
 
-    // Carrega os reviews da galera
-    async function carregarReviews() {
-        const resp = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/recentes`);
-        const reviews = await resp.json();
-        let html = '';
-        for (const r of reviews) {
-            // Busca detalhes da obra na TMDB
-            let titulo = '', ano = '', poster = '', tipo = r.tipo;
-            try {
-                const obraResp = await fetch(`https://api.themoviedb.org/3/${tipo}/${r.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-                const obra = await obraResp.json();
-                titulo = obra.title || obra.name || 'Título não encontrado';
-                ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
-                poster = obra.poster_path ? `https://image.tmdb.org/t/p/w200${obra.poster_path}` : 'https://via.placeholder.com/100x150?text=Sem+Imagem';
-            } catch {
-                titulo = 'Título não encontrado';
-                poster = 'https://via.placeholder.com/100x150?text=Sem+Imagem';
+    function logout() {
+        localStorage.removeItem('usuario');
+        window.location.href = 'index.html';
+    }
+
+    async function carregarEstatisticas() {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/estatisticas`);
+            const stats = await response.json();
+            
+            if (stats.success) {
+                document.getElementById('total-reviews').textContent = stats.data.total_reviews || 0;
+                document.getElementById('media-notas').textContent = stats.data.media_notas || '0.0';
+                document.getElementById('usuarios-ativos').textContent = stats.data.usuarios_ativos || 0;
+                document.getElementById('reviews-hoje').textContent = stats.data.reviews_hoje || 0;
             }
-            html += `
-                <div class="review-card">
-                    <div class="review-poster">
-                        <img src="${poster}" alt="${titulo}">
-                    </div>
-                    <div class="review-content">
-                        <div class="review-header">
-                            <a href="perfil.html?id=${r.usuario_id}" style="color:#e50914;text-decoration:none;font-weight:bold;">
-                                ${r.usuarioNome || 'Usuário'}
-                            </a>
-                            <span class="review-date">${new Date(r.data).toLocaleDateString()}</span>
-                        </div>
-                        <div class="review-title">${titulo} ${ano ? '('+ano+')' : ''}</div>
-                        <div class="review-stars">${'★'.repeat(r.nota)}${'☆'.repeat(10 - r.nota)}</div>
-                        <div class="review-comment">${r.comentario}</div>
+        } catch (error) {
+            console.error('Erro ao carregar estatísticas:', error);
+        }
+    }
+
+    async function carregarReviews() {
+        document.getElementById('loading').style.display = 'block';
+        
+        try {
+            let url = `${window.CONFIG.API_URL}/api/avaliacoes?page=${currentPage}&limit=10`;
+            
+            switch (currentFilter) {
+                case 'movie':
+                    url += '&tipo=movie';
+                    break;
+                case 'tv':
+                    url += '&tipo=tv';
+                    break;
+                case 'recent':
+                    url += '&ordem=recente';
+                    break;
+                case 'top':
+                    url += '&ordem=nota';
+                    break;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                renderizarReviews(data.reviews);
+                atualizarPaginacao(data.page, data.totalPages);
+            } else {
+                throw new Error(data.message || 'Erro ao carregar reviews');
+            }
+            
+        } catch (error) {
+            console.error('Erro ao carregar reviews:', error);
+            document.getElementById('reviews-lista').innerHTML = 
+                '<div class="error">Erro ao carregar reviews da galera</div>';
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+
+    async function renderizarReviews(reviews) {
+        const container = document.getElementById('reviews-lista');
+        
+        if (!reviews || reviews.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:60px 20px; color:#666;">
+                    <h3>Nenhuma review encontrada</h3>
+                    <p>Seja o primeiro a avaliar um filme ou série!</p>
+                    <div style="margin-top:25px;">
+                        <a href="filmes-series.html" class="btn btn-primary">Explorar Conteúdo</a>
                     </div>
                 </div>
             `;
+            return;
         }
-        document.getElementById('review-list').innerHTML = html || '<div style="color:#e50914;text-align:center;">Nenhuma avaliação encontrada.</div>';
+        
+        // Carregar detalhes das obras do TMDB
+        const reviewsComDetalhes = await Promise.all(reviews.map(async (review) => {
+            try {
+                const tmdbResponse = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
+                const obraDetalhes = await tmdbResponse.json();
+                return { ...review, obraDetalhes };
+            } catch (error) {
+                console.error('Erro ao carregar detalhes da obra:', error);
+                return { ...review, obraDetalhes: null };
+            }
+        }));
+        
+        const html = reviewsComDetalhes.map(review => {
+            const obra = review.obraDetalhes;
+            const titulo = obra ? (obra.title || obra.name) : 'Título não disponível';
+            const ano = obra ? (obra.release_date || obra.first_air_date || '').slice(0, 4) : '';
+            const poster = obra && obra.poster_path 
+                ? `https://image.tmdb.org/t/p/w92${obra.poster_path}`
+                : 'https://via.placeholder.com/92x138?text=Sem+Poster';
+            
+            const dataFormatada = new Date(review.data).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            return `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-user">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:40px; height:40px; border-radius:50%; background:#e50914; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">
+                                    ${review.nome_usuario.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <a href="perfil.html?id=${review.usuario_id}">${review.nome_usuario}</a>
+                                    <div style="font-size:12px; color:#666;">${dataFormatada}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-rating">⭐ ${review.nota}/10</div>
+                    </div>
+                    
+                    ${review.comentario ? `
+                        <div class="review-content">${review.comentario}</div>
+                    ` : ''}
+                    
+                    <div class="review-movie">
+                        <img src="${poster}" alt="${titulo}" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">
+                        <div style="flex:1;">
+                            <h4 style="margin-bottom:5px; cursor:pointer;" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">${titulo}</h4>
+                            <p style="color:#666; font-size:14px;">${ano} • ${review.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                            ${obra && obra.vote_average ? `
+                                <p style="color:#ccc; font-size:13px; margin-top:5px;">
+                                    Nota TMDB: ⭐ ${obra.vote_average.toFixed(1)}/10
+                                </p>
+                            ` : ''}
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                            <button onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')" class="btn btn-primary btn-small">
+                                Ver Detalhes
+                            </button>
+                            ${usuarioAtual && usuarioAtual.id === review.usuario_id ? `
+                                <button onclick="excluirReview(${review.id})" class="btn btn-small" style="background:#dc3545;">
+                                    Excluir
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = html;
     }
-    carregarReviews();
+
+    function atualizarPaginacao(page, totalPages) {
+        currentPage = page;
+        document.getElementById('page-info').textContent = `Página ${page} de ${totalPages}`;
+        document.getElementById('btn-anterior').disabled = page <= 1;
+        document.getElementById('btn-proximo').disabled = page >= totalPages;
+    }
+
+    function irParaDetalhes(id, tipo) {
+        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
+    }
+
+    async function excluirReview(reviewId) {
+        if (!confirm('Tem certeza que deseja excluir esta review?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/${reviewId}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                carregarReviews();
+                carregarEstatisticas();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Erro ao excluir review:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    // Efeito scroll navbar
+    window.addEventListener('scroll', function() {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 100) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
     </script>
 </body>
 </html>

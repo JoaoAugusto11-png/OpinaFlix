@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="config.js"></script>
 </head>
-<body>
+<body class="form-page">
     <nav>
         <a href="index.html" class="logo">OpinaFlix</a>
         <ul>
@@ -15,30 +15,36 @@
             <li><a href="colecoes.html">Coleções</a></li>
             <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
-        <button id="btn-login" onclick="window.location.href='login.html'">
-            Entrar na sua conta
-        </button>
+        <div id="area-usuario">
+            <a href="cadastro.html" class="btn btn-primary">Cadastrar</a>
+        </div>
     </nav>
-    <div style="max-width:400px;margin:40px auto;background:#222;padding:32px;border-radius:8px;">
-        <h2 style="color:#e50914;">Entrar</h2>
+
+    <div class="form-container">
+        <h2>Entrar</h2>
         <form id="form-login">
-            <input type="email" id="email" placeholder="E-mail" required style="width:100%;margin-bottom:8px;">
-            <input type="password" id="senha" placeholder="Senha" required style="width:100%;margin-bottom:16px;">
-            <button type="submit" style="width:100%;background:#e50914;color:#fff;border:none;padding:10px;border-radius:4px;">Entrar</button>
+            <div class="form-group">
+                <input type="email" id="email" placeholder="E-mail" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="senha" placeholder="Senha" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
         </form>
-        <div id="mensagem-login" style="margin-top:12px;color:#e50914;"></div>
-        <div style="text-align:center; margin-top:16px;">
+        <div id="mensagem-login" class="error"></div>
+        <div style="text-align:center; margin-top:20px; color: #b3b3b3;">
             <span>Não tem uma conta?</span>
-            <a href="cadastro.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Cadastre-se</a>
+            <a href="cadastro.html" style="color:#e50914; text-decoration:none; margin-left:4px; font-weight: bold;">Cadastre-se</a>
         </div>
     </div>
+
     <script>
     async function fazerLogin() {
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
         
         if (!email || !senha) {
-            alert('Por favor, preencha todos os campos');
+            document.getElementById('mensagem-login').textContent = 'Por favor, preencha todos os campos';
             return;
         }
         
@@ -57,13 +63,14 @@
                 localStorage.setItem('usuario', JSON.stringify(data.usuario));
                 window.location.href = 'index.html';
             } else {
-                alert('Erro: ' + data.message);
+                document.getElementById('mensagem-login').textContent = 'Erro: ' + data.message;
             }
         } catch (error) {
             console.error('Erro ao fazer login:', error);
-            alert('Erro de conexão. Tente novamente.');
+            document.getElementById('mensagem-login').textContent = 'Erro de conexão. Tente novamente.';
         }
     }
+
     document.getElementById('form-login').addEventListener('submit', function(e) {
         e.preventDefault();
         fazerLogin();

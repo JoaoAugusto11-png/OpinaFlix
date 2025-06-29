@@ -18,450 +18,234 @@
         <div id="area-usuario"></div>
     </nav>
 
-    <!-- Barra de filtros -->
-    <div class="filters">
-        <label for="type">Tipo:</label>
-        <select id="type">
-            <option value="all">Todos</option>
-            <option value="movie">Filmes</option>
-            <option value="tv">Séries</option>
-        </select>
-        <label for="year">Ano:</label>
-        <select id="year"></select>
-        <label for="genre">Gênero:</label>
-        <select id="genre"></select>
-        <input type="text" id="search-filme" placeholder="Buscar filme/série...">
-        <button id="btn-filtrar" style="background:#e50914; color:#fff; border:none; border-radius:4px; padding:6px 16px; cursor:pointer;">
-            <i class="fas fa-search"></i>
-        </button>
-    </div>
+    <div class="page-container">
+        <div class="container">
+            <h1 class="page-title">Filmes e Séries</h1>
+            
+            <!-- Filtros -->
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="movie">Filmes</button>
+                <button class="filter-btn" data-filter="tv">Séries</button>
+                <button class="filter-btn" data-filter="popular">Populares</button>
+                <button class="filter-btn" data-filter="top_rated">Mais Votados</button>
+                <button class="filter-btn" data-filter="upcoming">Lançamentos</button>
+            </div>
 
-    <!-- Carrossel de populares -->
-    <div>
-        <div style="max-width:1100px; margin:0 auto;">
-            <h2 style="color:#e50914; margin-bottom:18px;">Populares nesta semana</h2>
-            <div class="carousel" id="carousel-populares"></div>
+            <!-- Barra de Pesquisa -->
+            <div style="text-align: center; margin-bottom: 30px;">
+                <input type="text" id="search-input" placeholder="Pesquisar filmes e séries..." 
+                       style="width: 100%; max-width: 500px; padding: 15px; border-radius: 25px; border: none; background: #333; color: white; font-size: 16px;">
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display: none;">
+                Carregando...
+            </div>
+
+            <!-- Grid de Filmes/Séries -->
+            <div id="movies-grid" class="movies-grid"></div>
+
+            <!-- Paginação -->
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="btn-anterior" class="btn btn-secondary" style="margin-right: 10px;" disabled>← Anterior</button>
+                <span id="page-info" style="margin: 0 20px; color: #ccc;">Página 1</span>
+                <button id="btn-proximo" class="btn btn-secondary" style="margin-left: 10px;">Próximo →</button>
+            </div>
         </div>
     </div>
 
-    <!-- Lista de recém avaliados (exemplo) -->
-    <div class="list-section">
-        <div class="list-title">Recentemente avaliados</div>
-        <div class="list-cards" id="recently-reviewed"></div>
-    </div>
-
-    <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
-        <div style="margin-bottom: 12px;">
-            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-facebook"></i>
-            </a>
-            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-youtube"></i>
-            </a>
+    <footer>
+        <div>
+            <a href="https://facebook.com" target="_blank">📘</a>
+            <a href="https://instagram.com" target="_blank">📷</a>
+            <a href="https://youtube.com" target="_blank">📺</a>
         </div>
-        <div style="font-size:1em; color:#aaa;">
+        <div style="margin-top: 20px; font-size: 14px;">
             &copy; 2025 OpinaFlix. Todos os direitos reservados.
         </div>
     </footer>
 
     <script>
-const tmdbApiKey = '25aa122e262151673e05f311eaeb56ba'; // Substitua pela sua chave
+    let currentPage = 1;
+    let currentFilter = 'popular';
+    let currentType = 'movie';
+    let searchTimeout;
 
-// Preencher anos
-const yearSelect = document.getElementById('year');
-yearSelect.innerHTML = '<option value="">Todos</option>';
-for (let y = new Date().getFullYear(); y >= 1980; y--) {
-    yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
-}
-
-// Preencher tipos
-const typeSelect = document.getElementById('type');
-
-// Preencher gêneros dinamicamente conforme o tipo
-const genreSelect = document.getElementById('genre');
-async function preencherGeneros(tipo) {
-    genreSelect.innerHTML = '<option value="">Todos</option>';
-    let url = '';
-    if (tipo === 'tv') {
-        url = `https://api.themoviedb.org/3/genre/tv/list?api_key=${tmdbApiKey}&language=pt-BR`;
-    } else {
-        url = `https://api.themoviedb.org/3/genre/movie/list?api_key=${tmdbApiKey}&language=pt-BR`;
-    }
-    const r = await fetch(url);
-    const data = await r.json();
-    if (data.genres) {
-        data.genres.forEach(g => {
-            genreSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
-        });
-    }
-}
-// Inicialmente, gêneros de filmes
-preencherGeneros('movie');
-
-// Atualiza gêneros, carrossel e recentemente avaliados ao trocar tipo
-typeSelect.addEventListener('change', () => {
-    const tipo = typeSelect.value;
-    if (tipo === 'tv') preencherGeneros('tv');
-    else preencherGeneros('movie');
-    carregarPopulares();
-    carregarRecentementeAvaliados();
-    document.getElementById('search-filme').value = '';
-});
-
-// Carregar populares (carrossel)
-async function carregarPopulares() {
-    const tipo = typeSelect.value;
-    let url;
-    if (tipo === 'movie') {
-        url = `https://api.themoviedb.org/3/trending/movie/week?api_key=${tmdbApiKey}&language=pt-BR`;
-    } else if (tipo === 'tv') {
-        url = `https://api.themoviedb.org/3/trending/tv/week?api_key=${tmdbApiKey}&language=pt-BR`;
-    } else {
-        url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
-    }
-    const resp = await fetch(url);
-    const data = await resp.json();
-    let html = '';
-    if (data.results) {
-        data.results.slice(0, 8).forEach(item => {
-            const titulo = item.title || item.name;
-            const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-            const poster = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=Sem+Imagem';
-            const tipoCard = item.title ? 'movie' : 'tv';
-            html += `
-                <div class="carousel-card" style="cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipoCard}'">
-                    <img src="${poster}" alt="${titulo}">
-                    <div class="title">${titulo}</div>
-                    <div class="year">${ano}</div>
-                    <div class="stats">
-                        <span><i class="fas fa-eye"></i> ${item.popularity ? Math.round(item.popularity*1000) : '-'}</span>
-                        <span><i class="fas fa-heart"></i> ${item.vote_count || '-'}</span>
-                    </div>
-                </div>
+    // Inicializar área do usuário
+    function inicializarAreaUsuario() {
+        const usuario = JSON.parse(localStorage.getItem('usuario'));
+        const areaUsuario = document.getElementById('area-usuario');
+        
+        if (usuario) {
+            areaUsuario.innerHTML = `
+                <a href="perfil.html?id=${usuario.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuario.nome}</a>
+                <button onclick="logout()" class="btn btn-primary">Sair</button>
             `;
-        });
-    }
-    document.getElementById('carousel-populares').innerHTML = html;
-}
-
-// Carregar recentemente avaliados (mistura filmes e séries)
-async function carregarRecentementeAvaliados() {
-    const tipo = typeSelect.value;
-    let items = [];
-    if (tipo === 'movie') {
-        const urlMovie = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
-        const respMovie = await fetch(urlMovie);
-        const dataMovie = await respMovie.json();
-        if (dataMovie.results) items = dataMovie.results.slice(0, 10);
-    } else if (tipo === 'tv') {
-        const urlTv = `https://api.themoviedb.org/3/tv/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
-        const respTv = await fetch(urlTv);
-        const dataTv = await respTv.json();
-        if (dataTv.results) items = dataTv.results.slice(0, 10);
-    } else {
-        // Mistura filmes e séries
-        const urlMovie = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
-        const urlTv = `https://api.themoviedb.org/3/tv/popular?api_key=${tmdbApiKey}&language=pt-BR&page=2`;
-        const [respMovie, respTv] = await Promise.all([fetch(urlMovie), fetch(urlTv)]);
-        const dataMovie = await respMovie.json();
-        const dataTv = await respTv.json();
-        if (dataMovie.results) items = items.concat(dataMovie.results.slice(0, 5));
-        if (dataTv.results) items = items.concat(dataTv.results.slice(0, 5));
-        items = items.sort(() => Math.random() - 0.5);
-    }
-    let html = '';
-    items.forEach(item => {
-        const titulo = item.title || item.name;
-        const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-        const poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://via.placeholder.com/200x300?text=Sem+Imagem';
-        const tipoCard = item.title ? 'movie' : 'tv';
-        html += `
-            <div class="list-card" style="cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipoCard}'">
-                <img src="${poster}" alt="${titulo}">
-                <div class="title">${titulo}</div>
-                <div class="year">${ano}</div>
-            </div>
-        `;
-    });
-    document.getElementById('recently-reviewed').innerHTML = html;
-}
-
-// Carregar ao abrir a página
-carregarPopulares();
-carregarRecentementeAvaliados();
-
-// Filtro de busca
-document.getElementById('btn-filtrar').onclick = async function() {
-    const ano = yearSelect.value;
-    const genero = genreSelect.value;
-    const busca = document.getElementById('search-filme').value.trim();
-    const tipo = typeSelect.value;
-    let url = '';
-    if (busca) {
-        if (tipo === 'tv') {
-            url = `https://api.themoviedb.org/3/search/tv?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(busca)}`;
-        } else if (tipo === 'movie') {
-            url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(busca)}`;
         } else {
-            url = `https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(busca)}`;
-        }
-    } else {
-        if (tipo === 'tv') {
-            url = `https://api.themoviedb.org/3/discover/tv?api_key=${tmdbApiKey}&language=pt-BR&sort_by=popularity.desc&page=1`;
-            if (ano) url += `&first_air_date_year=${ano}`;
-            if (genero) url += `&with_genres=${genero}`;
-        } else if (tipo === 'movie') {
-            url = `https://api.themoviedb.org/3/discover/movie?api_key=${tmdbApiKey}&language=pt-BR&sort_by=popularity.desc&page=1`;
-            if (ano) url += `&year=${ano}`;
-            if (genero) url += `&with_genres=${genero}`;
-        } else {
-            url = `https://api.themoviedb.org/3/trending/all/week?api_key=${tmdbApiKey}&language=pt-BR`;
+            areaUsuario.innerHTML = `
+                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
+                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
+            `;
         }
     }
 
-    const resp = await fetch(url);
-    const data = await resp.json();
-    let html = '';
-    if (data.results) {
-        data.results.slice(0, 8).forEach(item => {
-            const titulo = item.title || item.name;
-            const ano = (item.release_date || item.first_air_date || '').slice(0,4);
-            const poster = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : 'https://via.placeholder.com/300x450?text=Sem+Imagem';
-            const tipoCard = item.title ? 'movie' : 'tv';
-            html += `
-                <div class="carousel-card" style="cursor:pointer;" onclick="window.location.href='detalhes-obra.html?id=${item.id}&tipo=${tipoCard}'">
-                    <img src="${poster}" alt="${titulo}">
-                    <div class="title">${titulo}</div>
-                    <div class="year">${ano}</div>
-                    <div class="stats">
-                        <span><i class="fas fa-eye"></i> ${item.popularity ? Math.round(item.popularity*1000) : '-'}</span>
-                        <span><i class="fas fa-heart"></i> ${item.vote_count || '-'}</span>
-                    </div>
-                </div>
-            `;
-        });
-    } else {
-        html = '<div style="color:#e50914;">Nenhum resultado encontrado.</div>';
-    }
-    document.getElementById('carousel-populares').innerHTML = html;
-};
-    </script>
-    <script>
-// Script padrão para área do usuário
-const usuario = JSON.parse(localStorage.getItem('usuario'));
-const areaUsuario = document.getElementById('area-usuario');
-if (usuario) {
-    areaUsuario.innerHTML = `
-        <a href="perfil.html" style="color:#fff;margin-right:12px;text-decoration:none;font-weight:500;">Olá, ${usuario.nome}</a>
-        <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
-    `;
-    document.getElementById('btn-logout').onclick = function() {
+    function logout() {
         localStorage.removeItem('usuario');
-        window.location.href = 'login.html';
-    };
-} else {
-    areaUsuario.innerHTML = `
-        <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
-    `;
-}
-</script>
-<script>
-let paginaAtual = 1;
-let tipoAtual = 'movie';
-let generoAtual = '';
-let totalPaginas = 1;
-
-async function carregarConteudo(pagina = 1, resetar = true) {
-    if (resetar) {
-        document.getElementById('resultados').innerHTML = '<div class="loading">Carregando...</div>';
+        window.location.href = 'index.html';
     }
-    
-    try {
-        let url = `https://api.themoviedb.org/3/discover/${tipoAtual}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=${pagina}&sort_by=popularity.desc`;
+
+    // Carregar conteúdo
+    async function carregarConteudo(filter = 'popular', type = 'movie', page = 1, query = '') {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('movies-grid').innerHTML = '';
         
-        if (generoAtual) {
-            url += `&with_genres=${generoAtual}`;
+        try {
+            let url;
+            
+            if (query) {
+                url = `https://api.themoviedb.org/3/search/multi?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(query)}&page=${page}`;
+            } else if (filter === 'all') {
+                url = `https://api.themoviedb.org/3/trending/all/week?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=${page}`;
+            } else if (type === 'movie') {
+                if (filter === 'upcoming') {
+                    url = `https://api.themoviedb.org/3/movie/upcoming?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=${page}`;
+                } else {
+                    url = `https://api.themoviedb.org/3/movie/${filter}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=${page}`;
+                }
+            } else {
+                url = `https://api.themoviedb.org/3/tv/${filter}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&page=${page}`;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            renderizarFilmes(data.results || []);
+            atualizarPaginacao(data.page, data.total_pages);
+            
+        } catch (error) {
+            console.error('Erro ao carregar conteúdo:', error);
+            document.getElementById('movies-grid').innerHTML = '<div class="error">Erro ao carregar conteúdo</div>';
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+
+    function renderizarFilmes(filmes) {
+        const grid = document.getElementById('movies-grid');
+        
+        if (!filmes || filmes.length === 0) {
+            grid.innerHTML = '<div class="error">Nenhum resultado encontrado</div>';
+            return;
         }
         
-        const response = await fetch(url);
-        const data = await response.json();
+        const html = filmes.map(item => {
+            const titulo = item.title || item.name;
+            const ano = (item.release_date || item.first_air_date || '').slice(0, 4);
+            const poster = item.poster_path 
+                ? `https://image.tmdb.org/t/p/w300${item.poster_path}` 
+                : 'https://via.placeholder.com/300x450?text=Sem+Poster';
+            const tipo = item.title ? 'movie' : 'tv';
+            const nota = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+            
+            return `
+                <div class="movie-card" onclick="irParaDetalhes(${item.id}, '${tipo}')">
+                    <img src="${poster}" alt="${titulo}" loading="lazy">
+                    <div class="movie-info">
+                        <h3>${titulo}</h3>
+                        <p>${ano}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                            <span style="color: #e50914;">⭐ ${nota}</span>
+                            <span style="color: #ccc; font-size: 12px;">${tipo === 'movie' ? 'Filme' : 'Série'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
         
-        totalPaginas = data.total_pages;
-        paginaAtual = pagina;
-        
-        if (resetar) {
-            exibirResultados(data.results);
-        } else {
-            adicionarResultados(data.results);
-        }
-        
-        atualizarPaginacao();
-    } catch (error) {
-        console.error('Erro ao carregar conteúdo:', error);
-        document.getElementById('resultados').innerHTML = '<div class="erro">Erro ao carregar conteúdo</div>';
+        grid.innerHTML = html;
     }
-}
 
-async function buscarConteudo() {
-    const termo = document.getElementById('busca').value.trim();
-    if (!termo) {
-        carregarConteudo(1, true);
-        return;
+    function atualizarPaginacao(page, totalPages) {
+        currentPage = page;
+        document.getElementById('page-info').textContent = `Página ${page} de ${totalPages}`;
+        document.getElementById('btn-anterior').disabled = page <= 1;
+        document.getElementById('btn-proximo').disabled = page >= totalPages;
     }
-    
-    document.getElementById('resultados').innerHTML = '<div class="loading">Buscando...</div>';
-    
-    try {
-        const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(termo)}&page=1`);
-        const data = await response.json();
-        
-        // Filtrar apenas filmes e séries
-        const resultados = data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
-        
-        exibirResultados(resultados);
-        document.getElementById('paginacao').style.display = 'none';
-    } catch (error) {
-        console.error('Erro na busca:', error);
-        document.getElementById('resultados').innerHTML = '<div class="erro">Erro ao buscar</div>';
-    }
-}
 
-async function carregarGeneros() {
-    try {
-        const response = await fetch(`https://api.themoviedb.org/3/genre/${tipoAtual}/list?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-        const data = await response.json();
-        
-        const select = document.getElementById('genero');
-        select.innerHTML = '<option value="">Todos os gêneros</option>';
-        
-        data.genres.forEach(genero => {
-            select.innerHTML += `<option value="${genero.id}">${genero.name}</option>`;
+    function irParaDetalhes(id, tipo) {
+        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        inicializarAreaUsuario();
+        carregarConteudo();
+
+        // Filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                currentPage = 1;
+                
+                if (filter === 'all') {
+                    currentFilter = 'all';
+                    currentType = 'all';
+                } else if (filter === 'movie' || filter === 'tv') {
+                    currentType = filter;
+                    currentFilter = 'popular';
+                } else {
+                    currentFilter = filter;
+                    if (currentType === 'all') currentType = 'movie';
+                }
+                
+                carregarConteudo(currentFilter, currentType, currentPage);
+            });
         });
-    } catch (error) {
-        console.error('Erro ao carregar gêneros:', error);
-    }
-}
 
-function exibirResultados(resultados) {
-    const container = document.getElementById('resultados');
-    
-    if (resultados.length === 0) {
-        container.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado</div>';
-        return;
-    }
-    
-    let html = '';
-    resultados.forEach(item => {
-        const tipo = item.media_type || tipoAtual;
-        const titulo = item.title || item.name;
-        const data = item.release_date || item.first_air_date;
-        const ano = data ? data.slice(0, 4) : '';
-        const poster = item.poster_path 
-            ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-            : 'https://via.placeholder.com/300x450?text=Sem+Poster';
-        
-        html += `
-            <div class="item-resultado" onclick="irParaDetalhes(${item.id}, '${tipo}')">
-                <img src="${poster}" alt="${titulo}">
-                <div class="info-item">
-                    <h3>${titulo}</h3>
-                    <p>${ano}</p>
-                    <p class="tipo">${tipo === 'movie' ? 'Filme' : 'Série'}</p>
-                </div>
-            </div>
-        `;
+        // Pesquisa
+        document.getElementById('search-input').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length >= 3) {
+                searchTimeout = setTimeout(() => {
+                    currentPage = 1;
+                    carregarConteudo('search', 'all', currentPage, query);
+                }, 500);
+            } else if (query.length === 0) {
+                carregarConteudo(currentFilter, currentType, currentPage);
+            }
+        });
+
+        // Paginação
+        document.getElementById('btn-anterior').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                const query = document.getElementById('search-input').value.trim();
+                carregarConteudo(currentFilter, currentType, currentPage, query);
+            }
+        });
+
+        document.getElementById('btn-proximo').addEventListener('click', function() {
+            currentPage++;
+            const query = document.getElementById('search-input').value.trim();
+            carregarConteudo(currentFilter, currentType, currentPage, query);
+        });
     });
-    
-    container.innerHTML = html;
-}
 
-function adicionarResultados(resultados) {
-    const container = document.getElementById('resultados');
-    let html = '';
-    
-    resultados.forEach(item => {
-        const tipo = item.media_type || tipoAtual;
-        const titulo = item.title || item.name;
-        const data = item.release_date || item.first_air_date;
-        const ano = data ? data.slice(0, 4) : '';
-        const poster = item.poster_path 
-            ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-            : 'https://via.placeholder.com/300x450?text=Sem+Poster';
-        
-        html += `
-            <div class="item-resultado" onclick="irParaDetalhes(${item.id}, '${tipo}')">
-                <img src="${poster}" alt="${titulo}">
-                <div class="info-item">
-                    <h3>${titulo}</h3>
-                    <p>${ano}</p>
-                    <p class="tipo">${tipo === 'movie' ? 'Filme' : 'Série'}</p>
-                </div>
-            </div>
-        `;
+    // Efeito scroll navbar
+    window.addEventListener('scroll', function() {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 100) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
     });
-    
-    container.innerHTML += html;
-}
-
-function alterarTipo(novoTipo) {
-    tipoAtual = novoTipo;
-    generoAtual = '';
-    document.getElementById('genero').value = '';
-    
-    // Atualizar botões
-    document.querySelectorAll('.filtro-tipo button').forEach(btn => {
-        btn.classList.remove('ativo');
-    });
-    document.querySelector(`[onclick="alterarTipo('${novoTipo}')"]`).classList.add('ativo');
-    
-    carregarGeneros();
-    carregarConteudo(1, true);
-}
-
-function filtrarPorGenero() {
-    generoAtual = document.getElementById('genero').value;
-    carregarConteudo(1, true);
-}
-
-function irParaDetalhes(id, tipo) {
-    window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
-}
-
-function atualizarPaginacao() {
-    const container = document.getElementById('paginacao');
-    container.style.display = 'flex';
-    
-    let html = '';
-    
-    // Botão anterior
-    if (paginaAtual > 1) {
-        html += `<button onclick="carregarConteudo(${paginaAtual - 1}, true)">Anterior</button>`;
-    }
-    
-    // Páginas
-    const inicio = Math.max(1, paginaAtual - 2);
-    const fim = Math.min(totalPaginas, paginaAtual + 2);
-    
-    for (let i = inicio; i <= fim; i++) {
-        html += `<button onclick="carregarConteudo(${i}, true)" ${i === paginaAtual ? 'class="ativo"' : ''}>${i}</button>`;
-    }
-    
-    // Botão próximo
-    if (paginaAtual < totalPaginas) {
-        html += `<button onclick="carregarConteudo(${paginaAtual + 1}, true)">Próximo</button>`;
-    }
-    
-    container.innerHTML = html;
-}
-
-// Inicializar página
-window.onload = function() {
-    carregarGeneros();
-    carregarConteudo();
-};
     </script>
 </body>
 </html>

@@ -10,295 +10,657 @@
 <body>
     <nav>
         <a href="index.html" class="logo">OpinaFlix</a>
-        <div style="flex:1;display:flex;justify-content:center;">
-            <ul>
-                <li><a href="filmes-series.html">Filmes e Séries</a></li>
-                <li><a href="colecoes.html">Coleções</a></li>
-                <li><a href="review-galera.html">Review da Galera</a></li>
-            </ul>
-        </div>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
+        </ul>
         <div id="area-usuario"></div>
     </nav>
 
-    <div class="perfil-container">
-        <div class="perfil-header">
-            <img id="foto-perfil" class="foto-perfil" src="https://via.placeholder.com/120x120?text=User" alt="Foto do perfil" onclick="alterarFoto()">
-            <h2 id="nome-usuario" class="nome-usuario">Carregando...</h2>
-            <div class="estatisticas">
-                <div class="stat">
-                    <div id="total-seguidores" class="stat-numero">0</div>
-                    <div class="stat-label">Seguidores</div>
+    <div class="page-container">
+        <div class="container">
+            <!-- Header do Perfil -->
+            <div class="profile-header">
+                <div class="profile-avatar" id="avatar-usuario">
+                    ?
                 </div>
-                <div class="stat">
-                    <div id="total-reviews" class="stat-numero">0</div>
-                    <div class="stat-label">Reviews</div>
-                </div>
-                <div class="stat">
-                    <div id="total-colecoes" class="stat-numero">0</div>
-                    <div class="stat-label">Coleções</div>
+                <div class="profile-info">
+                    <h1 id="nome-usuario">Carregando...</h1>
+                    <p id="email-usuario" style="color:#666; margin-bottom:15px;"></p>
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <div class="stat-number" id="total-reviews">0</div>
+                            <div>Reviews</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="total-colecoes">0</div>
+                            <div>Coleções</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="media-notas">0.0</div>
+                            <div>Nota Média</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="membro-desde">-</div>
+                            <div>Membro desde</div>
+                        </div>
+                    </div>
+                    <div id="acoes-perfil" style="margin-top:20px; display:none;">
+                        <button onclick="editarPerfil()" class="btn btn-primary">Editar Perfil</button>
+                        <button onclick="alterarSenha()" class="btn btn-secondary">Alterar Senha</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="secao">
-            <h3>Visto Recentemente</h3>
-            <div id="reviews-recentes" class="filme-grid">
-                <!-- Reviews serão carregados aqui -->
+            <!-- Tabs de Navegação -->
+            <div class="profile-tabs">
+                <div class="tab active" data-tab="reviews">Reviews</div>
+                <div class="tab" data-tab="colecoes">Coleções</div>
+                <div class="tab" data-tab="estatisticas">Estatísticas</div>
             </div>
-        </div>
 
-        <div class="secao">
-            <h3>Minhas Coleções</h3>
-            <div id="minhas-colecoes" class="colecoes-grid">
-                <!-- Coleções serão carregadas aqui -->
+            <!-- Conteúdo das Tabs -->
+            <div id="tab-content">
+                <!-- Tab Reviews -->
+                <div id="content-reviews" class="tab-content active">
+                    <div id="reviews-container"></div>
+                </div>
+
+                <!-- Tab Coleções -->
+                <div id="content-colecoes" class="tab-content" style="display:none;">
+                    <div id="colecoes-container" class="colecoes-grid"></div>
+                </div>
+
+                <!-- Tab Estatísticas -->
+                <div id="content-estatisticas" class="tab-content" style="display:none;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
+                        <!-- Gráfico de Notas -->
+                        <div style="background:#222; padding:25px; border-radius:8px;">
+                            <h3 style="color:#e50914; margin-bottom:20px;">Distribuição de Notas</h3>
+                            <div id="grafico-notas"></div>
+                        </div>
+
+                        <!-- Filmes vs Séries -->
+                        <div style="background:#222; padding:25px; border-radius:8px;">
+                            <h3 style="color:#e50914; margin-bottom:20px;">Filmes vs Séries</h3>
+                            <div id="filmes-vs-series"></div>
+                        </div>
+
+                        <!-- Atividade Recente -->
+                        <div style="background:#222; padding:25px; border-radius:8px;">
+                            <h3 style="color:#e50914; margin-bottom:20px;">Atividade nos Últimos 30 Dias</h3>
+                            <div id="atividade-recente"></div>
+                        </div>
+
+                        <!-- Top Gêneros -->
+                        <div style="background:#222; padding:25px; border-radius:8px;">
+                            <h3 style="color:#e50914; margin-bottom:20px;">Gêneros Favoritos</h3>
+                            <div id="top-generos"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Editar Perfil -->
+            <div id="modal-editar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:40px; border-radius:8px; width:90%; max-width:500px;">
+                    <h3 style="margin-bottom:25px; color:#e50914;">Editar Perfil</h3>
+                    <div class="form-group">
+                        <input type="text" id="edit-nome" placeholder="Nome completo" 
+                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="edit-email" placeholder="E-mail" 
+                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:20px;">
+                    </div>
+                    <div style="text-align:right;">
+                        <button onclick="fecharModalEditar()" class="btn btn-secondary" style="margin-right:10px;">Cancelar</button>
+                        <button onclick="salvarPerfilEditado()" class="btn btn-primary">Salvar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Alterar Senha -->
+            <div id="modal-senha" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:40px; border-radius:8px; width:90%; max-width:500px;">
+                    <h3 style="margin-bottom:25px; color:#e50914;">Alterar Senha</h3>
+                    <div class="form-group">
+                        <input type="password" id="senha-atual" placeholder="Senha atual" 
+                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="nova-senha" placeholder="Nova senha" 
+                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:15px;">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="confirmar-nova-senha" placeholder="Confirmar nova senha" 
+                               style="width:100%; padding:15px; border:none; border-radius:4px; background:#333; color:white; margin-bottom:20px;">
+                    </div>
+                    <div style="text-align:right;">
+                        <button onclick="fecharModalSenha()" class="btn btn-secondary" style="margin-right:10px;">Cancelar</button>
+                        <button onclick="alterarSenhaUsuario()" class="btn btn-primary">Alterar</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- No HTML, melhore o input: -->
-    <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="uploadFoto()">
+    <footer>
+        <div>
+            <a href="https://facebook.com" target="_blank">📘</a>
+            <a href="https://instagram.com" target="_blank">📷</a>
+            <a href="https://youtube.com" target="_blank">📺</a>
+        </div>
+        <div style="margin-top: 20px; font-size: 14px;">
+            &copy; 2025 OpinaFlix. Todos os direitos reservados.
+        </div>
+    </footer>
 
     <script>
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuario) window.location.href = 'login.html';
+    let perfilAtual = null;
+    let usuarioLogado = null;
+    let isOwnProfile = false;
 
-        // Pega o ID do usuário da URL ou usa o usuário logado
-        const params = new URLSearchParams(window.location.search);
-        const perfilId = params.get('id') || usuario.id;
-        const isOwnProfile = perfilId == usuario.id;
-
-        let isFollowing = false;
-
-        // Carrega dados do perfil
-        async function carregarPerfil() {
-            const resp = await fetch(`${window.CONFIG.API_URL}/api/perfil/${perfilId}`);
-            const perfil = await resp.json();
-            
-            document.getElementById('nome-usuario').textContent = perfil.nome;
-            document.getElementById('total-reviews').textContent = perfil.total_reviews;
-            document.getElementById('total-colecoes').textContent = perfil.total_colecoes;
-            document.getElementById('total-seguidores').textContent = perfil.total_seguidores;
-            
-            if (perfil.foto_perfil) {
-                document.getElementById('foto-perfil').src = perfil.foto_perfil;
-            }
-            
-            // Só permite alterar foto se for o próprio perfil
-            if (!isOwnProfile) {
-                document.getElementById('foto-perfil').style.cursor = 'default';
-                document.getElementById('foto-perfil').onclick = null;
-                
-                // Adicionar botão seguir se não for o próprio perfil
-                await adicionarBotaoSeguir();
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
+        inicializarAreaUsuario();
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        
+        if (userId) {
+            carregarPerfil(userId);
+        } else if (usuarioLogado) {
+            carregarPerfil(usuarioLogado.id);
+        } else {
+            window.location.href = 'login.html';
         }
 
-        // Adicionar botão de seguir
-        async function adicionarBotaoSeguir() {
-            // Verificar se já está seguindo
-            const resp = await fetch(`${window.CONFIG.API_URL}/api/perfil/${perfilId}/seguindo/${usuario.id}`);
-            const data = await resp.json();
-            isFollowing = data.seguindo;
-            
-            // Criar botão
-            const botaoContainer = document.querySelector('.estatisticas');
-            const botaoSeguir = document.createElement('button');
-            botaoSeguir.id = 'btn-seguir';
-            botaoSeguir.style.cssText = `
-                background: ${isFollowing ? '#6c757d' : '#e50914'};
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: bold;
-                margin-top: 15px;
+        // Event listeners para tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                switchTab(this.dataset.tab);
+            });
+        });
+    });
+
+    function inicializarAreaUsuario() {
+        const areaUsuario = document.getElementById('area-usuario');
+        
+        if (usuarioLogado) {
+            areaUsuario.innerHTML = `
+                <a href="perfil.html?id=${usuarioLogado.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioLogado.nome}</a>
+                <button onclick="logout()" class="btn btn-primary">Sair</button>
             `;
-            botaoSeguir.textContent = isFollowing ? 'Seguindo' : 'Seguir';
-            botaoSeguir.onclick = toggleSeguir;
-            
-            // Adicionar após as estatísticas
-            botaoContainer.parentNode.insertBefore(botaoSeguir, botaoContainer.nextSibling);
+        } else {
+            areaUsuario.innerHTML = `
+                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
+                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
+            `;
         }
+    }
 
-        // Toggle seguir/deixar de seguir
-        async function toggleSeguir() {
-            const botao = document.getElementById('btn-seguir');
-            
-            try {
-                if (isFollowing) {
-                    // Deixar de seguir
-                    await fetch(`${window.CONFIG.API_URL}/api/perfil/${perfilId}/seguir`, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ seguidor_id: usuario.id })
-                    });
-                    
-                    isFollowing = false;
-                    botao.textContent = 'Seguir';
-                    botao.style.background = '#e50914';
-                } else {
-                    // Seguir
-                    await fetch(`${window.CONFIG.API_URL}/api/perfil/${perfilId}/seguir`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ seguidor_id: usuario.id })
-                    });
-                    
-                    isFollowing = true;
-                    botao.textContent = 'Seguindo';
-                    botao.style.background = '#6c757d';
-                }
-                
-                // Atualizar contagem de seguidores
-                await carregarPerfil();
-            } catch (error) {
-                console.error('Erro ao seguir/deixar de seguir:', error);
-                alert('Erro ao atualizar seguimento');
-            }
-        }
+    function logout() {
+        localStorage.removeItem('usuario');
+        window.location.href = 'index.html';
+    }
 
-        // Carrega reviews recentes
-        async function carregarReviews() {
-            const resp = await fetch(`${window.CONFIG.API_URL}/api/perfil/${perfilId}/reviews`);
-            const reviews = await resp.json();
-            let html = '';
+    async function carregarPerfil(userId) {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${userId}`);
+            const result = await response.json();
             
-            if (reviews.length === 0) {
-                html = '<p style="color:#aaa;text-align:center;grid-column:1/-1;">Nenhum review feito ainda.</p>';
-            } else {
-                for (const review of reviews.slice(0, 6)) {
-                    // Busca dados da obra na TMDB
-                    try {
-                        const obraResp = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
-                        const obra = await obraResp.json();
-                        const poster = obra.poster_path ? `https://image.tmdb.org/t/p/w200${obra.poster_path}` : 'https://via.placeholder.com/120x180?text=Sem+Poster';
-                        const titulo = obra.title || obra.name;
-                        const ano = (obra.release_date || obra.first_air_date || '').slice(0,4);
-                        
-                        html += `
-                            <div class="filme-item" onclick="irParaReview(${review.obra_id}, '${review.tipo}')">
-                                <img class="filme-poster" src="${poster}" alt="${titulo}">
-                                <div class="filme-nota">${review.nota}/10</div>
-                                <div class="filme-titulo">${titulo}</div>
-                                <div class="filme-ano">${ano}</div>
-                            </div>
-                        `;
-                    } catch (error) {
-                        console.error('Erro ao buscar dados da obra:', error);
-                        html += `
-                            <div class="filme-item">
-                                <div class="filme-poster" style="background:#333;display:flex;align-items:center;justify-content:center;color:#666;">Erro</div>
-                                <div class="filme-nota">${review.nota}/10</div>
-                            </div>
-                        `;
-                    }
-                }
+            if (!result.success) {
+                throw new Error(result.message || 'Usuário não encontrado');
             }
             
-            document.getElementById('reviews-recentes').innerHTML = html;
-        }
-
-        // Função para ir para a página de review da galera
-        function irParaReview(obraId, tipo) {
-            window.location.href = `review-galera.html?obra_id=${obraId}&tipo=${tipo}`;
-        }
-
-        // Carrega coleções
-        async function carregarColecoes() {
-            const resp = await fetch(`${window.CONFIG.API_URL}/api/perfil/${perfilId}/colecoes`);
-            const colecoes = await resp.json();
-            let html = '';
+            perfilAtual = result.data;
+            isOwnProfile = usuarioLogado && usuarioLogado.id == userId;
             
-            for (const colecao of colecoes) {
-                html += `
-                    <div class="colecao-card">
-                        <div class="colecao-titulo">${colecao.titulo || colecao.nome}</div>
-                        <div class="colecao-info">${colecao.descricao || 'Sem descrição'}</div>
-                        <a href="colecao-detalhe.html?id=${colecao.id}" style="color:#e50914;text-decoration:none;">Ver coleção →</a>
+            // Atualizar informações do perfil
+            document.getElementById('nome-usuario').textContent = perfilAtual.nome;
+            document.getElementById('email-usuario').textContent = perfilAtual.email;
+            document.getElementById('avatar-usuario').textContent = perfilAtual.nome.charAt(0).toUpperCase();
+            
+            // Estatísticas
+            document.getElementById('total-reviews').textContent = perfilAtual.total_reviews || 0;
+            document.getElementById('total-colecoes').textContent = perfilAtual.total_colecoes || 0;
+            document.getElementById('media-notas').textContent = perfilAtual.media_notas ? perfilAtual.media_notas.toFixed(1) : '0.0';
+            document.getElementById('membro-desde').textContent = new Date(perfilAtual.data_cadastro).getFullYear();
+            
+            // Mostrar ações se for próprio perfil
+            if (isOwnProfile) {
+                document.getElementById('acoes-perfil').style.display = 'block';
+            }
+            
+            // Atualizar título
+            document.title = `${perfilAtual.nome} - OpinaFlix`;
+            
+            // Carregar conteúdo da tab ativa
+            carregarReviews();
+            
+        } catch (error) {
+            console.error('Erro ao carregar perfil:', error);
+            alert('Erro ao carregar perfil: ' + error.message);
+            window.location.href = 'index.html';
+        }
+    }
+
+    function switchTab(tabName) {
+        // Atualizar tabs
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        
+        // Mostrar/ocultar conteúdo
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+            content.classList.remove('active');
+        });
+        
+        const activeContent = document.getElementById(`content-${tabName}`);
+        activeContent.style.display = 'block';
+        activeContent.classList.add('active');
+        
+        // Carregar conteúdo específico da tab
+        switch (tabName) {
+            case 'reviews':
+                carregarReviews();
+                break;
+            case 'colecoes':
+                carregarColecoes();
+                break;
+            case 'estatisticas':
+                carregarEstatisticas();
+                break;
+        }
+    }
+
+    async function carregarReviews() {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/usuario/${perfilAtual.id}`);
+            const reviews = await response.json();
+            
+            const container = document.getElementById('reviews-container');
+            
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#666;">
+                        <h3>${isOwnProfile ? 'Você ainda não fez nenhuma review' : 'Este usuário ainda não fez reviews'}</h3>
+                        ${isOwnProfile ? '<p>Comece explorando filmes e séries!</p><div style="margin-top:20px;"><a href="filmes-series.html" class="btn btn-primary">Explorar Conteúdo</a></div>' : ''}
                     </div>
                 `;
-            }
-            
-            document.getElementById('minhas-colecoes').innerHTML = html || '<p>Nenhuma coleção criada.</p>';
-        }
-
-        // Alterar foto de perfil
-        function alterarFoto() {
-            if (isOwnProfile) {
-                document.getElementById('input-foto').click();
-            }
-        }
-
-        // Upload de foto
-        function uploadFoto() {
-            const file = document.getElementById('input-foto').files[0];
-            if (!file) return;
-            
-            // Verificar se é imagem
-            if (!file.type.startsWith('image/')) {
-                alert('Por favor, selecione apenas arquivos de imagem!');
                 return;
             }
             
-            // Verificar tamanho (5MB máximo)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('A imagem deve ter no máximo 5MB!');
-                return;
-            }
-            
-            // Criar FormData para envio
-            const formData = new FormData();
-            formData.append('foto', file);
-            
-            // Mostrar loading
-            const fotoElement = document.getElementById('foto-perfil');
-            const originalSrc = fotoElement.src;
-            fotoElement.style.opacity = '0.5';
-            
-            // Enviar arquivo
-            fetch(`${window.CONFIG.API_URL}/api/perfil/${usuario.id}/foto`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Atualizar foto na página
-                    fotoElement.src = data.foto_url;
-                    fotoElement.style.opacity = '1';
-                    
-                    // Atualizar localStorage se necessário
-                    const usuarioAtualizado = JSON.parse(localStorage.getItem('usuario'));
-                    usuarioAtualizado.foto_perfil = data.foto_url;
-                    localStorage.setItem('usuario', JSON.stringify(usuarioAtualizado));
-                    
-                    alert('Foto atualizada com sucesso!');
-                } else {
-                    fotoElement.src = originalSrc;
-                    fotoElement.style.opacity = '1';
-                    alert('Erro ao atualizar foto: ' + data.message);
+            // Carregar detalhes das obras
+            const reviewsComDetalhes = await Promise.all(reviews.map(async (review) => {
+                try {
+                    const tmdbResponse = await fetch(`https://api.themoviedb.org/3/${review.tipo}/${review.obra_id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR`);
+                    const obraDetalhes = await tmdbResponse.json();
+                    return { ...review, obraDetalhes };
+                } catch (error) {
+                    return { ...review, obraDetalhes: null };
                 }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                fotoElement.src = originalSrc;
-                fotoElement.style.opacity = '1';
-                alert('Erro ao enviar foto. Tente novamente.');
-            });
+            }));
+            
+            const html = reviewsComDetalhes.map(review => {
+                const obra = review.obraDetalhes;
+                const titulo = obra ? (obra.title || obra.name) : 'Título não disponível';
+                const poster = obra && obra.poster_path 
+                    ? `https://image.tmdb.org/t/p/w92${obra.poster_path}`
+                    : 'https://via.placeholder.com/92x138?text=Sem+Poster';
+                
+                return `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-user">
+                                <strong>${perfilAtual.nome}</strong>
+                                <span style="color:#666; margin-left:10px;">${new Date(review.data).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div class="review-rating">⭐ ${review.nota}/10</div>
+                        </div>
+                        
+                        ${review.comentario ? `<div class="review-content">${review.comentario}</div>` : ''}
+                        
+                        <div class="review-movie">
+                            <img src="${poster}" alt="${titulo}" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">
+                            <div style="flex:1;">
+                                <h4 style="cursor:pointer;" onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')">${titulo}</h4>
+                                <p style="color:#666;">${review.tipo === 'movie' ? 'Filme' : 'Série'}</p>
+                            </div>
+                            <div>
+                                <button onclick="irParaDetalhes(${review.obra_id}, '${review.tipo}')" class="btn btn-primary btn-small">Ver Detalhes</button>
+                                ${isOwnProfile ? `<button onclick="excluirReview(${review.id})" class="btn btn-small" style="background:#dc3545; margin-left:8px;">Excluir</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Erro ao carregar reviews:', error);
+            document.getElementById('reviews-container').innerHTML = '<div class="error">Erro ao carregar reviews</div>';
         }
+    }
 
-        // Área do usuário na página de perfil
-        const areaUsuario = document.getElementById('area-usuario');
-        areaUsuario.innerHTML = `
-            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
-            <button onclick="localStorage.removeItem('usuario'); window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
+    async function carregarColecoes() {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${perfilAtual.id}`);
+            const colecoes = await response.json();
+            
+            const container = document.getElementById('colecoes-container');
+            
+            if (!colecoes || colecoes.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#666;">
+                        <h3>${isOwnProfile ? 'Você ainda não criou coleções' : 'Este usuário ainda não criou coleções'}</h3>
+                        ${isOwnProfile ? '<div style="margin-top:20px;"><a href="colecoes.html" class="btn btn-primary">Criar Coleção</a></div>' : ''}
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = colecoes.map(colecao => `
+                <div class="colecao-card">
+                    <div class="colecao-header">
+                        <h3>${colecao.nome}</h3>
+                        <div style="color:#666; font-size:14px;">${colecao.total_itens || 0} itens</div>
+                    </div>
+                    <p style="color:#ccc; margin-bottom:15px;">${colecao.descricao || 'Sem descrição'}</p>
+                    <div style="text-align:center;">
+                        <button onclick="verColecao(${colecao.id})" class="btn btn-primary">Ver Coleção</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Erro ao carregar coleções:', error);
+            document.getElementById('colecoes-container').innerHTML = '<div class="error">Erro ao carregar coleções</div>';
+        }
+    }
+
+    async function carregarEstatisticas() {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${perfilAtual.id}/estatisticas`);
+            const stats = await response.json();
+            
+            if (stats.success) {
+                // Distribuição de notas
+                renderizarGraficoNotas(stats.data.distribuicao_notas || {});
+                
+                // Filmes vs Séries
+                renderizarFilmesVsSeries(stats.data.filmes_vs_series || {});
+                
+                // Atividade recente
+                renderizarAtividadeRecente(stats.data.atividade_recente || []);
+                
+                // Top gêneros
+                renderizarTopGeneros(stats.data.top_generos || []);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar estatísticas:', error);
+        }
+    }
+
+    function renderizarGraficoNotas(distribuicao) {
+        const container = document.getElementById('grafico-notas');
+        let html = '';
+        
+        for (let nota = 1; nota <= 10; nota++) {
+            const count = distribuicao[nota] || 0;
+            const maxCount = Math.max(...Object.values(distribuicao), 1);
+            const width = (count / maxCount) * 100;
+            
+            html += `
+                <div style="display:flex; align-items:center; margin-bottom:8px;">
+                    <span style="width:20px; color:#ccc;">${nota}</span>
+                    <div style="flex:1; background:#333; height:20px; margin:0 10px; border-radius:4px; overflow:hidden;">
+                        <div style="width:${width}%; height:100%; background:#e50914; transition:width 0.3s;"></div>
+                    </div>
+                    <span style="width:30px; color:#ccc; font-size:12px;">${count}</span>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html || '<p style="color:#666;">Sem dados disponíveis</p>';
+    }
+
+    function renderizarFilmesVsSeries(data) {
+        const container = document.getElementById('filmes-vs-series');
+        const filmes = data.filmes || 0;
+        const series = data.series || 0;
+        const total = filmes + series;
+        
+        if (total === 0) {
+            container.innerHTML = '<p style="color:#666;">Sem dados disponíveis</p>';
+            return;
+        }
+        
+        const percentFilmes = (filmes / total) * 100;
+        const percentSeries = (series / total) * 100;
+        
+        container.innerHTML = `
+            <div style="margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>Filmes</span>
+                    <span>${filmes} (${percentFilmes.toFixed(1)}%)</span>
+                </div>
+                <div style="background:#333; height:10px; border-radius:5px; overflow:hidden;">
+                    <div style="width:${percentFilmes}%; height:100%; background:#e50914;"></div>
+                </div>
+            </div>
+            <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>Séries</span>
+                    <span>${series} (${percentSeries.toFixed(1)}%)</span>
+                </div>
+                <div style="background:#333; height:10px; border-radius:5px; overflow:hidden;">
+                    <div style="width:${percentSeries}%; height:100%; background:#ff6b35;"></div>
+                </div>
+            </div>
         `;
+    }
 
-        // Inicialização
-        carregarPerfil();
-        carregarReviews();
-        carregarColecoes();
+    function renderizarAtividadeRecente(atividade) {
+        const container = document.getElementById('atividade-recente');
+        
+        if (atividade.length === 0) {
+            container.innerHTML = '<p style="color:#666;">Nenhuma atividade recente</p>';
+            return;
+        }
+        
+        const html = atividade.map(item => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:#333; border-radius:4px;">
+                <span>${item.acao}</span>
+                <span style="color:#ccc; font-size:12px;">${new Date(item.data).toLocaleDateString('pt-BR')}</span>
+            </div>
+        `).join('');
+        
+        container.innerHTML = html;
+    }
+
+    function renderizarTopGeneros(generos) {
+        const container = document.getElementById('top-generos');
+        
+        if (generos.length === 0) {
+            container.innerHTML = '<p style="color:#666;">Sem dados de gêneros</p>';
+            return;
+        }
+        
+        const html = generos.slice(0, 5).map((genero, index) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span>${index + 1}. ${genero.nome}</span>
+                <span style="color:#e50914; font-weight:bold;">${genero.count}</span>
+            </div>
+        `).join('');
+        
+        container.innerHTML = html;
+    }
+
+    // Funções de modal e edição
+    function editarPerfil() {
+        document.getElementById('edit-nome').value = perfilAtual.nome;
+        document.getElementById('edit-email').value = perfilAtual.email;
+        document.getElementById('modal-editar').style.display = 'block';
+    }
+
+    function fecharModalEditar() {
+        document.getElementById('modal-editar').style.display = 'none';
+    }
+
+    function alterarSenha() {
+        document.getElementById('modal-senha').style.display = 'block';
+    }
+
+    function fecharModalSenha() {
+        document.getElementById('modal-senha').style.display = 'none';
+        document.getElementById('senha-atual').value = '';
+        document.getElementById('nova-senha').value = '';
+        document.getElementById('confirmar-nova-senha').value = '';
+    }
+
+    async function salvarPerfilEditado() {
+        const nome = document.getElementById('edit-nome').value.trim();
+        const email = document.getElementById('edit-email').value.trim();
+        
+        if (!nome || !email) {
+            alert('Preencha todos os campos.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${perfilAtual.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                perfilAtual.nome = nome;
+                perfilAtual.email = email;
+                
+                // Atualizar localStorage se for próprio perfil
+                if (isOwnProfile) {
+                    const usuario = JSON.parse(localStorage.getItem('usuario'));
+                    usuario.nome = nome;
+                    usuario.email = email;
+                    localStorage.setItem('usuario', JSON.stringify(usuario));
+                }
+                
+                // Atualizar interface
+                document.getElementById('nome-usuario').textContent = nome;
+                document.getElementById('email-usuario').textContent = email;
+                document.getElementById('avatar-usuario').textContent = nome.charAt(0).toUpperCase();
+                
+                fecharModalEditar();
+                alert('Perfil atualizado com sucesso!');
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar perfil:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    async function alterarSenhaUsuario() {
+        const senhaAtual = document.getElementById('senha-atual').value;
+        const novaSenha = document.getElementById('nova-senha').value;
+        const confirmarSenha = document.getElementById('confirmar-nova-senha').value;
+        
+        if (!senhaAtual || !novaSenha || !confirmarSenha) {
+            alert('Preencha todos os campos.');
+            return;
+        }
+        
+        if (novaSenha !== confirmarSenha) {
+            alert('As senhas não coincidem.');
+            return;
+        }
+        
+        if (novaSenha.length < 6) {
+            alert('A nova senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/usuarios/${perfilAtual.id}/senha`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ senhaAtual, novaSenha })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                fecharModalSenha();
+                alert('Senha alterada com sucesso!');
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Erro ao alterar senha:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    function irParaDetalhes(id, tipo) {
+        window.location.href = `detalhes-obra.html?id=${id}&tipo=${tipo}`;
+    }
+
+    function verColecao(id) {
+        window.location.href = `colecao-detalhe.html?id=${id}`;
+    }
+
+    async function excluirReview(reviewId) {
+        if (!confirm('Excluir esta review?')) return;
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/${reviewId}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                carregarReviews();
+                // Atualizar contador
+                const totalAtual = parseInt(document.getElementById('total-reviews').textContent);
+                document.getElementById('total-reviews').textContent = Math.max(0, totalAtual - 1);
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Erro ao excluir review:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    // Fechar modais clicando fora
+    document.getElementById('modal-editar').addEventListener('click', function(e) {
+        if (e.target === this) fecharModalEditar();
+    });
+
+    document.getElementById('modal-senha').addEventListener('click', function(e) {
+        if (e.target === this) fecharModalSenha();
+    });
+
+    // Efeito scroll navbar
+    window.addEventListener('scroll', function() {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 100) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
     </script>
 </body>
 </html>

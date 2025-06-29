@@ -8,292 +8,386 @@
     <script src="config.js"></script>
 </head>
 <body>
-    <nav style="background:#181818;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;">
-        <a href="index.html" class="logo" style="color:#e50914;font-size:2em;font-weight:bold;text-decoration:none;">OpinaFlix</a>
-        <ul style="list-style:none;display:flex;gap:24px;margin:0;padding:0;">
-            <li><a href="filmes-series.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Filmes e Séries</a></li>
-            <li><a href="colecoes.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Coleções</a></li>
-            <li><a href="review-galera.html" style="color:#fff;text-decoration:none;font-size:1.1em;">Review da Galera</a></li>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
         <div id="area-usuario"></div>
     </nav>
-    <div class="container" id="detalhes-container">
-        <!-- Conteúdo dinâmico aqui -->
-    </div>
-    <div class="avaliacoes" id="avaliacoes-container">
-        <!-- Avaliações dos usuários -->
-    </div>
-    <div id="avaliar-obra" style="display:flex;flex-direction:column;align-items:center;margin:32px 0;">
-        <h3 style="color:#e50914;">Avalie esta obra</h3>
-        <form id="form-avaliacao" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
-            <div id="estrelas" style="font-size:2em;cursor:pointer;">
-                <!-- Estrelas serão geradas via JS -->
+
+    <!-- Hero Section -->
+    <div id="hero-section" class="hero-section">
+        <div class="hero-content">
+            <div class="poster-container">
+                <img id="poster" src="" alt="Poster">
             </div>
-            <textarea id="comentario" placeholder="Escreva sua opinião..." rows="3" style="width:320px;max-width:90vw;padding:8px;border-radius:6px;border:none;background:#222;color:#fff;" required></textarea>
-            <button type="submit" style="background:#e50914;color:#fff;padding:8px 24px;border:none;border-radius:4px;font-size:1em;">Enviar Avaliação</button>
-        </form>
-        <div id="msg-avaliacao" style="margin-top:8px;"></div>
-    </div>
-    <footer style="background:#111; color:#ccc; text-align:center; padding:32px 0; margin-top:48px;">
-        <div style="margin-bottom: 12px;">
-            <a href="https://facebook.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-facebook"></i>
-            </a>
-            <a href="https://instagram.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://youtube.com" target="_blank" style="margin:0 12px; color:#fff; font-size:1.7em;">
-                <i class="fab fa-youtube"></i>
-            </a>
+            <div class="info-container">
+                <h1 id="titulo"></h1>
+                <div class="info-meta">
+                    <span id="ano"></span>
+                    <span id="duracao"></span>
+                    <span id="generos"></span>
+                    <span id="nota">⭐ <span id="rating"></span></span>
+                </div>
+                <p id="sinopse" class="sinopse"></p>
+                <div class="action-buttons">
+                    <button id="btn-avaliar" class="btn btn-primary">Avaliar</button>
+                    <button id="btn-colecao" class="btn btn-secondary">+ Coleção</button>
+                    <button id="btn-trailer" class="btn btn-secondary" style="display:none;">🎬 Trailer</button>
+                </div>
+            </div>
         </div>
-        <div style="font-size:1em; color:#aaa;">
+    </div>
+
+    <div class="page-container">
+        <div class="container">
+            <!-- Seção de Avaliação -->
+            <div id="secao-avaliacao" style="display:none; background:#222; padding:30px; border-radius:8px; margin-bottom:40px;">
+                <h3 style="margin-bottom:20px; color:#e50914;">Avaliar esta obra</h3>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:10px;">Nota (1-10):</label>
+                    <input type="number" id="nota-input" min="1" max="10" step="0.1" 
+                           style="padding:10px; border-radius:4px; border:none; background:#333; color:white; width:100px;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:10px;">Comentário:</label>
+                    <textarea id="comentario-input" rows="4" 
+                              style="width:100%; padding:15px; border-radius:4px; border:none; background:#333; color:white; resize:vertical;"
+                              placeholder="Escreva sua opinião sobre esta obra..."></textarea>
+                </div>
+                <div>
+                    <button onclick="salvarAvaliacao()" class="btn btn-primary">Salvar Avaliação</button>
+                    <button onclick="cancelarAvaliacao()" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </div>
+
+            <!-- Seleção de Coleção -->
+            <div id="secao-colecao" style="display:none; background:#222; padding:30px; border-radius:8px; margin-bottom:40px;">
+                <h3 style="margin-bottom:20px; color:#e50914;">Adicionar à Coleção</h3>
+                <div id="lista-colecoes" style="margin-bottom:20px;"></div>
+                <div>
+                    <input type="text" id="nova-colecao" placeholder="Nome da nova coleção" 
+                           style="padding:10px; border-radius:4px; border:none; background:#333; color:white; margin-right:10px; width:250px;">
+                    <button onclick="criarNovaColecao()" class="btn btn-primary">Criar Nova</button>
+                </div>
+                <div style="margin-top:20px;">
+                    <button onclick="fecharSecaoColecao()" class="btn btn-secondary">Fechar</button>
+                </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:30px; margin-bottom:40px;">
+                <div style="background:#222; padding:25px; border-radius:8px;">
+                    <h3 style="color:#e50914; margin-bottom:15px;">Elenco Principal</h3>
+                    <div id="elenco"></div>
+                </div>
+                <div style="background:#222; padding:25px; border-radius:8px;">
+                    <h3 style="color:#e50914; margin-bottom:15px;">Informações</h3>
+                    <div id="detalhes-extras"></div>
+                </div>
+            </div>
+
+            <!-- Reviews dos Usuários -->
+            <div style="background:#222; padding:30px; border-radius:8px;">
+                <h3 style="color:#e50914; margin-bottom:25px;">Avaliações dos Usuários</h3>
+                <div id="reviews-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>
+            <a href="https://facebook.com" target="_blank">📘</a>
+            <a href="https://instagram.com" target="_blank">📷</a>
+            <a href="https://youtube.com" target="_blank">📺</a>
+        </div>
+        <div style="margin-top: 20px; font-size: 14px;">
             &copy; 2025 OpinaFlix. Todos os direitos reservados.
         </div>
     </footer>
-    <script>
-    // Cabeçalho do usuário
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    const areaUsuario = document.getElementById('area-usuario');
-    if (usuario) {
-        areaUsuario.innerHTML = `
-            <span style="color:#fff;margin-right:12px;">Olá, ${usuario.nome}</span>
-            <button id="btn-logout" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Sair</button>
-        `;
-        document.getElementById('btn-logout').onclick = function() {
-            localStorage.removeItem('usuario');
-            window.location.href = 'login.html';
-        };
-    } else {
-        areaUsuario.innerHTML = `
-            <button onclick="window.location.href='login.html'" style="background:#e50914;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Entrar na sua conta</button>
-        `;
-    }
-    </script>
-    <script>
-    let obraId, tipoObra, dadosObra;
 
-    window.onload = function() {
-        const params = new URLSearchParams(window.location.search);
-        obraId = params.get('id');
-        tipoObra = params.get('tipo');
+    <script>
+    let obraAtual = null;
+    let tipoAtual = null;
+    let usuarioAtual = null;
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        usuarioAtual = JSON.parse(localStorage.getItem('usuario'));
+        inicializarAreaUsuario();
         
-        if (!obraId || !tipoObra) {
-            alert('Parâmetros inválidos');
-            window.history.back();
-            return;
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        const tipo = urlParams.get('tipo');
+        
+        if (id && tipo) {
+            carregarDetalhes(id, tipo);
+        } else {
+            window.location.href = 'index.html';
         }
-        
-        carregarDetalhes();
-        carregarAvaliacoes();
-    };
+    });
 
-    async function carregarDetalhes() {
+    function inicializarAreaUsuario() {
+        const areaUsuario = document.getElementById('area-usuario');
+        
+        if (usuarioAtual) {
+            areaUsuario.innerHTML = `
+                <a href="perfil.html?id=${usuarioAtual.id}" style="color:#fff;margin-right:12px;text-decoration:none;">Olá, ${usuarioAtual.nome}</a>
+                <button onclick="logout()" class="btn btn-primary">Sair</button>
+            `;
+        } else {
+            areaUsuario.innerHTML = `
+                <a href="login.html" class="btn btn-primary" style="margin-right: 8px;">Entrar</a>
+                <a href="cadastro.html" class="btn btn-secondary">Cadastrar</a>
+            `;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('usuario');
+        window.location.href = 'index.html';
+    }
+
+    async function carregarDetalhes(id, tipo) {
         try {
-            const response = await fetch(`https://api.themoviedb.org/3/${tipoObra}/${obraId}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&append_to_response=credits,videos`);
-            dadosObra = await response.json();
+            const response = await fetch(`https://api.themoviedb.org/3/${tipo}/${id}?api_key=${window.CONFIG.TMDB_API_KEY}&language=pt-BR&append_to_response=credits,videos`);
+            const obra = await response.json();
             
-            exibirDetalhes();
+            obraAtual = obra;
+            tipoAtual = tipo;
+            
+            // Atualizar título da página
+            document.title = `${obra.title || obra.name} - OpinaFlix`;
+            
+            // Hero Section
+            const backdrop = obra.backdrop_path 
+                ? `https://image.tmdb.org/t/p/original${obra.backdrop_path}`
+                : 'https://via.placeholder.com/1920x1080?text=Sem+Imagem';
+            
+            document.getElementById('hero-section').style.backgroundImage = 
+                `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${backdrop})`;
+            
+            document.getElementById('poster').src = obra.poster_path 
+                ? `https://image.tmdb.org/t/p/w300${obra.poster_path}`
+                : 'https://via.placeholder.com/300x450?text=Sem+Poster';
+            
+            document.getElementById('titulo').textContent = obra.title || obra.name;
+            document.getElementById('ano').textContent = (obra.release_date || obra.first_air_date || '').slice(0, 4);
+            
+            if (tipo === 'movie') {
+                document.getElementById('duracao').textContent = obra.runtime ? `${obra.runtime} min` : '';
+            } else {
+                document.getElementById('duracao').textContent = obra.number_of_seasons ? `${obra.number_of_seasons} temporadas` : '';
+            }
+            
+            document.getElementById('generos').textContent = obra.genres ? obra.genres.map(g => g.name).join(', ') : '';
+            document.getElementById('rating').textContent = obra.vote_average ? obra.vote_average.toFixed(1) : 'N/A';
+            document.getElementById('sinopse').textContent = obra.overview || 'Sinopse não disponível.';
+            
+            // Trailer
+            if (obra.videos && obra.videos.results.length > 0) {
+                const trailer = obra.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                if (trailer) {
+                    document.getElementById('btn-trailer').style.display = 'inline-block';
+                    document.getElementById('btn-trailer').onclick = () => 
+                        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
+                }
+            }
+            
+            // Elenco
+            renderizarElenco(obra.credits?.cast || []);
+            
+            // Detalhes extras
+            renderizarDetalhesExtras(obra);
+            
+            // Reviews
+            carregarReviews(id, tipo);
+            
         } catch (error) {
             console.error('Erro ao carregar detalhes:', error);
-            alert('Erro ao carregar os detalhes da obra');
         }
     }
 
-    function exibirDetalhes() {
-        const titulo = dadosObra.title || dadosObra.name;
-        const sinopse = dadosObra.overview || 'Sinopse não disponível';
-        const dataLancamento = dadosObra.release_date || dadosObra.first_air_date;
-        const ano = dataLancamento ? dataLancamento.slice(0, 4) : 'N/A';
-        const generos = dadosObra.genres ? dadosObra.genres.map(g => g.name).join(', ') : 'N/A';
-        const duracao = dadosObra.runtime ? `${dadosObra.runtime} min` : 
-                       dadosObra.episode_run_time && dadosObra.episode_run_time[0] ? `${dadosObra.episode_run_time[0]} min/ep` : 'N/A';
-        const nota = dadosObra.vote_average ? dadosObra.vote_average.toFixed(1) : 'N/A';
-        
-        const backdrop = dadosObra.backdrop_path ? 
-            `https://image.tmdb.org/t/p/original${dadosObra.backdrop_path}` : 
-            'https://via.placeholder.com/1920x1080?text=Sem+Imagem';
-        
-        const poster = dadosObra.poster_path ? 
-            `https://image.tmdb.org/t/p/w500${dadosObra.poster_path}` : 
-            'https://via.placeholder.com/500x750?text=Sem+Poster';
-        
-        // Atualizar elementos da página
-        document.title = `${titulo} - OpinaFlix`;
-        document.getElementById('hero-section').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url(${backdrop})`;
-        document.getElementById('poster').src = poster;
-        document.getElementById('titulo').textContent = titulo;
-        document.getElementById('ano').textContent = ano;
-        document.getElementById('generos').textContent = generos;
-        document.getElementById('duracao').textContent = duracao;
-        document.getElementById('nota-tmdb').textContent = `${nota}/10`;
-        document.getElementById('sinopse').textContent = sinopse;
-        
-        // Elenco
-        if (dadosObra.credits && dadosObra.credits.cast) {
-            const elenco = dadosObra.credits.cast.slice(0, 6).map(ator => ator.name).join(', ');
-            document.getElementById('elenco').textContent = elenco || 'Não disponível';
-        }
-        
-        // Diretor (apenas para filmes)
-        if (tipoObra === 'movie' && dadosObra.credits && dadosObra.credits.crew) {
-            const diretor = dadosObra.credits.crew.find(pessoa => pessoa.job === 'Director');
-            document.getElementById('diretor').textContent = diretor ? diretor.name : 'Não disponível';
-        } else {
-            document.getElementById('diretor-label').style.display = 'none';
-            document.getElementById('diretor').style.display = 'none';
-        }
+    function renderizarElenco(elenco) {
+        const container = document.getElementById('elenco');
+        const html = elenco.slice(0, 5).map(ator => `
+            <div style="margin-bottom:10px;">
+                <strong style="color:#e50914;">${ator.name}</strong><br>
+                <span style="color:#ccc;">${ator.character}</span>
+            </div>
+        `).join('');
+        container.innerHTML = html || 'Informações do elenco não disponíveis.';
     }
 
-    async function carregarAvaliacoes() {
-        try {
-            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes?obra_id=${obraId}&tipo=${tipoObra}`);
-            const avaliacoes = await response.json();
-            
-            exibirAvaliacoes(avaliacoes);
-            calcularMediaNotas(avaliacoes);
-        } catch (error) {
-            console.error('Erro ao carregar avaliações:', error);
-        }
-    }
-
-    function exibirAvaliacoes(avaliacoes) {
-        const container = document.getElementById('avaliacoes-lista');
+    function renderizarDetalhesExtras(obra) {
+        const container = document.getElementById('detalhes-extras');
+        let html = `
+            <div style="margin-bottom:10px;"><strong>Nota TMDB:</strong> ${obra.vote_average?.toFixed(1) || 'N/A'}</div>
+            <div style="margin-bottom:10px;"><strong>Votos:</strong> ${obra.vote_count || 'N/A'}</div>
+        `;
         
-        if (avaliacoes.length === 0) {
-            container.innerHTML = '<p>Ainda não há avaliações para esta obra.</p>';
-            return;
-        }
-        
-        let html = '';
-        avaliacoes.forEach(avaliacao => {
-            const data = new Date(avaliacao.data).toLocaleDateString('pt-BR');
+        if (tipoAtual === 'movie') {
             html += `
-                <div class="avaliacao-item">
-                    <div class="avaliacao-header">
-                        <div class="usuario-info">
-                            <a href="perfil.html?id=${avaliacao.usuario_id}" style="color:#e50914;text-decoration:none;font-weight:bold;">
-                                ${avaliacao.usuarioNome || 'Usuário'}
-                            </a>
-                            <span class="data-avaliacao">${data}</span>
-                        </div>
-                        <div class="nota-avaliacao">${avaliacao.nota}/10</div>
-                    </div>
-                    <div class="comentario-avaliacao">${avaliacao.comentario}</div>
-                </div>
+                <div style="margin-bottom:10px;"><strong>Orçamento:</strong> ${obra.budget ? '$' + obra.budget.toLocaleString() : 'N/A'}</div>
+                <div style="margin-bottom:10px;"><strong>Receita:</strong> ${obra.revenue ? '$' + obra.revenue.toLocaleString() : 'N/A'}</div>
             `;
-        });
+        } else {
+            html += `
+                <div style="margin-bottom:10px;"><strong>Status:</strong> ${obra.status || 'N/A'}</div>
+                <div style="margin-bottom:10px;"><strong>Episódios:</strong> ${obra.number_of_episodes || 'N/A'}</div>
+            `;
+        }
         
         container.innerHTML = html;
     }
 
-    function calcularMediaNotas(avaliacoes) {
-        if (avaliacoes.length === 0) {
-            document.getElementById('media-notas').textContent = 'Sem avaliações';
-            return;
+    async function carregarReviews(id, tipo) {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes/${id}/${tipo}`);
+            const reviews = await response.json();
+            
+            const container = document.getElementById('reviews-container');
+            
+            if (reviews.length === 0) {
+                container.innerHTML = '<p style="color:#ccc;">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>';
+                return;
+            }
+            
+            const html = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-user">
+                            <a href="perfil.html?id=${review.usuario_id}">${review.nome_usuario}</a>
+                        </div>
+                        <div class="review-rating">⭐ ${review.nota}</div>
+                    </div>
+                    <div class="review-content">${review.comentario}</div>
+                    <div style="color:#666; font-size:14px; margin-top:10px;">
+                        ${new Date(review.data).toLocaleDateString('pt-BR')}
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Erro ao carregar reviews:', error);
+            document.getElementById('reviews-container').innerHTML = 
+                '<p style="color:#e50914;">Erro ao carregar avaliações.</p>';
         }
-        
-        const soma = avaliacoes.reduce((acc, av) => acc + av.nota, 0);
-        const media = (soma / avaliacoes.length).toFixed(1);
-        
-        document.getElementById('media-notas').textContent = `${media}/10 (${avaliacoes.length} avaliações)`;
     }
 
-    async function avaliarObra() {
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuario) {
-            alert('Você precisa estar logado para avaliar!');
+    // Event listeners para botões
+    document.getElementById('btn-avaliar').addEventListener('click', function() {
+        if (!usuarioAtual) {
+            alert('Você precisa estar logado para avaliar.');
             window.location.href = 'login.html';
             return;
         }
-        
-        const nota = prompt('Digite uma nota de 1 a 10:');
-        if (!nota || isNaN(nota) || nota < 1 || nota > 10) {
-            alert('Nota inválida! Digite um número de 1 a 10.');
+        document.getElementById('secao-avaliacao').style.display = 'block';
+    });
+
+    document.getElementById('btn-colecao').addEventListener('click', function() {
+        if (!usuarioAtual) {
+            alert('Você precisa estar logado para criar coleções.');
+            window.location.href = 'login.html';
             return;
         }
+        carregarColecoes();
+        document.getElementById('secao-colecao').style.display = 'block';
+    });
+
+    async function salvarAvaliacao() {
+        const nota = document.getElementById('nota-input').value;
+        const comentario = document.getElementById('comentario-input').value;
         
-        const comentario = prompt('Digite um comentário (opcional):') || '';
+        if (!nota || nota < 1 || nota > 10) {
+            alert('Por favor, insira uma nota entre 1 e 10.');
+            return;
+        }
         
         try {
             const response = await fetch(`${window.CONFIG.API_URL}/api/avaliacoes`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    usuario_id: usuario.id,
-                    obra_id: obraId,
-                    tipo: tipoObra,
-                    nota: parseInt(nota),
-                    comentario: comentario
+                    usuario_id: usuarioAtual.id,
+                    obra_id: obraAtual.id,
+                    tipo: tipoAtual,
+                    nota: parseFloat(nota),
+                    comentario: comentario || ''
                 })
             });
             
-            const data = await response.json();
+            const result = await response.json();
             
-            if (data.success) {
-                alert('Avaliação enviada com sucesso!');
-                carregarAvaliacoes(); // Recarregar avaliações
+            if (result.success) {
+                alert('Avaliação salva com sucesso!');
+                cancelarAvaliacao();
+                carregarReviews(obraAtual.id, tipoAtual);
             } else {
-                alert('Erro: ' + data.message);
+                alert('Erro: ' + result.message);
             }
         } catch (error) {
-            console.error('Erro ao enviar avaliação:', error);
+            console.error('Erro ao salvar avaliação:', error);
             alert('Erro de conexão. Tente novamente.');
         }
     }
 
-    async function adicionarAColecao() {
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuario) {
-            alert('Você precisa estar logado!');
-            window.location.href = 'login.html';
-            return;
-        }
-        
+    function cancelarAvaliacao() {
+        document.getElementById('secao-avaliacao').style.display = 'none';
+        document.getElementById('nota-input').value = '';
+        document.getElementById('comentario-input').value = '';
+    }
+
+    async function carregarColecoes() {
         try {
-            // Buscar coleções do usuário
-            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/usuario/${usuario.id}`);
+            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${usuarioAtual.id}`);
             const colecoes = await response.json();
             
+            const container = document.getElementById('lista-colecoes');
+            
             if (colecoes.length === 0) {
-                alert('Você não tem coleções. Crie uma coleção primeiro!');
-                window.location.href = 'colecoes.html';
+                container.innerHTML = '<p style="color:#ccc;">Você ainda não tem coleções.</p>';
                 return;
             }
             
-            // Criar seletor de coleções
-            let opcoes = colecoes.map(col => `${col.id}: ${col.nome}`).join('\n');
-            const escolha = prompt(`Escolha uma coleção:\n${opcoes}\n\nDigite o ID da coleção:`);
+            const html = colecoes.map(colecao => `
+                <div style="margin-bottom:10px;">
+                    <button onclick="adicionarAColecao(${colecao.id})" class="btn btn-secondary">
+                        ${colecao.nome}
+                    </button>
+                </div>
+            `).join('');
             
-            if (!escolha) return;
+            container.innerHTML = html;
             
-            const colecaoId = parseInt(escolha);
-            const colecaoEscolhida = colecoes.find(col => col.id === colecaoId);
-            
-            if (!colecaoEscolhida) {
-                alert('Coleção não encontrada!');
-                return;
-            }
-            
-            // Adicionar à coleção
-            const addResponse = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}/itens`, {
+        } catch (error) {
+            console.error('Erro ao carregar coleções:', error);
+        }
+    }
+
+    async function adicionarAColecao(colecaoId) {
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes/${colecaoId}/itens`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    obra_id: obraId,
-                    tipo: tipoObra,
-                    titulo: dadosObra.title || dadosObra.name,
-                    poster_path: dadosObra.poster_path
+                    obra_id: obraAtual.id,
+                    tipo: tipoAtual,
+                    titulo: obraAtual.title || obraAtual.name,
+                    poster: obraAtual.poster_path
                 })
             });
             
-            const result = await addResponse.json();
+            const result = await response.json();
             
             if (result.success) {
-                alert(`Adicionado à coleção "${colecaoEscolhida.nome}" com sucesso!`);
+                alert('Adicionado à coleção com sucesso!');
+                fecharSecaoColecao();
             } else {
                 alert('Erro: ' + result.message);
             }
@@ -301,6 +395,45 @@
             console.error('Erro ao adicionar à coleção:', error);
             alert('Erro de conexão. Tente novamente.');
         }
+    }
+
+    async function criarNovaColecao() {
+        const nome = document.getElementById('nova-colecao').value.trim();
+        
+        if (!nome) {
+            alert('Digite um nome para a coleção.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_URL}/api/colecoes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    usuario_id: usuarioAtual.id,
+                    nome: nome,
+                    descricao: ''
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                document.getElementById('nova-colecao').value = '';
+                alert('Nova coleção criada com sucesso!');
+                carregarColecoes();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Erro ao criar nova coleção:', error);
+            alert('Erro de conexão. Tente novamente.');
+        }
+    }
+
+    function fecharSecaoColecao() {
+        document.getElementById('secao-colecao').style.display = 'none';
+        document.getElementById('lista-colecoes').innerHTML = '';
     }
     </script>
 </body>
