@@ -3,13 +3,64 @@ const cors = require('cors');
 
 const app = express();
 
-// ========== CORS ==========
-app.use(cors({
-    origin: '*',
+// ========== CORS MELHORADO ==========
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permitir todas as origens do Vercel e localhost
+        const allowedOrigins = [
+            'https://opinaflix-ecqutlaw1-joao-augustos-projects-4cd91631.vercel.app',
+            'http://localhost:3000',
+            'http://localhost:5173',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:3000'
+        ];
+        
+        // Permitir todas as origens do Vercel (que começam com https://opinaflix)
+        if (!origin || 
+            allowedOrigins.indexOf(origin) !== -1 || 
+            origin.includes('opinaflix') || 
+            origin.includes('vercel.app') ||
+            origin.includes('localhost')) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Permitir todas por enquanto
+        }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
-}));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+        'Origin',
+        'X-Requested-With',
+        'Content-Type',
+        'Accept',
+        'Authorization',
+        'Cache-Control',
+        'X-HTTP-Method-Override'
+    ],
+    exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+    maxAge: 86400 // 24 horas
+};
+
+app.use(cors(corsOptions));
+
+// ========== MIDDLEWARE MANUAL DE CORS ==========
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-HTTP-Method-Override');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Responder a requisições OPTIONS
+    if (req.method === 'OPTIONS') {
+        res.status(200).json({
+            success: true,
+            message: 'CORS preflight OK'
+        });
+        return;
+    }
+    
+    next();
+});
 
 // ========== MIDDLEWARES ==========
 app.use(express.json({ limit: '10mb' }));
@@ -26,6 +77,7 @@ app.get('/', (req, res) => {
         platform: 'Vercel',
         database: 'Memory Storage',
         status: 'READY',
+        cors: 'ENABLED',
         stats: {
             usuarios: memoryDB.usuarios.size,
             avaliacoes: memoryDB.avaliacoes.size,
@@ -42,7 +94,19 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         memory: process.memoryUsage(),
-        database: 'Memory Storage'
+        database: 'Memory Storage',
+        cors: 'ENABLED'
+    });
+});
+
+// ========== TESTE DE CORS ==========
+app.get('/api/cors-test', (req, res) => {
+    res.json({
+        success: true,
+        message: '🎉 CORS funcionando perfeitamente!',
+        origin: req.headers.origin,
+        method: req.method,
+        headers: req.headers
     });
 });
 
@@ -207,227 +271,6 @@ app.post('/api/avaliacoes', (req, res) => {
     }
 });
 
-app.put('/api/avaliacoes/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        const { nota, comentario } = req.body;
-        
-        const avaliacao = memoryDB.atualizarAvaliacao(id, { nota, comentario });
-        
-        if (!avaliacao) {
-            return res.status(404).json({
-                success: false,
-                message: 'Avaliação não encontrada'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Avaliação atualizada com sucesso!',
-            avaliacao
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao atualizar avaliação',
-            error: error.message
-        });
-    }
-});
-
-app.delete('/api/avaliacoes/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const deletado = memoryDB.deletarAvaliacao(id);
-        
-        if (!deletado) {
-            return res.status(404).json({
-                success: false,
-                message: 'Avaliação não encontrada'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Avaliação deletada com sucesso!'
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao deletar avaliação',
-            error: error.message
-        });
-    }
-});
-
-// ========== ROTAS DE COLEÇÃO ==========
-app.get('/api/colecoes', (req, res) => {
-    try {
-        const { usuario_id } = req.query;
-        
-        if (!usuario_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'usuario_id é obrigatório'
-            });
-        }
-        
-        const colecoes = memoryDB.listarColecoesPorUsuario(usuario_id);
-        
-        res.json({
-            success: true,
-            colecoes,
-            total: colecoes.length
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao obter coleções',
-            error: error.message
-        });
-    }
-});
-
-app.post('/api/colecoes', (req, res) => {
-    try {
-        const { usuario_id, nome, descricao } = req.body;
-        
-        if (!usuario_id || !nome) {
-            return res.status(400).json({
-                success: false,
-                message: 'usuario_id e nome são obrigatórios'
-            });
-        }
-        
-        const novaColecao = memoryDB.criarColecao({
-            usuarioId: usuario_id,
-            nome,
-            descricao: descricao || ''
-        });
-        
-        res.status(201).json({
-            success: true,
-            message: 'Coleção criada com sucesso!',
-            colecao: novaColecao
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao criar coleção',
-            error: error.message
-        });
-    }
-});
-
-app.get('/api/colecoes/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const colecao = memoryDB.obterColecaoPorId(id);
-        
-        if (!colecao) {
-            return res.status(404).json({
-                success: false,
-                message: 'Coleção não encontrada'
-            });
-        }
-        
-        res.json({
-            success: true,
-            colecao
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao obter coleção',
-            error: error.message
-        });
-    }
-});
-
-app.post('/api/colecoes/:id/itens', (req, res) => {
-    try {
-        const { id } = req.params;
-        const { obra_id, tipo, titulo, poster } = req.body;
-        
-        if (!obra_id || !tipo || !titulo) {
-            return res.status(400).json({
-                success: false,
-                message: 'obra_id, tipo e titulo são obrigatórios'
-            });
-        }
-        
-        const colecao = memoryDB.adicionarItemColecao(id, {
-            obraId: obra_id,
-            tipo,
-            titulo,
-            poster: poster || ''
-        });
-        
-        if (!colecao) {
-            return res.status(404).json({
-                success: false,
-                message: 'Coleção não encontrada'
-            });
-        }
-        
-        res.status(201).json({
-            success: true,
-            message: 'Item adicionado à coleção!',
-            colecao
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao adicionar item à coleção',
-            error: error.message
-        });
-    }
-});
-
-app.delete('/api/colecoes/:id/itens', (req, res) => {
-    try {
-        const { id } = req.params;
-        const { obra_id } = req.body;
-        
-        if (!obra_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'obra_id é obrigatório'
-            });
-        }
-        
-        const colecao = memoryDB.removerItemColecao(id, obra_id);
-        
-        if (!colecao) {
-            return res.status(404).json({
-                success: false,
-                message: 'Coleção não encontrada'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Item removido da coleção!',
-            colecao
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao remover item da coleção',
-            error: error.message
-        });
-    }
-});
-
 // ========== ROTAS DE FILME ==========
 app.get('/api/filmes/buscar', (req, res) => {
     try {
@@ -445,63 +288,6 @@ app.get('/api/filmes/buscar', (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Erro ao buscar filmes',
-            error: error.message
-        });
-    }
-});
-
-app.get('/api/filmes/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const filme = memoryDB.obterFilmePorId(id);
-        
-        if (!filme) {
-            return res.status(404).json({
-                success: false,
-                message: 'Filme não encontrado'
-            });
-        }
-        
-        // Buscar avaliações do filme
-        const avaliacoes = memoryDB.listarAvaliacoes({ obraId: id });
-        
-        res.json({
-            success: true,
-            detalhes: {
-                ...filme,
-                estatisticas: {
-                    total_avaliacoes: avaliacoes.length,
-                    media_notas: avaliacoes.length > 0 ? 
-                        parseFloat((avaliacoes.reduce((sum, a) => sum + a.nota, 0) / avaliacoes.length).toFixed(1)) : 0,
-                    avaliacoes: avaliacoes.slice(0, 10)
-                }
-            }
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao obter detalhes do filme',
-            error: error.message
-        });
-    }
-});
-
-app.get('/api/filmes/populares', (req, res) => {
-    try {
-        const filmes = memoryDB.buscarFilmes();
-        
-        res.json({
-            success: true,
-            resultados: filmes.slice(0, 20),
-            total: filmes.length
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao obter filmes populares',
             error: error.message
         });
     }
@@ -549,63 +335,13 @@ app.get('/api/perfil/:id', (req, res) => {
     }
 });
 
-app.put('/api/perfil/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        const { nome, bio, avatar } = req.body;
-        
-        const usuario = memoryDB.atualizarUsuario(id, { nome, bio, avatar });
-        
-        if (!usuario) {
-            return res.status(404).json({
-                success: false,
-                message: 'Usuário não encontrado'
-            });
-        }
-        
-        const { senha: _, ...usuarioSemSenha } = usuario;
-        
-        res.json({
-            success: true,
-            message: 'Perfil atualizado com sucesso!',
-            usuario: usuarioSemSenha
-        });
-        
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao atualizar perfil',
-            error: error.message
-        });
-    }
-});
-
 // ========== 404 HANDLER ==========
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
         message: `Rota ${req.originalUrl} não encontrada`,
         database: 'Memory Storage',
-        availableRoutes: [
-            'GET /',
-            'GET /health',
-            'POST /api/cadastro',
-            'POST /api/login',
-            'GET /api/avaliacoes',
-            'POST /api/avaliacoes',
-            'PUT /api/avaliacoes/:id',
-            'DELETE /api/avaliacoes/:id',
-            'GET /api/colecoes',
-            'POST /api/colecoes',
-            'GET /api/colecoes/:id',
-            'POST /api/colecoes/:id/itens',
-            'DELETE /api/colecoes/:id/itens',
-            'GET /api/filmes/buscar',
-            'GET /api/filmes/:id',
-            'GET /api/filmes/populares',
-            'GET /api/perfil/:id',
-            'PUT /api/perfil/:id'
-        ]
+        cors: 'ENABLED'
     });
 });
 
@@ -624,7 +360,7 @@ if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 Servidor rodando na porta ${PORT}`);
         console.log(`💾 Banco de dados em memória carregado`);
-        console.log(`📊 Dados: ${memoryDB.usuarios.size} usuários, ${memoryDB.avaliacoes.size} avaliações`);
+        console.log(`🌐 CORS habilitado para todas as origens`);
     });
 }
 
