@@ -2,8 +2,11 @@
   "name": "opinaflix",
   "version": "1.0.0",
   "description": "OpinaFlix is a web application designed to provide users with detailed information about movies and series, allowing them to interact by rating and reviewing content.",
-  "main": "index.js",
+  "main": "backend/index.js",
   "scripts": {
+    "start": "cd backend && node index.js",
+    "dev": "cd backend && node index.js",
+    "postinstall": "npm rebuild sqlite3",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,5 +25,8 @@
     "express": "^5.1.0",
     "multer": "^2.0.1",
     "sqlite3": "^5.1.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
