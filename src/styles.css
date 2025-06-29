@@ -11,217 +11,323 @@ body {
     line-height: 1.6;
 }
 
-/* Header */
-header {
-    background: #000;
-    padding: 1rem 0;
+/* Header Netflix Style */
+nav {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, transparent);
+    padding: 1rem 2rem;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
-}
-
-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+    transition: background-color 0.3s ease;
+}
+
+nav.scrolled {
+    background-color: #141414;
 }
 
 .logo {
     color: #e50914;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: bold;
     text-decoration: none;
 }
 
-.nav-links {
+nav ul {
     display: flex;
     list-style: none;
     gap: 2rem;
 }
 
-.nav-links a {
-    color: white;
+nav ul li a {
+    color: #e5e5e5;
     text-decoration: none;
+    font-size: 14px;
     transition: color 0.3s;
 }
 
-.nav-links a:hover {
-    color: #e50914;
+nav ul li a:hover {
+    color: #b3b3b3;
 }
 
-.user-actions a {
-    color: white;
-    text-decoration: none;
-    margin-left: 1rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid #e50914;
-    border-radius: 4px;
-    transition: all 0.3s;
-}
-
-.user-actions a:hover {
+#area-usuario button {
     background: #e50914;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 8px;
+    transition: background-color 0.3s;
+}
+
+#area-usuario button:hover {
+    background: #f40612;
 }
 
 /* Main Content */
-main {
-    margin-top: 80px;
-    padding: 2rem;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Hero Section */
-.hero {
-    height: 70vh;
+.main-content {
+    padding-top: 120px;
+    padding-bottom: 60px;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                url('https://assets.nflxext.com/ffe/siteui/vlv3/9f46b569-aff7-4889-b8ba-17ec6afd5fa0/web/BR-pt-20241125-TRIFECTA-perspective_8e4bfdf3-e07e-4e33-9b4a-4b03da14a1e9_large.jpg');
     background-size: cover;
     background-position: center;
+    min-height: 80vh;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 3rem;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
+    text-align: center;
+    padding-left: 2rem;
+    padding-right: 2rem;
 }
 
-.hero-content {
-    padding: 0 4rem;
-    max-width: 600px;
-}
-
-.hero h1 {
-    font-size: 3rem;
+.main-content h1 {
+    font-size: 3.125rem;
+    font-weight: 900;
     margin-bottom: 1rem;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
-.hero p {
-    font-size: 1.2rem;
+.main-content p {
+    font-size: 1.625rem;
     margin-bottom: 2rem;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    max-width: 640px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+.cta-btn {
+    background: #e50914;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.125rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cta-btn:hover {
+    background: #f40612;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+}
+
+/* Features Section */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card h3 {
+    color: #e50914;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    color: #b3b3b3;
+    line-height: 1.6;
+}
+
+/* Populares Section */
+#populares {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#populares > div {
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+#populares > div:hover {
+    transform: scale(1.05);
+}
+
+#populares img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Footer Netflix Style */
+footer {
+    background: #000;
+    color: #737373;
+    padding: 70px 0 40px;
+    margin-top: 50px;
+    border-top: 1px solid #333;
+}
+
+footer a {
+    color: #737373;
+    text-decoration: none;
+    font-size: 18px;
+    margin: 0 15px;
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    nav {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    nav ul {
+        gap: 1rem;
+    }
+    
+    .main-content {
+        padding-top: 140px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .main-content h1 {
+        font-size: 2rem;
+    }
+    
+    .main-content p {
+        font-size: 1.2rem;
+    }
+    
+    #populares {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .features {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+    }
+}
+
+/* Scroll effect for navbar */
+@media (min-width: 769px) {
+    nav.scrolled {
+        background-color: #141414 !important;
+        transition: background-color 0.3s ease;
+    }
+}
+
+/* Page specific styles */
+.page-container {
+    padding-top: 80px;
+    min-height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.page-title {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+/* Button styles */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
 .btn-primary {
     background: #e50914;
     color: white;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
 }
 
 .btn-primary:hover {
     background: #f40612;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-/* Sections */
-.secao {
-    margin-bottom: 3rem;
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 1px solid #e50914;
 }
 
-.secao h2 {
-    color: #e50914;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-}
-
-/* Carrossel */
-.carrossel {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
-    padding: 1rem 0;
-}
-
-.item-carrossel {
-    cursor: pointer;
-    transition: transform 0.3s;
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.item-carrossel:hover {
-    transform: scale(1.05);
-}
-
-.item-carrossel img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.8));
-    padding: 1rem;
+.btn-secondary:hover {
+    background: #e50914;
     color: white;
 }
 
-.overlay h4 {
-    margin-bottom: 0.5rem;
+/* Form styles */
+.form-container {
+    max-width: 450px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.75);
+    padding: 60px 68px 40px;
+    border-radius: 4px;
 }
 
-/* Features */
-.features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin: 3rem 0;
+.form-group {
+    margin-bottom: 16px;
 }
 
-.feature {
-    background: #222;
-    padding: 2rem;
-    border-radius: 10px;
-    text-align: center;
+.form-group input {
+    width: 100%;
+    height: 50px;
+    background: #333;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 16px 20px;
+    font-size: 16px;
 }
 
-.feature h3 {
-    color: #e50914;
-    margin-bottom: 1rem;
+.form-group input:focus {
+    outline: none;
+    background: #454545;
 }
 
-/* Loading */
-.loading {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .nav-links {
-        display: none;
-    }
-    
-    .hero h1 {
-        font-size: 2rem;
-    }
-    
-    .carrossel {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-    
-    nav {
-        padding: 0 1rem;
-    }
-    
-    main {
-        padding: 1rem;
-    }
+.form-group input::placeholder {
+    color: #8c8c8c;
 }

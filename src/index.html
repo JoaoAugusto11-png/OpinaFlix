@@ -118,6 +118,16 @@
             }
         }
 
+        // Efeito de scroll no navbar
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
         // Inicializar quando a página carrega
         window.onload = function() {
             inicializarAreaUsuario();
