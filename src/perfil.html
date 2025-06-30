@@ -138,8 +138,18 @@
     <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="uploadFoto()">
 
     <script>
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuario) window.location.href = 'login.html';
+        let usuario = null;
+        try {
+            const userData = localStorage.getItem('usuario');
+            if (userData && userData !== 'undefined' && userData !== 'null') {
+                usuario = JSON.parse(userData);
+            }
+        } catch (e) {
+            console.error('Erro ao carregar dados do usuário:', e);
+            localStorage.removeItem('usuario'); // Remove dados corrompidos
+        }
+        
+        if (!usuario || !usuario.id) window.location.href = 'login.html';
 
         // Pega o ID do usuário da URL ou usa o usuário logado
         const params = new URLSearchParams(window.location.search);
@@ -348,9 +358,16 @@
                     fotoElement.style.opacity = '1';
                     
                     // Atualizar localStorage se necessário
-                    const usuarioAtualizado = JSON.parse(localStorage.getItem('usuario'));
-                    usuarioAtualizado.foto_perfil = data.foto_url;
-                    localStorage.setItem('usuario', JSON.stringify(usuarioAtualizado));
+                    try {
+                        const userData = localStorage.getItem('usuario');
+                        if (userData) {
+                            const usuarioAtualizado = JSON.parse(userData);
+                            usuarioAtualizado.foto_perfil = data.foto_url;
+                            localStorage.setItem('usuario', JSON.stringify(usuarioAtualizado));
+                        }
+                    } catch (e) {
+                        console.error('Erro ao atualizar dados do usuário:', e);
+                    }
                     
                     alert('Foto atualizada com sucesso!');
                 } else {

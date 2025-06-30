@@ -76,8 +76,18 @@
 
     <script>
     // Verifica login
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    if (!usuario) window.location.href = 'login.html';
+    let usuario = null;
+    try {
+        const userData = localStorage.getItem('usuario');
+        if (userData && userData !== 'undefined' && userData !== 'null') {
+            usuario = JSON.parse(userData);
+        }
+    } catch (e) {
+        console.error('Erro ao carregar dados do usuário:', e);
+        localStorage.removeItem('usuario'); // Remove dados corrompidos
+    }
+    
+    if (!usuario || !usuario.id) window.location.href = 'login.html';
 
     // Pega o ID da coleção da URL
     const params = new URLSearchParams(window.location.search);

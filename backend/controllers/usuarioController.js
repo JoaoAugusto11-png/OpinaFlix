@@ -13,7 +13,8 @@ exports.cadastrarUsuario = (req, res) => {
       [nome, email, senha],
       function (err) {
         if (err) return res.status(500).json({ message: 'Erro ao cadastrar usuário.' });
-        res.status(201).json({ id: this.lastID, nome, email });
+        const usuario = { id: this.lastID, nome, email };
+        res.status(201).json({ usuario });
       }
     );
   });
