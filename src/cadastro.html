@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar - OpinaFlix</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav>
@@ -14,47 +15,53 @@
             <li><a href="colecoes.html">Coleções</a></li>
             <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
+        <button class="btn-nav" onclick="window.location.href='login.html'">
+            <i class="fas fa-sign-in-alt"></i> Entrar na sua conta
+        </button>
     </nav>
 
-    <div class="form-container">
-        <h2>Criar nova conta</h2>
-        <form id="form-cadastro">
-            <div class="form-group">
-                <label for="nome">Nome:</label>
-                <input type="text" id="nome" name="nome" required>
+    <main class="main-content">
+        <div class="form-container">
+            <div class="form-header">
+                <h2><i class="fas fa-user-plus"></i> Criar nova conta</h2>
+                <p>Junte-se à comunidade OpinaFlix</p>
             </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="senha">Senha:</label>
-                <input type="password" id="senha" name="senha" required>
-            </div>
-            <button type="submit" class="btn" style="width: 100%;">Cadastrar</button>
-        </form>
-        <div id="mensagem-cadastro" class="message" style="display: none;"></div>
-        <div style="text-align: center; margin-top: 16px; color: #ccc;">
-            Já tem uma conta?
-            <a href="login.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Entre aqui</a>
-        </div>
-    </div>
+            
+            <form id="form-cadastro">
+                <div class="form-group">
+                    <label for="nome">
+                        <i class="fas fa-user"></i> Nome completo
+                    </label>
+                    <input type="text" id="nome" name="nome" class="form-input" required placeholder="Digite seu nome completo">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> E-mail
+                    </label>
+                    <input type="email" id="email" name="email" class="form-input" required placeholder="seu@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="senha">
+                        <i class="fas fa-lock"></i> Senha
+                    </label>
                     <input type="password" id="senha" name="senha" class="form-input" required placeholder="••••••••" minlength="6">
-                    <small style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin-top: 0.5rem; display: block;">
-                        Mínimo de 6 caracteres
+                    <small class="form-hint">
+                        <i class="fas fa-info-circle"></i> Mínimo de 6 caracteres
                     </small>
                 </div>
                 
-                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
                     <i class="fas fa-user-plus"></i> Criar Conta
                 </button>
             </form>
             
             <div id="mensagem-cadastro" class="message" style="display: none; margin-top: 1rem;"></div>
             
-            <div style="text-align: center; margin-top: 2rem; color: rgba(255, 255, 255, 0.7);">
+            <div class="form-footer">
                 Já tem uma conta? 
-                <a href="login.html" style="color: #e50914; text-decoration: none; font-weight: 600;">
+                <a href="login.html" class="link-accent">
                     Entre aqui
                 </a>
             </div>
@@ -72,68 +79,32 @@
             <p class="copyright">&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
         </div>
     </footer>
-            color: #aaa;
-        }
-        button {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .mensagem {
-            text-align: center;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-    </style>
-</head>
-<body>
-    <nav>
-        <a href="index.html" class="logo">OpinaFlix</a>
-        <ul>
-            <li><a href="filmes-series.html">Filmes e Séries</a></li>
-            <li><a href="colecoes.html">Coleções</a></li>
-            <li><a href="review-galera.html">Review da Galera</a></li>
-        </ul>
-        <button id="btn-login" onclick="window.location.href='login.html'">
-            Entrar na sua conta
-        </button>
-    </nav>
-    <div class="container">
-        <h2>Cadastro</h2>
-        <form id="form-cadastro">
-            <input type="text" id="nome" placeholder="Nome" required>
-            <input type="email" id="email" placeholder="E-mail" required>
-            <input type="password" id="senha" placeholder="Senha" required>
-            <button type="submit">Cadastrar</button>
-        </form>
-        <div id="mensagem-cadastro" class="mensagem"></div>
-        <div style="text-align:center; margin-top:16px;">
-            <span>Já tem uma conta?</span>
-            <a href="login.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Entrar</a>
-        </div>
-    </div>
     <script>
     document.getElementById('form-cadastro').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const mensagem = document.getElementById('mensagem-cadastro');
         const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
+        const originalHTML = submitBtn.innerHTML;
         
         // Mostra loading
-        submitBtn.innerHTML = '<i class="loading"></i> Criando conta...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando conta...';
         submitBtn.disabled = true;
         mensagem.style.display = 'none';
         
         try {
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('senha').value;
+            
+            // Validações básicas
+            if (nome.length < 2) {
+                throw new Error('Nome deve ter pelo menos 2 caracteres.');
+            }
+            
+            if (senha.length < 6) {
+                throw new Error('Senha deve ter pelo menos 6 caracteres.');
+            }
             
             const resp = await fetch('http://localhost:3001/api/usuarios', {
                 method: 'POST',
@@ -148,23 +119,23 @@
                 localStorage.setItem('usuario', JSON.stringify(data.usuario));
                 
                 mensagem.className = 'message success';
-                mensagem.textContent = 'Conta criada com sucesso! Redirecionando...';
+                mensagem.innerHTML = '<i class="fas fa-check-circle"></i> Conta criada com sucesso! Redirecionando...';
                 mensagem.style.display = 'block';
                 
                 // Redireciona para a página principal
                 setTimeout(() => window.location.href = 'index.html', 1500);
             } else {
                 mensagem.className = 'message error';
-                mensagem.textContent = data.message || 'Erro ao criar conta.';
+                mensagem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.message || 'Erro ao criar conta.'}`;
                 mensagem.style.display = 'block';
             }
         } catch (error) {
             mensagem.className = 'message error';
-            mensagem.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+            mensagem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${error.message || 'Erro de conexão. Verifique se o servidor está rodando.'}`;
             mensagem.style.display = 'block';
         } finally {
             // Restaura botão
-            submitBtn.innerHTML = originalText;
+            submitBtn.innerHTML = originalHTML;
             submitBtn.disabled = false;
         }
     });
