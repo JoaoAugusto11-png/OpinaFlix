@@ -3,81 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - OpinaFlix</title>
-    <style>
-        body {
-            background: #111;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: #181818;
-            position: relative;
-        }
-        .logo {
-            color: #e50914;
-            font-size: 1.5em;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 16px;
-            margin: 0;
-            padding: 0;
-        }
-        ul li a {
-            color: #fff;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        ul li a:hover {
-            color: #e50914;
-        }
-        #btn-login {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        #btn-login:hover {
-            background: #c50712;
-        }
-        .container {
-            max-width: 400px;
-            margin: 60px auto;
-            background: #181818;
-            padding: 32px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 16px #0006;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            color: #e50914;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        input {
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            background: #222;
-            color: #fff;
-        }
-        input::placeholder {
+    <title>Cadastrar - OpinaFlix</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">OpinaFlix</a>
+        <ul>
+            <li><a href="filmes-series.html">Filmes e Séries</a></li>
+            <li><a href="colecoes.html">Coleções</a></li>
+            <li><a href="review-galera.html">Review da Galera</a></li>
+        </ul>
+    </nav>
+
+    <div class="form-container">
+        <h2>Criar nova conta</h2>
+        <form id="form-cadastro">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Cadastrar</button>
+        </form>
+        <div id="mensagem-cadastro" class="message" style="display: none;"></div>
+        <div style="text-align: center; margin-top: 16px; color: #ccc;">
+            Já tem uma conta?
+            <a href="login.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Entre aqui</a>
+        </div>
+    </div>
+                    <input type="password" id="senha" name="senha" class="form-input" required placeholder="••••••••" minlength="6">
+                    <small style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin-top: 0.5rem; display: block;">
+                        Mínimo de 6 caracteres
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-user-plus"></i> Criar Conta
+                </button>
+            </form>
+            
+            <div id="mensagem-cadastro" class="message" style="display: none; margin-top: 1rem;"></div>
+            
+            <div style="text-align: center; margin-top: 2rem; color: rgba(255, 255, 255, 0.7);">
+                Já tem uma conta? 
+                <a href="login.html" style="color: #e50914; text-decoration: none; font-weight: 600;">
+                    Entre aqui
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-info-circle"></i> Sobre</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contato</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Privacidade</a>
+                <a href="#"><i class="fas fa-file-contract"></i> Termos</a>
+            </div>
+            <p class="copyright">&copy; 2025 OpinaFlix. Todos os direitos reservados.</p>
+        </div>
+    </footer>
             color: #aaa;
         }
         button {
@@ -126,21 +120,52 @@
     <script>
     document.getElementById('form-cadastro').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value;
-        const resp = await fetch('http://localhost:3001/api/usuarios', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, email, senha })
-        });
-        const data = await resp.json();
-        if (resp.ok) {
-            localStorage.setItem('usuario', JSON.stringify(data.usuario));
-            window.location.href = 'index.html';
-        } else {
-            document.getElementById('mensagem-cadastro').style.color = '#e50914';
-            document.getElementById('mensagem-cadastro').textContent = data.message || 'Erro ao cadastrar.';
+        
+        const mensagem = document.getElementById('mensagem-cadastro');
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Mostra loading
+        submitBtn.innerHTML = '<i class="loading"></i> Criando conta...';
+        submitBtn.disabled = true;
+        mensagem.style.display = 'none';
+        
+        try {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            
+            const resp = await fetch('http://localhost:3001/api/usuarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, senha })
+            });
+            
+            const data = await resp.json();
+            
+            if (resp.ok) {
+                // Salva usuário no localStorage
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                
+                mensagem.className = 'message success';
+                mensagem.textContent = 'Conta criada com sucesso! Redirecionando...';
+                mensagem.style.display = 'block';
+                
+                // Redireciona para a página principal
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                mensagem.className = 'message error';
+                mensagem.textContent = data.message || 'Erro ao criar conta.';
+                mensagem.style.display = 'block';
+            }
+        } catch (error) {
+            mensagem.className = 'message error';
+            mensagem.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+            mensagem.style.display = 'block';
+        } finally {
+            // Restaura botão
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
     </script>

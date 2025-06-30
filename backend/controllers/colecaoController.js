@@ -1,6 +1,6 @@
 const db = require('../db');
 
-// Criar coleção
+
 exports.criarColecao = (req, res) => {
   const { usuarioId, nome } = req.body;
   if (!usuarioId || !nome) {
@@ -25,9 +25,9 @@ exports.criarColecao = (req, res) => {
   );
 };
 
-// Listar todas as coleções (visível para todos)
+
 exports.listarColecoes = (req, res) => {
-  // Remove o filtro por usuário para mostrar todas as coleções
+  
   db.all(
     `SELECT c.*, u.nome as criador_nome FROM colecoes c 
      LEFT JOIN usuarios u ON c.usuario_id = u.id 
@@ -42,7 +42,7 @@ exports.listarColecoes = (req, res) => {
   );
 };
 
-// Adicionar obra à coleção
+
 exports.adicionarItemColecao = (req, res) => {
   const colecaoId = parseInt(req.params.colecaoId);
   const { obra_id, tipo, ordem } = req.body;
@@ -59,7 +59,7 @@ exports.adicionarItemColecao = (req, res) => {
   );
 };
 
-// Remover obra da coleção
+
 exports.removerItemColecao = (req, res) => {
   const colecaoId = parseInt(req.params.colecaoId);
   const itemId = parseInt(req.params.itemId);
@@ -73,7 +73,7 @@ exports.removerItemColecao = (req, res) => {
   );
 };
 
-// Listar itens de uma coleção
+
 exports.listarItensColecao = (req, res) => {
   const colecaoId = parseInt(req.params.colecaoId);
   db.all(
@@ -89,7 +89,7 @@ exports.listarItensColecao = (req, res) => {
   );
 };
 
-// Excluir coleção (apenas o criador pode excluir)
+
 exports.excluirColecao = (req, res) => {
   const colecaoId = parseInt(req.params.colecaoId);
   const { usuarioId } = req.body;
@@ -98,7 +98,7 @@ exports.excluirColecao = (req, res) => {
     return res.status(400).json({ message: 'Dados incompletos.' });
   }
 
-  // Verifica se a coleção pertence ao usuário
+  
   db.get(
     `SELECT * FROM colecoes WHERE id = ? AND usuario_id = ?`,
     [colecaoId, usuarioId],
@@ -110,7 +110,7 @@ exports.excluirColecao = (req, res) => {
         return res.status(403).json({ message: 'Você não tem permissão para excluir esta coleção.' });
       }
 
-      // Primeiro, remove todos os itens da coleção
+      
       db.run(
         `DELETE FROM colecao_itens WHERE colecao_id = ?`,
         [colecaoId],
@@ -119,7 +119,7 @@ exports.excluirColecao = (req, res) => {
             return res.status(500).json({ message: 'Erro ao remover itens da coleção.' });
           }
 
-          // Depois, remove a coleção
+          
           db.run(
             `DELETE FROM colecoes WHERE id = ?`,
             [colecaoId],

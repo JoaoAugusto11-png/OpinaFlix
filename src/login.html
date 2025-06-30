@@ -4,106 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrar ou Cadastrar - OpinaFlix</title>
-    <style>
-        body {
-            background: #111;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: #181818;
-            position: relative;
-        }
-        .logo {
-            color: #e50914;
-            font-size: 1.5em;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 16px;
-            margin: 0;
-            padding: 0;
-        }
-        ul li a {
-            color: #fff;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        ul li a:hover {
-            color: #e50914;
-        }
-        #btn-login {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        #btn-login:hover {
-            background: #c50712;
-        }
-        .container {
-            max-width: 400px;
-            margin: 60px auto;
-            background: #181818;
-            padding: 32px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 16px #0006;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            color: #e50914;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        input {
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            background: #222;
-            color: #fff;
-        }
-        input::placeholder {
-            color: #aaa;
-        }
-        button {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .toggle {
-            background: none;
-            color: #e50914;
-            border: none;
-            cursor: pointer;
-            margin-top: 8px;
-            text-align: center;
-        }
-        .mensagem {
-            text-align: center;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <nav>
@@ -113,44 +14,75 @@
             <li><a href="colecoes.html">Coleções</a></li>
             <li><a href="review-galera.html">Review da Galera</a></li>
         </ul>
-        <button id="btn-login" onclick="window.location.href='login.html'">
-            Entrar na sua conta
-        </button>
     </nav>
-    <div style="max-width:400px;margin:40px auto;background:#222;padding:32px;border-radius:8px;">
-        <h2 style="color:#e50914;">Entrar</h2>
+
+    <div class="form-container">
+        <h2>Entrar na sua conta</h2>
         <form id="form-login">
-            <input type="email" id="email" placeholder="E-mail" required style="width:100%;margin-bottom:8px;">
-            <input type="password" id="senha" placeholder="Senha" required style="width:100%;margin-bottom:16px;">
-            <button type="submit" style="width:100%;background:#e50914;color:#fff;border:none;padding:10px;border-radius:4px;">Entrar</button>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Entrar</button>
         </form>
-        <div id="mensagem-login" style="margin-top:12px;color:#e50914;"></div>
-        <div style="text-align:center; margin-top:16px;">
-            <span>Não tem uma conta?</span>
+        <div id="mensagem-login" class="message" style="display: none;"></div>
+        <div style="text-align: center; margin-top: 16px; color: #ccc;">
+            Não tem uma conta?
             <a href="cadastro.html" style="color:#e50914; text-decoration:underline; margin-left:4px;">Cadastre-se</a>
         </div>
     </div>
     <script>
     document.getElementById('form-login').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value;
-        const resp = await fetch('http://localhost:3001/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, senha })
-        });
-        const data = await resp.json();
-        if (resp.ok) {
-            // Salva usuário no localStorage
-            localStorage.setItem('usuario', JSON.stringify(data));
-            document.getElementById('mensagem-login').style.color = 'lightgreen';
-            document.getElementById('mensagem-login').textContent = 'Login realizado com sucesso!';
-            // Redireciona para a página principal ou dashboard
-            setTimeout(() => window.location.href = 'index.html', 1000);
-        } else {
-            document.getElementById('mensagem-login').style.color = '#e50914';
-            document.getElementById('mensagem-login').textContent = data.message || 'Erro ao fazer login.';
+        
+        const mensagem = document.getElementById('mensagem-login');
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Mostra loading
+        submitBtn.innerHTML = '<i class="loading"></i> Entrando...';
+        submitBtn.disabled = true;
+        mensagem.style.display = 'none';
+        
+        try {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            
+            const resp = await fetch('http://localhost:3001/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+            
+            const data = await resp.json();
+            
+            if (resp.ok) {
+                // Salva usuário no localStorage
+                localStorage.setItem('usuario', JSON.stringify(data));
+                
+                mensagem.className = 'message success';
+                mensagem.textContent = 'Login realizado com sucesso! Redirecionando...';
+                mensagem.style.display = 'block';
+                
+                // Redireciona para a página principal
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                mensagem.className = 'message error';
+                mensagem.textContent = data.message || 'Erro ao fazer login.';
+                mensagem.style.display = 'block';
+            }
+        } catch (error) {
+            mensagem.className = 'message error';
+            mensagem.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+            mensagem.style.display = 'block';
+        } finally {
+            // Restaura botão
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
     </script>
